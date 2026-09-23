@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rishi Jha — Product &amp; Experience Designer</title>
+  <meta name="description" content="Portfolio of Rishi Jha — Product &amp; Experience Designer crafting intuitive digital products, UX/UI, and game-inspired interactions.">
+  <meta name="theme-color" content="#1a1a1a">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Core brand fonts & Google fonts fallback -->
+  <link rel="preload" href="assets/fonts/SemiSqueezedMedium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/PPNeueMontrealMono-Book.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Graphik-Regular-Web.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/crt-tv.png" as="image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Silkscreen:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/splitting.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+  </script>
+</head>
+<body class="home is-loading">
+
+  <!-- ==================== CRT TV PRELOADER ==================== -->
+  <div class="crt-loader" id="crtLoader" aria-label="Loading portfolio">
+    <div class="crt-loader__stage">
+      <div class="crt-tv" id="crtTv">
+        <!-- Ground contact & ambient floor shadow -->
+        <div class="crt-tv__shadow" id="crtTvShadow" aria-hidden="true"></div>
+
+        <!-- Inner Screen Layer (sits behind the bezel cutout) -->
+        <div class="crt-tv__screen" id="crtTvScreen">
+          <div class="crt-tv__screen-bg"></div>
+          <div class="crt-tv__screen-scanlines" aria-hidden="true"></div>
+          <div class="crt-tv__screen-glass" aria-hidden="true"></div>
+          
+          <div class="crt-tv__hud">
+            <span class="crt-tv__ch">CH 03</span>
+            <span class="crt-tv__status" id="crtStatus">SYS.INIT</span>
+          </div>
+
+          <!-- Bottom bar: Progress bar on left, counter on right -->
+          <div class="crt-tv__bottom-bar">
+            <div class="crt-tv__progress-track">
+              <div class="crt-tv__progress-bar" id="crtProgressBar"></div>
+            </div>
+            <div class="crt-tv__counter" id="crtCounter">01</div>
+          </div>
+
+          <!-- Screen flash / power zap element -->
+          <div class="crt-tv__flash" id="crtFlash" aria-hidden="true"></div>
+        </div>
+
+        <!-- Overlaid CRT TV Chassis Frame with cutout -->
+        <img class="crt-tv__bezel" id="crtTvBezel" src="assets/crt-tv.png" alt="CRT Television" draggable="false">
+      </div>
+    </div>
+
+    <!-- Editorial technical metadata (bottom-left) -->
+    <div class="crt-loader__meta" id="crtLoaderMeta" aria-hidden="true">
+      <div class="crt-loader__meta-status">
+        <span class="crt-loader__meta-pulse"></span>
+        <span class="crt-loader__meta-code">SYS.BOOT // V.26.09</span>
+      </div>
+      <div class="crt-loader__meta-primary">
+        <span class="crt-loader__meta-name">RISHI JHA</span>
+        <span class="crt-loader__meta-sep">&mdash;</span>
+        <span class="crt-loader__meta-role">GAME UX &amp; PRODUCT DESIGN</span>
+      </div>
+      <div class="crt-loader__meta-sub">
+        <span>ARCHIVE Nº001</span>
+        <span class="crt-loader__meta-divider">/</span>
+        <span>INTERACTION LAB</span>
+        <span class="crt-loader__meta-divider">/</span>
+        <span>28&deg;36&prime;N 77&deg;12&prime;E</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CRT SCREEN SIMULATION ==================== -->
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- Interactive hover tooltip for showcase -->
+  <div class="homeworks__skimCursor monospace" aria-hidden="true"><span>Hold to skim</span></div>
+
+  <!-- Fullscreen Video Overlay Modal -->
+  <div class="homeVideoOverlay cursor_disabled" id="videoOverlay" aria-modal="true" role="dialog" aria-hidden="true" style="display: none;">
+    <button class="homeVideoOverlay__closeButton" id="closeVideoBtn" aria-label="Close video" type="button">✕ Close</button>
+    <div class="homeVideoOverlay__stage">
+      <video class="homeVideoOverlay__video" id="overlayVideo" loop playsinline preload="auto">
+        <source src="assets/pxpush.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+  <div class="wrapper">
+
+    <!-- ===== HEADER ===== -->
+    <header id="top">
+      <div class="header__inner">
+        <a href="#top" class="logo">rishi jha<sup>v.02</sup></a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="#top"><span>Home</span></a>
+          <a href="#about"><span>About</span></a>
+          <a href="#works"><span>Works</span></a>
+          <a href="https://drive.google.com/file/d/1_3mG3uvyGgM9FJiwiCuYvdRgmfoehdO8/view?usp=sharing" target="_blank" rel="noopener"><span>Resume ↗</span></a>
+          <span class="nav__sep" aria-hidden="true"></span>
+          <a class="start" href="#contact"><span>Get started</span></a>
+          <span class="dot" aria-hidden="true"></span>
+        </nav>
+      </div>
+      <button class="menu" aria-label="Open menu" type="button">Menu</button>
+
+      <div class="mobilenav__backdrop"></div>
+      <div class="mobilenav" id="mobile-navigation">
+        <div class="mobilenav__main">
+          <a href="#top" data-splitting="lines"><span>Home</span></a>
+          <a href="#about" data-splitting="lines"><span>About</span></a>
+          <a href="#works" data-splitting="lines"><span>Works</span></a>
+          <a href="https://drive.google.com/file/d/1_3mG3uvyGgM9FJiwiCuYvdRgmfoehdO8/view?usp=sharing" target="_blank" rel="noopener" data-splitting="lines"><span>Resume ↗</span></a>
+          <a class="start" href="#contact" data-splitting="lines"><span>Get Started</span></a>
+        </div>
+        <div class="mobilenav__social monospace">
+          <a href="https://www.linkedin.com/in/rishi5462/" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href="https://www.behance.net/rishijha5462" target="_blank" rel="noopener">Behance ↗</a>
+          <a href="https://www.instagram.com/rishisensei/" target="_blank" rel="noopener">Instagram ↗</a>
+          <a href="https://rishijha.designfolio.me/" target="_blank" rel="noopener">Designfolio ↗</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== HERO MARQUEE (fixed under header) ===== -->
+    <div class="marqueeText marquee--hero" data-marquee data-base-speed="1.2" effect__fadeOut aria-hidden="true">
+      <div class="marqueeText__track">
+        <h1 class="marqueeText__title"><span class="marqueeText__name">Product &amp; Experience Design</span><span class="marqueeText__symbol">●</span></h1>
+        <h1 class="marqueeText__title"><span class="marqueeText__name">Interaction &amp; Systems</span><span class="marqueeText__symbol">●</span></h1>
+        <h1 class="marqueeText__title"><span class="marqueeText__name">Digital Products &amp; Interfaces</span><span class="marqueeText__symbol">●</span></h1>
+        <h1 class="marqueeText__title"><span class="marqueeText__name">Creative Direction</span><span class="marqueeText__symbol">●</span></h1>
+      </div>
+    </div>
+
+    <!-- ===== MINI VIDEO CARD (fixed bottom-left, fades on scroll, click to open) ===== -->
+    <div class="homeMiniVideo cursor_disabled" data-mini>
+      <button class="mini-video__button mini-video__wrapper" id="openVideoBtn" type="button" aria-label="Open portfolio showreel video">
+        <video id="miniCardVideo" autoplay loop muted playsinline preload="auto">
+          <source src="assets/pxpush.mp4" type="video/mp4">
+        </video>
+      </button>
+      <p class="monospace miniCard__caption">Scroll down to access<br>the portfolio</p>
+    </div>
+
+    <main>
+
+      <!-- ================= HERO ================= -->
+      <section class="section section--hero no__p" id="hero">
+        <div class="banner__hero">
+          <div class="banner__hero--wrapper" effect__fadeOutVideo>
+            <video class="hero-video" id="heroVideo" autoplay loop muted playsinline preload="auto">
+              <source src="assets/clouds.mp4" type="video/mp4">
+            </video>
+            <div class="home-cloud-canvas">
+              <div class="canvas" id="canvas"></div>
+              <div class="canvas__cover" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div class="heading__text heading__text--title">
+            <h2><span class="line"><span class="line__inner">RISHI JHA<sup>v.02</sup></span></span></h2>
+          </div>
+          <div class="heading__text heading__text--subtitle" effect__fadeOut>
+            <h4><span class="line"><span class="line__inner">PRODUCT &amp; EXPERIENCE DESIGNER</span></span></h4>
+          </div>
+
+          <p class="monospace hero__note">
+            <span data-splitting="lines">V.01 --------- RISHI JHA PORTFOLIO --------- // <br>
+            CRAFTING INTUITIVE DIGITAL PRODUCTS, SEAMLESS <br>
+            EXPERIENCES, AND GAME-INSPIRED INTERACTIONS. <br>
+            BASED IN INDIA. WORK THAT MOVES AT </span>
+            <span class="speed cursor_disabled" role="button" tabindex="0"><span class="line__inner">SPEED.</span></span>
+          </p>
+
+          <div class="overlay overlay__lightgrey" effect__overlayIn aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <!-- ================= INTRO ================= -->
+      <section class="section section--about" id="about">
+        <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
+        <div class="separator" effect__separatorIn aria-hidden="true"></div>
+
+        <div class="marqueeText" data-marquee data-static data-base-speed="1.5" effect__fadeOut aria-hidden="true">
+          <div class="marqueeText__track">
+            <h2 class="marqueeText__title"><span class="marqueeText__name">interaction design</span><span class="marqueeText__symbol">●</span></h2>
+            <h2 class="marqueeText__title"><span class="marqueeText__name">product design</span><span class="marqueeText__symbol">●</span></h2>
+            <h2 class="marqueeText__title"><span class="marqueeText__name">design systems</span><span class="marqueeText__symbol">●</span></h2>
+            <h2 class="marqueeText__title"><span class="marqueeText__name">experience design</span><span class="marqueeText__symbol">●</span></h2>
+          </div>
+        </div>
+
+        <div class="layout section__head">
+          <div class="layout__third monospace"><span data-splitting effect__titleRandom data-small="true">Nº001 / About</span></div>
+          <div class="layout__second" effect__textFade>
+            <p class="lead lead__indent" data-splitting>Hi — I'm Rishi Jha, a Product &amp; Experience Designer passionate about crafting meaningful user experiences, with a growing focus on game UX. Great experiences happen when research, structure, and visual clarity work together.</p>
+            <p class="lead last" data-splitting>Outside of design, I enjoy gaming, working out, travelling, cinema, and hanging out with cats. I'm deeply inspired by how games and cinema create immersion, emotion, and connection — principles I explore in every product.</p>
+
+            <div class="about__brands">
+              <span class="about__brands-label monospace">Brands &amp; Organizations I've Worked With</span>
+              <div class="about__brands-list">
+                <div class="about__brand about__brand--kotak" title="Kotak Mahindra Bank">
+                  <img src="assets/brands/kotak.png" alt="Kotak Mahindra Bank" loading="lazy" decoding="async">
+                </div>
+                <div class="about__brand about__brand--samsung" title="Samsung">
+                  <img src="assets/brands/samsung.png" alt="Samsung" loading="lazy" decoding="async">
+                </div>
+                <div class="about__brand about__brand--aadhar" title="Aadhaar">
+                  <img src="assets/brands/aadhar.png" alt="Aadhaar" loading="lazy" decoding="async">
+                </div>
+                <div class="about__brand about__brand--moneycontrol" title="Moneycontrol">
+                  <img src="assets/brands/moneycontrol.png" alt="Moneycontrol" loading="lazy" decoding="async">
+                </div>
+                <div class="about__brand about__brand--mmc" title="Maharashtra Medical Council">
+                  <img src="assets/brands/mmc.png" alt="Maharashtra Medical Council" loading="lazy" decoding="async">
+                </div>
+                <div class="about__brand about__brand--leaf" title="Leaf">
+                  <img src="assets/brands/leaf.png" alt="Leaf" loading="lazy" decoding="async">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons layout">
+          <a href="#works" class="button button__big"><span>View Work</span><span class="arrow">→</span></a>
+          <a href="https://drive.google.com/file/d/1_3mG3uvyGgM9FJiwiCuYvdRgmfoehdO8/view?usp=sharing" target="_blank" rel="noopener" class="button button__big"><span>View Resume</span><span class="arrow">↗</span></a>
+        </div>
+
+        <div class="overlay overlay__grey" effect__overlayIn aria-hidden="true"></div>
+      </section>
+
+      <!-- ================= WORKS ================= -->
+      <section class="section section--works" id="works">
+        <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
+        <div class="separator" effect__separatorIn aria-hidden="true"></div>
+
+        <div class="layout section__head">
+          <div class="layout__third monospace"><span data-splitting effect__titleRandom data-small="true">Nº002 / Works</span></div>
+          <div class="layout__second" effect__textFade>
+            <p class="monospace works__note">Working across mobile apps, web applications, SaaS portals, and agentic AI interfaces — consistent, research-backed design tailored to what the product needs to ship.</p>
+            <p class="lead lead__indent last" data-splitting>Featured case studies spanning government systems, interactive audio apps, smart home automation, and award-winning conversational AI.</p>
+          </div>
+        </div>
+
+        <div class="showcase" data-showcase>
+          <div class="showcase__loop">
+            <!-- Project cards with Rishi's exact case studies from previous portfolio -->
+            <figure class="showcase__item project project--1">
+              <img src="assets/rishi/work_mch.png" alt="MCH Government Portal Case Study" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study" target="_blank" rel="noopener">MCH / SAAS + GOVT ↗</a></figcaption>
+            </figure>
+            <figure class="showcase__item project project--2">
+              <img src="assets/rishi/work_avasa.png" alt="Avasa Home Maintenance Automation" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation" target="_blank" rel="noopener">AVASA / Home Automation ↗</a></figcaption>
+            </figure>
+            <figure class="showcase__item project project--3">
+              <img src="assets/rishi/work_spotify.png" alt="Spotify Enhanced Interactive App" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener">SPOTIFY / Interactive App ↗</a></figcaption>
+            </figure>
+            <figure class="showcase__item project project--4">
+              <img src="assets/rishi/work_samsung.png" alt="Samsung Prism Hackathon Winner" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon" target="_blank" rel="noopener">SAMSUNG / Agentic AI ↗</a></figcaption>
+            </figure>
+            <figure class="showcase__item project project--5">
+              <img src="assets/rishi/work_mch.png" alt="MCH Government Portal Case Study" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study" target="_blank" rel="noopener">MCH / SAAS + GOVT ↗</a></figcaption>
+            </figure>
+            <figure class="showcase__item project project--6">
+              <img src="assets/rishi/work_avasa.png" alt="Avasa Home Maintenance Automation" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation" target="_blank" rel="noopener">AVASA / Home Automation ↗</a></figcaption>
+            </figure>
+            <figure class="showcase__item project project--7">
+              <img src="assets/rishi/work_spotify.png" alt="Spotify Enhanced Interactive App" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener">SPOTIFY / Interactive App ↗</a></figcaption>
+            </figure>
+            <figure class="showcase__item project project--8">
+              <img src="assets/rishi/work_samsung.png" alt="Samsung Prism Hackathon Winner" loading="lazy" decoding="async">
+              <figcaption class="monospace"><a href="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon" target="_blank" rel="noopener">SAMSUNG / Agentic AI ↗</a></figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="layout small_print">
+          <div class="layout__third monospace opacity__50">Featured Work</div>
+          <div class="layout__half">
+            <p class="monospace opacity__50" data-splitting>Featured case studies &amp; systems · 2022–26 — drag sideways or click to view live case studies on Behance &amp; Figma.</p>
+          </div>
+        </div>
+
+        <div class="overlay overlay__blue" effect__overlayIn aria-hidden="true"></div>
+      </section>
+
+      <!-- ================= METHODOLOGY (PXPUSH BENEFITS STICKY STACKING) ================= -->
+      <section class="section section__blue no__pt" id="services">
+        <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
+
+        <div class="benefits">
+          <div class="benefits__title layout">
+            <div class="layout__third monospace">
+              <span class="block" data-splitting effect__titleRandom>Nº003 / Methodology</span>
+            </div>
+            <div class="layout__second">
+              <h4 data-splitting effect__titleRandom>Game-inspired design methodology — four disciplines from lore to playtest.</h4>
+            </div>
+          </div>
+
+          <div class="benefits__items">
+            <!-- Item 01 -->
+            <div class="benefits__items--item" style="--stack-index: 0">
+              <div class="layout">
+                <div class="layout__third monospace"> Nº001</div>
+                <div class="layout__second">
+                  <div class="benefits__items--text">
+                    <p class="lead last">The Lore</p>
+                    <p class="monospace monospace__p">(Research &amp; Empathy) &mdash; Every great game starts with understanding the player. I talk to users, observe their behavior, and study their needs. I focus on what they're trying to achieve and what's holding them back. If I don't understand the player, I can't design a meaningful experience.</p>
+                  </div>
+                  <div class="benefits__items--image">
+                    <picture>
+                      <img src="assets/rishi/process_lore.png" alt="The Lore - Research &amp; Empathy" loading="lazy">
+                    </picture>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 02 -->
+            <div class="benefits__items--item" style="--stack-index: 1">
+              <div class="layout">
+                <div class="layout__third monospace"> Nº002</div>
+                <div class="layout__second">
+                  <div class="benefits__items--text">
+                    <p class="lead last">The Journey</p>
+                    <p class="monospace monospace__p">(Strategy &amp; Information Architecture) &mdash; Before designing screens, I plan the full journey. I map how users move from one step to another, making sure everything feels clear and connected. Like designing game levels, each step should lead naturally to the next.</p>
+                  </div>
+                  <div class="benefits__items--image">
+                    <picture>
+                      <img src="assets/rishi/process_journey.png" alt="The Journey - Strategy &amp; Architecture" loading="lazy">
+                    </picture>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 03 -->
+            <div class="benefits__items--item" style="--stack-index: 2">
+              <div class="layout">
+                <div class="layout__third monospace"> Nº003</div>
+                <div class="layout__second">
+                  <div class="benefits__items--text">
+                    <p class="lead last">The Experience</p>
+                    <p class="monospace monospace__p">(Wireframing, Prototyping &amp; Visual Design) &mdash; I create wireframes and prototypes to explore layout, interactions, and flow. Once the structure works, I bring it to life with visuals, typography, and motion. This ensures the experience is both functional and engaging.</p>
+                  </div>
+                  <div class="benefits__items--image">
+                    <picture>
+                      <img src="assets/rishi/process_experience.png" alt="The Experience - Prototyping &amp; Visual Design" loading="lazy">
+                    </picture>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 04 -->
+            <div class="benefits__items--item" style="--stack-index: 3">
+              <div class="layout">
+                <div class="layout__third monospace"> Nº004</div>
+                <div class="layout__second">
+                  <div class="benefits__items--text">
+                    <p class="lead last">Playtest</p>
+                    <p class="monospace monospace__p">(User Testing &amp; Iteration) &mdash; I test the design with real users to see where they struggle or get confused. Then I refine and improve the experience. Like playtesting a game, I keep improving it until everything feels smooth and satisfying.</p>
+                  </div>
+                  <div class="benefits__items--image">
+                    <picture>
+                      <img src="assets/rishi/process_playtest.png" alt="Playtest - User Testing &amp; Iteration" loading="lazy">
+                    </picture>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= FOOTER ================= -->
+      <footer class="section section--footer" id="contact">
+        <div class="footer__wrapper">
+          <div class="footer__logoStack">
+            <div class="footer__logo footer__logo--trail" style="--trail-index:3; --trail-crop-offset:10%; z-index:3;" aria-hidden="true">リシ</div>
+            <div class="footer__logo footer__logo--trail" style="--trail-index:2; --trail-crop-offset:5%; z-index:2;" aria-hidden="true">リシ</div>
+            <div class="footer__logo footer__logo--trail" style="--trail-index:1; --trail-crop-offset:0%; z-index:1;" aria-hidden="true">リシ</div>
+            <div class="footer__logo footer__logo--front" role="img" aria-label="Rishi (リシ)">リシ</div>
+          </div>
+
+          <div class="layout footer__grid">
+            <div class="footer__addr monospace">
+              <span class="footer__bullet" aria-hidden="true">⬤</span>
+              <address>
+                RISHI JHA STUDIO<br>
+                Based in India<br>
+                tarunjha.rishi@gmail.com
+              </address>
+              <p class="footer__gmt" data-clock>GMT +05:30 (IST)</p>
+            </div>
+
+            <div class="footer__links">
+              <a href="https://drive.google.com/file/d/1_3mG3uvyGgM9FJiwiCuYvdRgmfoehdO8/view?usp=sharing" target="_blank" rel="noopener" class="linkrow"><span>Resume</span><span class="linkrow__arrow">↗</span></a>
+              <a href="https://www.linkedin.com/in/rishi5462/" target="_blank" rel="noopener" class="linkrow"><span>LinkedIn</span><span class="linkrow__arrow">↗</span></a>
+              <a href="https://www.behance.net/rishijha5462" target="_blank" rel="noopener" class="linkrow"><span>Behance</span><span class="linkrow__arrow">↗</span></a>
+              <a href="https://www.instagram.com/rishisensei/" target="_blank" rel="noopener" class="linkrow"><span>Instagram</span><span class="linkrow__arrow">↗</span></a>
+              <a href="https://rishijha.designfolio.me/" target="_blank" rel="noopener" class="linkrow"><span>Designfolio</span><span class="linkrow__arrow">↗</span></a>
+              <a href="mailto:tarunjha.rishi@gmail.com" class="linkrow"><span>Get in Touch</span><span class="linkrow__arrow">↗</span></a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </main>
+
+    <!-- custom pixel cursor with gooey SVG filter -->
+    <div class="cursor" aria-hidden="true" data-ttl="0.22">
+      <div class="cursor__inner"></div>
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="position:absolute;width:0;height:0;pointer-events:none;" aria-hidden="true">
+        <defs>
+          <filter id="gooey">
+            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="3.2"></feGaussianBlur>
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"></feColorMatrix>
+            <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+          </filter>
+        </defs>
+      </svg>
+    </div>
+
+  </div><!-- /.wrapper -->
+
+  <!-- Animation & Interaction Libraries -->
+  <script src="js/libs/lenis.min.js"></script>
+  <script src="js/libs/gsap.min.js"></script>
+  <script src="js/libs/ScrollTrigger.min.js"></script>
+  <script src="js/libs/splitting.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
