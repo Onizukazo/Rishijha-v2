@@ -93,12 +93,19 @@
     <span class="skimCursor__text">Hold to skim</span>
   </div>
 
-  <!-- Fullscreen Video Overlay Modal -->
+  <!-- Fullscreen Video Overlay Modal (Showreel Placeholder) -->
   <div class="homeVideoOverlay cursor_disabled" id="videoOverlay" aria-modal="true" role="dialog" aria-hidden="true" style="display: none;">
     <button class="homeVideoOverlay__closeButton" id="closeVideoBtn" aria-label="Close video" type="button">✕ Close</button>
     <div class="homeVideoOverlay__stage">
-      <video class="homeVideoOverlay__video" id="overlayVideo" loop playsinline preload="auto">
-        <source src="assets/pxpush.mp4" type="video/mp4">
+      <div class="homeVideoOverlay__placeholder">
+        <div class="homeVideoOverlay__placeholder-badge monospace">SHOWREEL // ARCHIVE Nº001</div>
+        <div class="homeVideoOverlay__placeholder-title">RISHI JHA</div>
+        <div class="homeVideoOverlay__placeholder-sub monospace">Product &amp; Experience Designer</div>
+        <p class="homeVideoOverlay__placeholder-note monospace">Showreel video coming soon</p>
+      </div>
+      <!-- Drop showreel.mp4 in /assets/ to publish -->
+      <video class="homeVideoOverlay__video" id="overlayVideo" loop playsinline controls preload="none" style="display: none;">
+        <source src="assets/showreel.mp4" type="video/mp4">
       </video>
     </div>
   </div>
@@ -149,12 +156,19 @@
       </div>
     </div>
 
-    <!-- ===== MINI VIDEO CARD (fixed bottom-left, fades on scroll, click to open) ===== -->
+    <!-- ===== MINI SHOWREEL CARD (Placeholder - click to open) ===== -->
     <div class="homeMiniVideo cursor_disabled" data-mini>
-      <button class="mini-video__button mini-video__wrapper" id="openVideoBtn" type="button" aria-label="Open portfolio showreel video">
-        <video id="miniCardVideo" autoplay loop muted playsinline preload="auto">
-          <source src="assets/pxpush.mp4" type="video/mp4">
-        </video>
+      <button class="mini-video__button mini-video__wrapper mini-video--placeholder" id="openVideoBtn" type="button" aria-label="Open portfolio showreel placeholder">
+        <div class="mini-video__placeholder-content">
+          <div class="mini-video__scanlines" aria-hidden="true"></div>
+          <span class="mini-video__badge monospace">SHOWREEL</span>
+          <div class="mini-video__play-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+          <span class="mini-video__status monospace">SOON</span>
+        </div>
       </button>
       <p class="monospace miniCard__caption">Scroll down to access<br>the portfolio</p>
     </div>

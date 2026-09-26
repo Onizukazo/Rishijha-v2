@@ -616,33 +616,22 @@
   if (accRows.length) openRow(accRows[accRows.length - 1]);
 
   /* ------------------------------------------------------------
-     7. MINI CARD FADE ON SCROLL & SHOWREEL MODAL
+     7. MINI SHOWREEL CARD FADE & MODAL
      ------------------------------------------------------------ */
   var miniCard = document.querySelector("[data-mini]");
   var heroSection = document.getElementById("hero");
-  window.addEventListener("scroll", function () {
-    if (!heroSection || !miniCard) return;
-    var rect = heroSection.getBoundingClientRect();
-    var past = rect.bottom < window.innerHeight * 0.45;
-    miniCard.classList.toggle("is-released", past);
-  }, { passive: true });
+  if (heroSection && miniCard) {
+    window.addEventListener("scroll", function () {
+      var rect = heroSection.getBoundingClientRect();
+      var past = rect.bottom < window.innerHeight * 0.45;
+      miniCard.classList.toggle("is-released", past);
+    }, { passive: true });
+  }
 
   var openVideoBtn = document.getElementById("openVideoBtn");
   var closeVideoBtn = document.getElementById("closeVideoBtn");
   var videoOverlay = document.getElementById("videoOverlay");
   var overlayVideo = document.getElementById("overlayVideo");
-  var miniCardVideo = document.getElementById("miniCardVideo");
-  if (miniCardVideo) {
-    miniCardVideo.muted = true;
-    var mp = miniCardVideo.play();
-    if (mp !== undefined) {
-      mp.catch(function () {
-        window.addEventListener("pointerdown", function () {
-          if (miniCardVideo.paused) miniCardVideo.play().catch(function () {});
-        }, { once: true });
-      });
-    }
-  }
 
   function openVideoModal() {
     if (!videoOverlay) return;
@@ -650,7 +639,7 @@
     videoOverlay.offsetHeight;
     videoOverlay.classList.add("is-open");
     videoOverlay.setAttribute("aria-hidden", "false");
-    if (overlayVideo) {
+    if (overlayVideo && overlayVideo.src && overlayVideo.style.display !== "none") {
       overlayVideo.currentTime = 0;
       overlayVideo.play().catch(function () {});
     }

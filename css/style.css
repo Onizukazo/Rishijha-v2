@@ -1046,25 +1046,23 @@ section .marqueeText {
   color: var(--grey);
 }
 
-/* ==================== MINI VIDEO CARD & OVERLAY ==================== */
-.homeMiniVideo,
-.miniCard {
+/* ==================== MINI SHOWREEL PLACEHOLDER CARD ==================== */
+.homeMiniVideo {
   bottom: 2.5vw;
   left: 3vw;
   position: fixed;
   z-index: 6;
   transition: opacity .4s ease, transform .4s ease;
 }
-.homeMiniVideo.is-released,
-.miniCard.is-released {
+.homeMiniVideo.is-released {
   opacity: 0;
   pointer-events: none;
   transform: translateY(20px);
 }
 .mini-video__button {
   appearance: none;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, .25);
+  background: #0d0e12;
+  border: 1px solid rgba(255, 255, 255, .22);
   border-radius: 12px;
   cursor: pointer;
   display: block;
@@ -1073,30 +1071,88 @@ section .marqueeText {
   padding: 0;
   position: relative;
   width: 14vw;
-  transition: transform .25s ease, border-color .25s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 .mini-video__button:hover {
   transform: scale(1.04);
   border-color: rgba(255, 255, 255, .6);
+  box-shadow: 0 14px 40px rgba(3, 4, 156, 0.35);
 }
-.mini-video__button video {
-  display: block;
-  height: 100%;
+.mini-video__placeholder-content {
   width: 100%;
-  object-fit: cover;
-  pointer-events: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, rgba(3, 4, 156, 0.35) 0%, rgba(10, 11, 15, 0.95) 75%);
+  box-sizing: border-box;
 }
-.homeMiniVideo__text,
+.mini-video__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  opacity: 0.6;
+}
+.mini-video__badge {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.7);
+  align-self: flex-start;
+  text-transform: uppercase;
+  z-index: 1;
+}
+.mini-video__play-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: transform 0.25s ease, background 0.25s ease;
+  z-index: 1;
+}
+.mini-video__button:hover .mini-video__play-icon {
+  transform: scale(1.12);
+  background: var(--blue, #03049c);
+  border-color: #fff;
+}
+.mini-video__status {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: #00ff66;
+  align-self: flex-end;
+  text-transform: uppercase;
+  z-index: 1;
+}
 .miniCard__caption {
-  color: rgba(235, 235, 240, .9);
+  color: rgba(235, 235, 240, .85);
   margin-top: 10px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   letter-spacing: 0.02em;
+  line-height: 1.35;
 }
 @media screen and (max-width: 820px) {
-  .homeMiniVideo,
-  .miniCard { bottom: 20px; left: 18px; top: auto; position: absolute; }
+  .homeMiniVideo { bottom: 20px; left: 18px; top: auto; position: absolute; }
   .mini-video__button { height: 62px; width: 104px; border-radius: 8px; }
+  .mini-video__play-icon { width: 24px; height: 24px; }
+  .mini-video__play-icon svg { width: 12px; height: 12px; }
+  .mini-video__badge { font-size: 8px; }
   .miniCard__caption { display: none; }
 }
 
@@ -1126,6 +1182,50 @@ section .marqueeText {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+.homeVideoOverlay__placeholder {
+  background: #0d0e14;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 48px 40px;
+  max-width: 520px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.homeVideoOverlay__placeholder-badge {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--blue-light, #4d62ff);
+  text-transform: uppercase;
+}
+.homeVideoOverlay__placeholder-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-family: var(--font-title);
+  color: #fff;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+.homeVideoOverlay__placeholder-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.homeVideoOverlay__placeholder-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
 }
 .homeVideoOverlay__video {
   display: block;
