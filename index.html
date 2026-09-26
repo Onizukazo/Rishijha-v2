@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Rishi Jha — Product &amp; Experience Designer</title>
   <meta name="description" content="Portfolio of Rishi Jha — Product &amp; Experience Designer crafting intuitive digital products, UX/UI, and game-inspired interactions.">
   <meta name="theme-color" content="#1a1a1a">
@@ -88,7 +88,10 @@
   <div class="vignette" aria-hidden="true"></div>
 
   <!-- Interactive hover tooltip for showcase -->
-  <div class="homeworks__skimCursor monospace" aria-hidden="true"><span>Hold to skim</span></div>
+  <div class="homeworks__skimCursor monospace" id="skimCursor" aria-hidden="true">
+    <span class="skimCursor__dot" aria-hidden="true"></span>
+    <span class="skimCursor__text">Hold to skim</span>
+  </div>
 
   <!-- Fullscreen Video Overlay Modal -->
   <div class="homeVideoOverlay cursor_disabled" id="videoOverlay" aria-modal="true" role="dialog" aria-hidden="true" style="display: none;">
@@ -260,45 +263,65 @@
         <div class="showcase" data-showcase>
           <div class="showcase__loop">
             <!-- Project cards with Rishi's exact case studies from previous portfolio -->
-            <figure class="showcase__item project project--1">
-              <img src="assets/rishi/work_mch.png" alt="MCH Government Portal Case Study" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--1" data-link="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study">
+              <a href="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study" target="_blank" rel="noopener" class="project__card-link" aria-label="MCH Government Portal Case Study">
+                <img src="assets/rishi/work_mch.png" alt="MCH Government Portal Case Study" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study" target="_blank" rel="noopener">MCH / SAAS + GOVT ↗</a></figcaption>
             </figure>
-            <figure class="showcase__item project project--2">
-              <img src="assets/rishi/work_avasa.png" alt="Avasa Home Maintenance Automation" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--2" data-link="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation">
+              <a href="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation" target="_blank" rel="noopener" class="project__card-link" aria-label="Avasa Home Maintenance Automation">
+                <img src="assets/rishi/work_avasa.png" alt="Avasa Home Maintenance Automation" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation" target="_blank" rel="noopener">AVASA / Home Automation ↗</a></figcaption>
             </figure>
-            <figure class="showcase__item project project--3">
-              <img src="assets/rishi/work_spotify.png" alt="Spotify Enhanced Interactive App" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--3" data-link="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1">
+              <a href="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener" class="project__card-link" aria-label="Spotify Enhanced Interactive App">
+                <img src="assets/rishi/work_spotify.png" alt="Spotify Enhanced Interactive App" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener">SPOTIFY / Interactive App ↗</a></figcaption>
             </figure>
-            <figure class="showcase__item project project--4">
-              <img src="assets/rishi/work_samsung.png" alt="Samsung Prism Hackathon Winner" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--4" data-link="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon">
+              <a href="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon" target="_blank" rel="noopener" class="project__card-link" aria-label="Samsung Prism Hackathon Winner">
+                <img src="assets/rishi/work_samsung.png" alt="Samsung Prism Hackathon Winner" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon" target="_blank" rel="noopener">SAMSUNG / Agentic AI ↗</a></figcaption>
             </figure>
-            <figure class="showcase__item project project--5">
-              <img src="assets/rishi/work_mch.png" alt="MCH Government Portal Case Study" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--5" data-link="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study">
+              <a href="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study" target="_blank" rel="noopener" class="project__card-link" aria-label="MCH Government Portal Case Study">
+                <img src="assets/rishi/work_mch.png" alt="MCH Government Portal Case Study" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.behance.net/gallery/244587449/Government-Portal-Redesign-Case-Study" target="_blank" rel="noopener">MCH / SAAS + GOVT ↗</a></figcaption>
             </figure>
-            <figure class="showcase__item project project--6">
-              <img src="assets/rishi/work_avasa.png" alt="Avasa Home Maintenance Automation" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--6" data-link="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation">
+              <a href="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation" target="_blank" rel="noopener" class="project__card-link" aria-label="Avasa Home Maintenance Automation">
+                <img src="assets/rishi/work_avasa.png" alt="Avasa Home Maintenance Automation" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.behance.net/gallery/238338757/Avasa-Home-Maintenance-Automation" target="_blank" rel="noopener">AVASA / Home Automation ↗</a></figcaption>
             </figure>
-            <figure class="showcase__item project project--7">
-              <img src="assets/rishi/work_spotify.png" alt="Spotify Enhanced Interactive App" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--7" data-link="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1">
+              <a href="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener" class="project__card-link" aria-label="Spotify Enhanced Interactive App">
+                <img src="assets/rishi/work_spotify.png" alt="Spotify Enhanced Interactive App" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.figma.com/proto/XhYU0dTjO6sAlxRqkrkzJ8/Spotify-Enhanced?node-id=1-748&p=f&viewport=492%2C45%2C0.02&t=SBjmSHNiO55P7BDw-1&scaling=scale-down-width&content-scaling=fixed&page-id=0%3A1" target="_blank" rel="noopener">SPOTIFY / Interactive App ↗</a></figcaption>
             </figure>
-            <figure class="showcase__item project project--8">
-              <img src="assets/rishi/work_samsung.png" alt="Samsung Prism Hackathon Winner" loading="lazy" decoding="async">
+            <figure class="showcase__item project project--8" data-link="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon">
+              <a href="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon" target="_blank" rel="noopener" class="project__card-link" aria-label="Samsung Prism Hackathon Winner">
+                <img src="assets/rishi/work_samsung.png" alt="Samsung Prism Hackathon Winner" loading="lazy" decoding="async">
+              </a>
               <figcaption class="monospace"><a href="https://www.behance.net/gallery/235207603/Agentic-Travel-Planning-Samsung-Prism-Hackathon" target="_blank" rel="noopener">SAMSUNG / Agentic AI ↗</a></figcaption>
             </figure>
           </div>
         </div>
 
+        <div class="showcase__mobileHint monospace" aria-hidden="true">
+          <span>← Swipe horizontally or tap cards to view case studies →</span>
+        </div>
+
         <div class="layout small_print">
           <div class="layout__third monospace opacity__50">Featured Work</div>
           <div class="layout__half">
-            <p class="monospace opacity__50" data-splitting>Featured case studies &amp; systems · 2022–26 — drag sideways or click to view live case studies on Behance &amp; Figma.</p>
+            <p class="monospace opacity__50" data-splitting>Featured case studies &amp; systems · 2022–26 — hold &amp; scrub sideways or tap to open live case studies on Behance &amp; Figma.</p>
           </div>
         </div>
 

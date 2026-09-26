@@ -445,7 +445,10 @@
       half: 1,
       vel: 0,
       dragging: false,
-      lastX: 0
+      lastX: 0,
+      dragDist: 0,
+      startX: 0,
+      startY: 0
     };
 
     var originals = Array.prototype.slice.call(loop.children);
@@ -464,11 +467,27 @@
     window.addEventListener("resize", build);
     showcases.push(state);
 
+    var updateSkimText = function (text) {
+      if (!skimCursor) return;
+      var textEl = skimCursor.querySelector(".skimCursor__text");
+      if (textEl) textEl.textContent = text;
+      else skimCursor.textContent = text;
+    };
+
     sc.addEventListener("pointerdown", function (e) {
       state.dragging = true;
+      state.startX = e.clientX;
+      state.startY = e.clientY;
       state.lastX = e.clientX;
+      state.lastY = e.clientY;
+      state.dragDist = 0;
       try { sc.setPointerCapture(e.pointerId); } catch (err) {}
-      if (skimCursor) skimCursor.style.opacity = "1";
+      sc.classList.add("is-scrubbing");
+      if (skimCursor) {
+        skimCursor.classList.add("is-holding");
+        updateSkimText("Scrubbing");
+        skimCursor.style.opacity = "1";
+      }
     });
 
     sc.addEventListener("pointermove", function (e) {
@@ -477,20 +496,50 @@
       }
       if (!state.dragging) return;
       var dx = e.clientX - state.lastX;
-      state.vel = dx * 1.5;
-      state.x += dx;
+      state.dragDist += Math.abs(dx) + Math.abs(e.clientY - (state.lastY || e.clientY));
+      state.lastY = e.clientY;
+      state.vel = dx * 1.6;
+      state.x += dx * 1.8;
       state.lastX = e.clientX;
     });
 
-    ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
-      sc.addEventListener(ev, function () {
-        state.dragging = false;
+    var finishPointer = function (e) {
+      if (!state.dragging) return;
+      state.dragging = false;
+      sc.classList.remove("is-scrubbing");
+      if (skimCursor) {
+        skimCursor.classList.remove("is-holding");
+        updateSkimText("Hold to skim");
+      }
+      try { sc.releasePointerCapture(e.pointerId); } catch (err) {}
+
+      // If user tapped/clicked without substantial dragging (< 8px), open the case study!
+      if (state.dragDist < 8 && e.clientX && e.clientY) {
+        var hit = document.elementFromPoint(e.clientX, e.clientY);
+        var card = hit ? hit.closest(".showcase__item") : null;
+        if (card) {
+          var link = card.getAttribute("data-link") || (card.querySelector("a") ? card.querySelector("a").href : null);
+          if (link) {
+            window.open(link, "_blank", "noopener,noreferrer");
+          }
+        }
+      }
+    };
+
+    sc.addEventListener("pointerup", finishPointer);
+    sc.addEventListener("pointercancel", finishPointer);
+
+    sc.addEventListener("pointerleave", function (e) {
+      if (!state.dragging) {
         if (skimCursor) skimCursor.style.opacity = "0";
-      });
+      }
     });
 
     sc.addEventListener("pointerenter", function () {
-      if (skimCursor && finePointer) skimCursor.style.opacity = "0.9";
+      if (skimCursor && finePointer) {
+        updateSkimText("Hold to skim");
+        skimCursor.style.opacity = "1";
+      }
     });
   });
 
