@@ -1,5 +1,5 @@
 /* ============================================================
-   main.js — Interactions, Lenis Smooth Scroll & PX PUSH Effects
+   main.js - Interactions, Lenis Smooth Scroll & PX PUSH Effects
    ============================================================ */
 (function () {
   "use strict";
