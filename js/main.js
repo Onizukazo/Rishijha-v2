@@ -1014,7 +1014,7 @@
           },
           onComplete: function () {
             counter.textContent = "100";
-            if (statusText) statusText.textContent = "READY 100%";
+            if (statusText) statusText.textContent = "READY";
 
             // Quick CRT phosphor power flash
             if (flash) {
