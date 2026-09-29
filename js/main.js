@@ -1430,66 +1430,138 @@
     var buttonCap = null;
     var buttonCapMat = null;
     var buttonHitbox = null;
+    var buttonNode = null;
+    var buttonInitialY = 0;
     var isHotlineEngaged = false;
     var rootModel = null;
     var tapeMesh = null;
 
-    // Load Walkman model with automatic fallback
+    // Load Walkman model with support for new old_walkman.glb
     var loader = new THREE.GLTFLoader();
-    function onModelSuccess(gltf) {
+    function onModelSuccess(gltf, isOldWalkman) {
       rootModel = gltf.scene;
 
-      // Hide headphones and fix material depthWrite/transparency glitch
-      rootModel.traverse(function (child) {
-        if (child.isMesh) {
-          if (child.name.indexOf("Circle") !== -1) {
-            child.visible = false;
-            return;
+      if (isOldWalkman) {
+        // Model: old_walkman.glb
+        rootModel.traverse(function (child) {
+          if (child.isMesh) {
+            if (child.name.toLowerCase().indexOf("headphone") !== -1 || (child.parent && child.parent.name.toLowerCase().indexOf("headphone") !== -1)) {
+              child.visible = false;
+              return;
+            }
+            var isGlass = child.name.toLowerCase().indexOf("glass") !== -1 || (child.parent && child.parent.name.toLowerCase().indexOf("glass") !== -1);
+            if (isGlass) {
+              child.material = child.material.clone();
+              child.material.transparent = true;
+              child.material.opacity = 0.35;
+              child.material.depthWrite = false;
+              child.material.side = THREE.DoubleSide;
+              child.material.roughness = 0.1;
+              child.material.metalness = 0.1;
+            } else {
+              child.material = child.material.clone();
+              child.material.depthWrite = true;
+              child.material.transparent = false;
+              child.material.side = THREE.FrontSide;
+              child.material.needsUpdate = true;
+            }
           }
-          var mats = Array.isArray(child.material) ? child.material : [child.material];
-          mats.forEach(function (m) {
-            m.depthWrite = true;
-            m.transparent = false;
-            m.alphaTest = 0.2;
-            m.side = THREE.FrontSide;
-            m.needsUpdate = true;
-          });
-          if (child.name.indexOf("Cube.005") !== -1 || child.name.indexOf("Cube005") !== -1) {
+          if (child.name === "top" || (child.parent && child.parent.name === "top" && !buttonNode)) {
+            buttonNode = child;
+          }
+          if (child.name === "rings" || (child.parent && child.parent.name === "rings")) {
             tapeMesh = child;
           }
+        });
+
+        // Face front towards camera
+        var pivot = new THREE.Group();
+        rootModel.rotation.y = -Math.PI / 2;
+        pivot.add(rootModel);
+
+        var box = new THREE.Box3().setFromObject(pivot);
+        var center = box.getCenter(new THREE.Vector3());
+        var size = box.getSize(new THREE.Vector3());
+        rootModel.position.set(-center.x, -center.y, -center.z);
+
+        // Scale to fill the left column heroically
+        var targetHeight = 0.27;
+        var scale = targetHeight / size.y;
+        pivot.scale.setScalar(scale);
+        walkmanGroup.add(pivot);
+
+        pivot.updateMatrixWorld(true);
+
+        if (buttonNode) {
+          buttonInitialY = buttonNode.position.y;
+          var bBox = new THREE.Box3().setFromObject(buttonNode);
+          var bCenter = bBox.getCenter(new THREE.Vector3());
+          var hitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
+          var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+          buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
+          buttonHitbox.position.copy(bCenter);
+          walkmanGroup.add(buttonHitbox);
         }
-      });
+      } else {
+        // Fallback: walkman_music_player.glb
+        rootModel.traverse(function (child) {
+          if (child.isMesh) {
+            if (child.name.indexOf("Circle") !== -1) {
+              child.visible = false;
+              return;
+            }
+            var mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach(function (m) {
+              m.depthWrite = true;
+              m.transparent = false;
+              m.alphaTest = 0.2;
+              m.side = THREE.FrontSide;
+              m.needsUpdate = true;
+            });
+            if (child.name.indexOf("Cube.005") !== -1 || child.name.indexOf("Cube005") !== -1) {
+              tapeMesh = child;
+            }
+          }
+        });
 
-      // Center geometry around (0, 0, 0)
-      var box = new THREE.Box3().setFromObject(rootModel);
-      var center = box.getCenter(new THREE.Vector3());
-      rootModel.position.set(-center.x, -center.y, -center.z);
-      walkmanGroup.add(rootModel);
+        var box = new THREE.Box3().setFromObject(rootModel);
+        var center = box.getCenter(new THREE.Vector3());
+        rootModel.position.set(-center.x, -center.y, -center.z);
+        walkmanGroup.add(rootModel);
 
-      // Yellow HOT LINE Button 3D Cap (positioned right on top face)
-      var btnCapGeom = new THREE.BoxGeometry(0.015, 0.007, 0.017);
-      buttonCapMat = new THREE.MeshStandardMaterial({
-        color: 0xffaa00,
-        emissive: 0xff6600,
-        emissiveIntensity: 0.7,
-        roughness: 0.35,
-        metalness: 0.1
-      });
-      buttonCap = new THREE.Mesh(btnCapGeom, buttonCapMat);
-      buttonCap.position.set(-0.0175, 0.104, 0.0364);
-      rootModel.add(buttonCap);
+        var btnCapGeom = new THREE.BoxGeometry(0.015, 0.007, 0.017);
+        buttonCapMat = new THREE.MeshStandardMaterial({
+          color: 0xffaa00,
+          emissive: 0xff6600,
+          emissiveIntensity: 0.7,
+          roughness: 0.35,
+          metalness: 0.1
+        });
+        buttonCap = new THREE.Mesh(btnCapGeom, buttonCapMat);
+        buttonCap.position.set(-0.0175, 0.104, 0.0364);
+        rootModel.add(buttonCap);
 
-      // Invisible generous spherical hitbox for easy clicking & hovering
-      var hitboxGeom = new THREE.SphereGeometry(0.022, 12, 12);
-      var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
-      buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
-      buttonHitbox.position.set(-0.0175, 0.104, 0.0364);
-      rootModel.add(buttonHitbox);
+        var hitboxGeom = new THREE.SphereGeometry(0.022, 12, 12);
+        var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+        buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
+        buttonHitbox.position.set(-0.0175, 0.104, 0.0364);
+        rootModel.add(buttonHitbox);
+      }
     }
 
-    loader.load("assets/model/walkman_music_player.glb", onModelSuccess, undefined, function () {
-      loader.load("walkman_music_player.glb", onModelSuccess, undefined, function (err) {
-        console.warn("Walkman GLB loading failed:", err);
+    loader.load("assets/model/old_walkman.glb", function (gltf) {
+      onModelSuccess(gltf, true);
+    }, undefined, function () {
+      loader.load("old_walkman.glb", function (gltf) {
+        onModelSuccess(gltf, true);
+      }, undefined, function () {
+        loader.load("assets/model/walkman_music_player.glb", function (gltf) {
+          onModelSuccess(gltf, false);
+        }, undefined, function () {
+          loader.load("walkman_music_player.glb", function (gltf) {
+            onModelSuccess(gltf, false);
+          });
+        });
       });
     });
 
@@ -1500,7 +1572,19 @@
       // Sound effect
       playCassetteSwitch(!isHotlineEngaged);
 
-      // Button physical 3D animation
+      // Button physical 3D animation (for old_walkman.glb native button)
+      if (buttonNode && window.gsap) {
+        window.gsap.killTweensOf(buttonNode.position);
+        window.gsap.timeline()
+          .to(buttonNode.position, { y: buttonInitialY - 0.003, duration: 0.07, ease: "power2.in" })
+          .to(buttonNode.position, {
+            y: isHotlineEngaged ? buttonInitialY - 0.0018 : buttonInitialY,
+            duration: 0.12,
+            ease: "back.out(2)"
+          });
+      }
+
+      // Button physical 3D animation (for fallback button cap)
       if (buttonCap && window.gsap) {
         window.gsap.killTweensOf(buttonCap.position);
         window.gsap.timeline()
@@ -1552,11 +1636,15 @@
     }
 
     function checkButtonIntersection(coords) {
-      if (!buttonHitbox || !buttonCap) return false;
+      var targets = [];
+      if (buttonHitbox) targets.push(buttonHitbox);
+      if (buttonCap) targets.push(buttonCap);
+      if (buttonNode) targets.push(buttonNode);
+      if (targets.length === 0) return false;
       pointer.x = coords.x;
       pointer.y = coords.y;
       raycaster.setFromCamera(pointer, camera);
-      var hits = raycaster.intersectObjects([buttonHitbox, buttonCap], true);
+      var hits = raycaster.intersectObjects(targets, true);
       return hits.length > 0;
     }
 
