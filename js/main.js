@@ -965,7 +965,7 @@
     renderer.setSize(width, height, false);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.92;
+    renderer.toneMappingExposure = 1.0;
 
     // Studio Environment Reflections
     if (typeof window.RoomEnvironment !== "undefined" || THREE.RoomEnvironment) {
@@ -979,17 +979,17 @@
       }
     }
 
-    // Dynamic Lighting matching authentic liquid chrome reference
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+    // Dynamic Lighting matching brushed steel material
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.50);
     scene.add(ambientLight);
 
-    // Key light for crisp chrome reflection bands
-    var keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    // Key light for crisp brushed reflection highlights
+    var keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
     keyLight.position.set(1.5, 3, 4);
     scene.add(keyLight);
 
     // Subtle cool-rim fill for edge definition
-    var rimLight = new THREE.DirectionalLight(0xb0c4de, 0.25);
+    var rimLight = new THREE.DirectionalLight(0xb0c4de, 0.35);
     rimLight.position.set(-3, 2, -2);
     scene.add(rimLight);
 
@@ -1021,7 +1021,44 @@
       play: function () { isAutoRevolving = true; }
     };
 
-    // Center and prepare loaded mesh matching user reference chrome
+    // Load Poliigon Brushed Steel PBR Material
+    var texLoader = new THREE.TextureLoader();
+    function createBrushedSteelMaterial() {
+      var baseColor = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_BaseColor_2k.webp", undefined, undefined, function () {
+        baseColor = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_BaseColor_2k.jpg");
+      });
+      var roughness = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Roughness_2k.webp", undefined, undefined, function () {
+        roughness = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Roughness_2k.jpg");
+      });
+      var metallic = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Metallic_2k.webp", undefined, undefined, function () {
+        metallic = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Metallic_2k.jpg");
+      });
+      var normal = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Normal_2k.png");
+      var ao = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_AmbientOcclusion_2k.webp", undefined, undefined, function () {
+        ao = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_AmbientOcclusion_2k.jpg");
+      });
+
+      [baseColor, roughness, metallic, normal, ao].forEach(function (tex) {
+        if (tex) {
+          tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        }
+      });
+
+      return new THREE.MeshStandardMaterial({
+        map: baseColor,
+        roughnessMap: roughness,
+        metalnessMap: metallic,
+        normalMap: normal,
+        normalScale: new THREE.Vector2(0.7, 0.7),
+        aoMap: ao,
+        aoMapIntensity: 0.85,
+        metalness: 0.95,
+        roughness: 0.32,
+        envMapIntensity: 1.1
+      });
+    }
+
+    // Center and prepare loaded mesh with brushed steel finish
     function onModelLoaded(object) {
       var box = new THREE.Box3().setFromObject(object);
       var center = box.getCenter(new THREE.Vector3());
@@ -1036,13 +1073,11 @@
       var scale = targetDim / maxDim;
       meshPivot.scale.set(scale, scale, scale);
 
-      // Liquid chrome platinum material matching exact reference image
+      // Apply authentic brushed steel PBR material
+      var brushedMaterial = createBrushedSteelMaterial();
       object.traverse(function (child) {
-        if (child.isMesh && child.material) {
-          child.material.color.setHex(0xffffff);
-          child.material.metalness = 0.20;
-          child.material.roughness = 0.35;
-          child.material.envMapIntensity = 0.75;
+        if (child.isMesh) {
+          child.material = brushedMaterial;
           child.material.needsUpdate = true;
         }
       });
@@ -1087,28 +1122,11 @@
 
     function loadOBJFallback() {
       if (gltfLoaded || typeof THREE.OBJLoader === "undefined") return;
-      var textureLoader = new THREE.TextureLoader();
-      var texture = textureLoader.load(
-        "assets/model/rishi_emblem_texture.webp",
-        undefined,
-        undefined,
-        function () {
-          texture = textureLoader.load("assets/model/Meshy_AI_Metallic_Rishi_Emblem_0929095700_texture.png");
-        }
-      );
-      texture.flipY = true;
-
       var objLoader = new THREE.OBJLoader();
       objLoader.load(
         "assets/model/Meshy_AI_Metallic_Rishi_Emblem_0929095700_texture.obj",
         function (obj) {
-          var mat = new THREE.MeshStandardMaterial({
-            map: texture,
-            color: 0xffffff,
-            metalness: 0.20,
-            roughness: 0.35,
-            envMapIntensity: 0.75
-          });
+          var mat = createBrushedSteelMaterial();
           obj.traverse(function (child) {
             if (child.isMesh) {
               child.material = mat;
