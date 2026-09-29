@@ -202,7 +202,21 @@
         </div>
 
         <div class="layout section__head">
-          <div class="layout__third monospace"><span data-splitting effect__titleRandom data-small="true">Nº001 / About</span></div>
+          <div class="layout__third monospace">
+            <span data-splitting effect__titleRandom data-small="true">Nº001 / About</span>
+            <div class="about__walkman" id="aboutWalkman" aria-label="Interactive 3D Sony Walkman TPS-L2">
+              <div class="about__walkman-stage" id="aboutWalkmanStage">
+                <canvas id="aboutWalkmanCanvas"></canvas>
+              </div>
+              <div class="about__walkman-hud monospace" id="aboutWalkmanHud">
+                <button class="walkman-hotline-btn" id="walkmanHotlineBtn" type="button" aria-label="Press Walkman Hot Line button">
+                  <span class="walkman-hotline-btn__led" id="walkmanHotlineLed" aria-hidden="true"></span>
+                  <span class="walkman-hotline-btn__text" id="walkmanHotlineText">HOT LINE : READY</span>
+                </button>
+                <span class="walkman-hud__hint">DRAG TO ROTATE &bull; PRESS YELLOW BUTTON</span>
+              </div>
+            </div>
+          </div>
           <div class="layout__second" effect__textFade>
             <p class="lead lead__indent" data-splitting>Hi, I'm Rishi Jha, a Product &amp; Experience Designer passionate about crafting meaningful digital experiences, scalable design systems, and thoughtful interaction design. Great products happen when rigorous research, system architecture, and visual craft work seamlessly together.</p>
             <p class="lead last" data-splitting>Outside of design, I enjoy fitness, travelling, cinema, architecture, and hanging out with cats. I'm deeply inspired by how cinema, industrial design, and spatial architecture create clarity, emotion, and connection. These are principles I channel into every interface I build.</p>

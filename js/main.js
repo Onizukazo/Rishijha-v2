@@ -1301,6 +1301,414 @@
   initHero3DModel();
 
   /* ------------------------------------------------------------
+     12.b ABOUT WALKMAN 3D MODEL & INTERACTIVE HOT LINE BUTTON
+     ------------------------------------------------------------ */
+  function initAboutWalkman() {
+    var canvas = document.getElementById("aboutWalkmanCanvas");
+    var stage = document.getElementById("aboutWalkmanStage");
+    var hotlineBtn = document.getElementById("walkmanHotlineBtn");
+    var hotlineText = document.getElementById("walkmanHotlineText");
+    var hotlineLed = document.getElementById("walkmanHotlineLed");
+    var aboutSection = document.getElementById("about");
+
+    if (!canvas || !stage || typeof window.THREE === "undefined") return;
+
+    var THREE = window.THREE;
+    var width = stage.clientWidth || 360;
+    var height = stage.clientHeight || 440;
+
+    // Web Audio Synthesizer for tactile mechanical cassette switch clicks
+    var audioCtx = null;
+    function playCassetteSwitch(isRelease) {
+      try {
+        var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+
+        var now = audioCtx.currentTime;
+
+        // Layer 1: Metallic transient snap (bandpass noise)
+        var bufferSize = Math.floor(audioCtx.sampleRate * 0.022);
+        var noiseBuf = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        var out = noiseBuf.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+          out[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
+        }
+        var noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuf;
+
+        var filter = audioCtx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(isRelease ? 2400 : 3200, now);
+        filter.Q.setValueAtTime(5.0, now);
+
+        var noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.35, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
+
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noise.start(now);
+
+        // Layer 2: Mechanical latch click (pitch-drop transient)
+        var osc = audioCtx.createOscillator();
+        var oscGain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(isRelease ? 340 : 440, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.04);
+
+        oscGain.gain.setValueAtTime(0.3, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+        osc.connect(oscGain);
+        oscGain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.045);
+
+        // Layer 3: Solid chassis thud
+        var subOsc = audioCtx.createOscillator();
+        var subGain = audioCtx.createGain();
+        subOsc.type = "sine";
+        subOsc.frequency.setValueAtTime(isRelease ? 95 : 125, now + 0.004);
+        subOsc.frequency.exponentialRampToValueAtTime(35, now + 0.06);
+
+        subGain.gain.setValueAtTime(0.25, now + 0.004);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+        subOsc.connect(subGain);
+        subGain.connect(audioCtx.destination);
+        subOsc.start(now + 0.004);
+        subOsc.stop(now + 0.065);
+      } catch (err) {
+        // AudioContext autoplay policy or audio disabled
+      }
+    }
+
+    // Scene
+    var scene = new THREE.Scene();
+
+    // Camera
+    var camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
+    camera.position.set(0.16, 0.18, 1.08);
+    camera.lookAt(0, 0.005, 0);
+
+    // Renderer
+    var renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance"
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(width, height, false);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+
+    // Lighting rig
+    var amb = new THREE.AmbientLight(0xffffff, 1.05);
+    scene.add(amb);
+    var key = new THREE.DirectionalLight(0xffffff, 2.3);
+    key.position.set(2, 4, 3);
+    scene.add(key);
+    var fill = new THREE.DirectionalLight(0xa0c0ff, 1.1);
+    fill.position.set(-2, 1, 2);
+    scene.add(fill);
+    var rim = new THREE.DirectionalLight(0xffffff, 1.3);
+    rim.position.set(0, 2, -2);
+    scene.add(rim);
+
+    // Root group for multi-axis rotation and tilt
+    var walkmanGroup = new THREE.Group();
+    scene.add(walkmanGroup);
+
+    // Base rotation: classic 3/4 isometric perspective
+    var defaultRotX = 0.20;
+    var defaultRotY = -0.45;
+    var defaultRotZ = -0.04;
+    walkmanGroup.rotation.set(defaultRotX, defaultRotY, defaultRotZ);
+
+    var buttonCap = null;
+    var buttonCapMat = null;
+    var buttonHitbox = null;
+    var isHotlineEngaged = false;
+    var rootModel = null;
+    var tapeMesh = null;
+
+    // Load Walkman model with automatic fallback
+    var loader = new THREE.GLTFLoader();
+    function onModelSuccess(gltf) {
+      rootModel = gltf.scene;
+
+      // Hide headphones (Circle.003) so the Walkman body & cassette player stand out cleanly
+      rootModel.traverse(function (child) {
+        if (child.isMesh) {
+          if (child.name.indexOf("Circle.003") !== -1) {
+            child.visible = false;
+          }
+          if (child.name.indexOf("Cube.005") !== -1) {
+            tapeMesh = child;
+          }
+        }
+      });
+
+      // Center geometry around (0, 0, 0)
+      var box = new THREE.Box3().setFromObject(rootModel);
+      var center = box.getCenter(new THREE.Vector3());
+      rootModel.position.set(-center.x, -center.y, -center.z);
+      walkmanGroup.add(rootModel);
+
+      // Yellow HOT LINE Button 3D Cap (positioned right on top face)
+      var btnCapGeom = new THREE.BoxGeometry(0.015, 0.007, 0.017);
+      buttonCapMat = new THREE.MeshStandardMaterial({
+        color: 0xffaa00,
+        emissive: 0xff6600,
+        emissiveIntensity: 0.7,
+        roughness: 0.35,
+        metalness: 0.1
+      });
+      buttonCap = new THREE.Mesh(btnCapGeom, buttonCapMat);
+      buttonCap.position.set(-0.0175, 0.104, 0.0364);
+      rootModel.add(buttonCap);
+
+      // Invisible generous spherical hitbox for easy clicking & hovering
+      var hitboxGeom = new THREE.SphereGeometry(0.022, 12, 12);
+      var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+      buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
+      buttonHitbox.position.set(-0.0175, 0.104, 0.0364);
+      rootModel.add(buttonHitbox);
+    }
+
+    loader.load("assets/model/walkman_music_player.glb", onModelSuccess, undefined, function () {
+      loader.load("walkman_music_player.glb", onModelSuccess, undefined, function (err) {
+        console.warn("Walkman GLB loading failed:", err);
+      });
+    });
+
+    // Button press logic
+    function pressYellowButton() {
+      isHotlineEngaged = !isHotlineEngaged;
+
+      // Sound effect
+      playCassetteSwitch(!isHotlineEngaged);
+
+      // Button physical 3D animation
+      if (buttonCap && window.gsap) {
+        window.gsap.killTweensOf(buttonCap.position);
+        window.gsap.timeline()
+          .to(buttonCap.position, { y: 0.098, duration: 0.07, ease: "power2.in" })
+          .to(buttonCap.position, {
+            y: isHotlineEngaged ? 0.101 : 0.104,
+            duration: 0.12,
+            ease: "back.out(2)"
+          });
+
+        if (buttonCapMat) {
+          window.gsap.to(buttonCapMat.color, {
+            r: 1.0,
+            g: isHotlineEngaged ? 0.25 : 0.67,
+            b: isHotlineEngaged ? 0.25 : 0.0,
+            duration: 0.2
+          });
+          window.gsap.to(buttonCapMat, {
+            emissiveIntensity: isHotlineEngaged ? 1.3 : 0.7,
+            duration: 0.2
+          });
+        }
+      }
+
+      // UI state
+      if (hotlineBtn) {
+        if (isHotlineEngaged) hotlineBtn.classList.add("is-active");
+        else hotlineBtn.classList.remove("is-active");
+      }
+      if (hotlineText) {
+        hotlineText.textContent = isHotlineEngaged ? "HOT LINE : ACTIVE [ON AIR]" : "HOT LINE : READY";
+      }
+    }
+
+    // Attach click to HUD button
+    if (hotlineBtn) {
+      hotlineBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        pressYellowButton();
+      });
+    }
+
+    // Raycasting & Interaction
+    var raycaster = new THREE.Raycaster();
+    var pointer = new THREE.Vector2();
+    var isHoveringButton = false;
+    var isDragging = false;
+    var dragStartX = 0, dragStartY = 0;
+    var dragDist = 0;
+    var targetRotX = defaultRotX;
+    var targetRotY = defaultRotY;
+    var currentRotX = defaultRotX;
+    var currentRotY = defaultRotY;
+    var releaseEaseTimer = 0;
+
+    function getNormalizedCoords(e) {
+      var rect = canvas.getBoundingClientRect();
+      var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      var clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      return {
+        x: ((clientX - rect.left) / rect.width) * 2 - 1,
+        y: -((clientY - rect.top) / rect.height) * 2 + 1,
+        rawX: clientX,
+        rawY: clientY
+      };
+    }
+
+    function checkButtonIntersection(coords) {
+      if (!buttonHitbox || !buttonCap) return false;
+      pointer.x = coords.x;
+      pointer.y = coords.y;
+      raycaster.setFromCamera(pointer, camera);
+      var hits = raycaster.intersectObjects([buttonHitbox, buttonCap], true);
+      return hits.length > 0;
+    }
+
+    // Pointer events on stage
+    stage.addEventListener("pointerdown", function (e) {
+      isDragging = true;
+      var c = getNormalizedCoords(e);
+      dragStartX = c.rawX;
+      dragStartY = c.rawY;
+      dragDist = 0;
+      stage.setPointerCapture(e.pointerId);
+    });
+
+    stage.addEventListener("pointermove", function (e) {
+      var c = getNormalizedCoords(e);
+
+      if (isDragging) {
+        var dx = c.rawX - dragStartX;
+        var dy = c.rawY - dragStartY;
+        dragDist += Math.abs(dx) + Math.abs(dy);
+        dragStartX = c.rawX;
+        dragStartY = c.rawY;
+
+        targetRotY += dx * 0.012;
+        targetRotX = THREE.MathUtils.clamp(targetRotX + dy * 0.010, -0.6, 0.8);
+      } else {
+        // Hover raycasting
+        var hit = checkButtonIntersection(c);
+        if (hit !== isHoveringButton) {
+          isHoveringButton = hit;
+          stage.style.cursor = hit ? "pointer" : "grab";
+          if (buttonCapMat) {
+            buttonCapMat.emissiveIntensity = hit ? 1.1 : (isHotlineEngaged ? 1.3 : 0.7);
+          }
+        }
+      }
+    });
+
+    function onPointerUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      try { stage.releasePointerCapture(e.pointerId); } catch (err) {}
+
+      // If clicked (little to no drag), trigger button press
+      if (dragDist < 6) {
+        var c = getNormalizedCoords(e);
+        if (checkButtonIntersection(c)) {
+          pressYellowButton();
+        }
+      }
+
+      // Smoothly release back towards beauty angle
+      releaseEaseTimer = performance.now();
+    }
+
+    stage.addEventListener("pointerup", onPointerUp);
+    stage.addEventListener("pointercancel", onPointerUp);
+
+    // Render loop with IntersectionObserver optimization
+    var isVisible = false;
+    var clock = new THREE.Clock();
+
+    function animate() {
+      if (!isVisible) return;
+      requestAnimationFrame(animate);
+
+      var delta = clock.getDelta();
+      var time = clock.getElapsedTime();
+
+      // Smooth rotation interpolation
+      if (!isDragging) {
+        // If released, gently return toward default angle after delay
+        var timeSinceRelease = performance.now() - releaseEaseTimer;
+        if (timeSinceRelease > 2200) {
+          targetRotX = THREE.MathUtils.lerp(targetRotX, defaultRotX, 0.02);
+          targetRotY = THREE.MathUtils.lerp(targetRotY, defaultRotY, 0.02);
+        }
+
+        // Idle floating breathing motion
+        walkmanGroup.position.y = Math.sin(time * 1.5) * 0.006;
+      }
+
+      currentRotX = THREE.MathUtils.lerp(currentRotX, targetRotX, 0.08);
+      currentRotY = THREE.MathUtils.lerp(currentRotY, targetRotY, 0.08);
+
+      walkmanGroup.rotation.x = currentRotX;
+      walkmanGroup.rotation.y = currentRotY;
+
+      // When HOT LINE is engaged, tape cassette spools pulse subtly
+      if (isHotlineEngaged && tapeMesh) {
+        tapeMesh.position.y = Math.sin(time * 8.0) * 0.0003;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    // IntersectionObserver to save GPU/battery when off-screen
+    if ("IntersectionObserver" in window && aboutSection) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var wasVisible = isVisible;
+          isVisible = entry.isIntersecting;
+          if (isVisible && !wasVisible) {
+            clock.start();
+            animate();
+          }
+        });
+      }, { threshold: 0.05 });
+      observer.observe(aboutSection);
+    } else {
+      isVisible = true;
+      animate();
+    }
+
+    // Resize handler
+    function onResize() {
+      if (!stage || !renderer || !camera) return;
+      var w = stage.clientWidth || 360;
+      var h = stage.clientHeight || 440;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    }
+    // Expose for inspection and integration
+    window.__aboutWalkman = {
+      scene: scene,
+      camera: camera,
+      renderer: renderer,
+      walkmanGroup: walkmanGroup,
+      pressYellowButton: pressYellowButton,
+      isHotlineEngaged: function () { return isHotlineEngaged; }
+    };
+
+    window.addEventListener("resize", onResize, { passive: true });
+  }
+
+  // Initialize About Walkman 3D Model
+  initAboutWalkman();
+
+  /* ------------------------------------------------------------
      13. MASTER RAF ANIMATION TICK
      ------------------------------------------------------------ */
   (function tick() {
