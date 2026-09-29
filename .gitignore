@@ -10,4 +10,6 @@ desktop.ini
 # Logs & temp files
 *.log
 scratch/
-
+# Root model duplicates
+/old_walkman.glb
+/walkman_music_player.glb
