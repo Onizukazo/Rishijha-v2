@@ -908,6 +908,273 @@
   }
 
   /* ------------------------------------------------------------
+     12b. 3D REVOLVING RISHI EMBLEM (THREE.JS)
+     ------------------------------------------------------------ */
+  function initHero3DModel() {
+    var canvas = document.getElementById("hero3dCanvas");
+    var container = document.getElementById("hero3dContainer");
+    if (!canvas || !container || typeof window.THREE === "undefined") return;
+
+    var THREE = window.THREE;
+    var width = container.clientWidth || 600;
+    var height = container.clientHeight || 450;
+
+    // Scene
+    var scene = new THREE.Scene();
+
+    // Camera
+    var camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+    camera.position.set(0, 0, 4.3);
+
+    // Renderer
+    var renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance"
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(width, height, false);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+
+    // Studio Environment Reflections
+    if (typeof window.RoomEnvironment !== "undefined" || THREE.RoomEnvironment) {
+      try {
+        var RoomEnv = window.RoomEnvironment || THREE.RoomEnvironment;
+        var pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+        scene.environment = pmremGenerator.fromScene(new RoomEnv()).texture;
+      } catch (err) {
+        console.warn("RoomEnvironment init failed, using directional lights:", err);
+      }
+    }
+
+    // Dynamic Lighting for metallic brilliance
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambientLight);
+
+    // Crisp white key light from upper right
+    var keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    keyLight.position.set(4, 5, 5);
+    scene.add(keyLight);
+
+    // Cyber cyan fill light from lower left
+    var cyanLight = new THREE.DirectionalLight(0x9fe4f3, 1.3);
+    cyanLight.position.set(-5, -2, 4);
+    scene.add(cyanLight);
+
+    // Bright backlight for edge glint
+    var backLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    backLight.position.set(0, 5, -4);
+    scene.add(backLight);
+
+    // Warm specular rim
+    var warmLight = new THREE.PointLight(0xffe8d0, 1.0, 25);
+    warmLight.position.set(3, -3, 3);
+    scene.add(warmLight);
+
+    // Root group for multi-axis rotation and tilt
+    var modelGroup = new THREE.Group();
+    scene.add(modelGroup);
+
+    // Mesh pivot for precise center alignment
+    var meshPivot = new THREE.Group();
+    modelGroup.add(meshPivot);
+
+    // State for revolving and interactive tilt
+    var baseRevolvingSpeed = 0.012; // Smooth continuous revolution
+    var currentRevolvingAngle = 0;
+    var extraSpinVelocity = 0;
+    var targetTiltX = 0, targetTiltY = 0;
+    var currentTiltX = 0, currentTiltY = 0;
+    var isDragging = false;
+    var lastDragX = 0, dragStartY = 0;
+    var isModelLoaded = false;
+
+    // Center and prepare loaded mesh
+    function onModelLoaded(object) {
+      var box = new THREE.Box3().setFromObject(object);
+      var center = box.getCenter(new THREE.Vector3());
+      var size = box.getSize(new THREE.Vector3());
+
+      // Center geometry around (0, 0, 0)
+      object.position.set(-center.x, -center.y, -center.z);
+
+      // Scale to fit viewport elegantly
+      var maxDim = Math.max(size.x, size.y, size.z) || 1;
+      var targetDim = 2.65;
+      var scale = targetDim / maxDim;
+      meshPivot.scale.set(scale, scale, scale);
+
+      // Enhance metallic reflections and roughness
+      object.traverse(function (child) {
+        if (child.isMesh) {
+          if (child.material) {
+            child.material.metalness = 0.90;
+            child.material.roughness = 0.20;
+            child.material.needsUpdate = true;
+          }
+        }
+      });
+
+      meshPivot.add(object);
+      isModelLoaded = true;
+
+      // Smooth entrance scale
+      modelGroup.scale.set(0.001, 0.001, 0.001);
+      if (window.gsap) {
+        window.gsap.to(modelGroup.scale, {
+          x: 1,
+          y: 1,
+          z: 1,
+          duration: 1.4,
+          ease: "power3.out"
+        });
+      } else {
+        modelGroup.scale.set(1, 1, 1);
+      }
+    }
+
+    // Try loading optimized GLB first, then fallback to OBJ
+    var gltfLoaded = false;
+    if (typeof THREE.GLTFLoader !== "undefined") {
+      var gltfLoader = new THREE.GLTFLoader();
+      gltfLoader.load(
+        "assets/model/rishi_emblem_opt.glb",
+        function (gltf) {
+          gltfLoaded = true;
+          onModelLoaded(gltf.scene);
+        },
+        undefined,
+        function (err) {
+          console.warn("GLTF load failed, attempting OBJ fallback:", err);
+          loadOBJFallback();
+        }
+      );
+    } else {
+      loadOBJFallback();
+    }
+
+    function loadOBJFallback() {
+      if (gltfLoaded || typeof THREE.OBJLoader === "undefined") return;
+      var textureLoader = new THREE.TextureLoader();
+      var texture = textureLoader.load(
+        "assets/model/rishi_emblem_texture.webp",
+        undefined,
+        undefined,
+        function () {
+          texture = textureLoader.load("assets/model/Meshy_AI_Metallic_Rishi_Emblem_0929095700_texture.png");
+        }
+      );
+      texture.flipY = true;
+
+      var objLoader = new THREE.OBJLoader();
+      objLoader.load(
+        "assets/model/Meshy_AI_Metallic_Rishi_Emblem_0929095700_texture.obj",
+        function (obj) {
+          var mat = new THREE.MeshStandardMaterial({
+            map: texture,
+            metalness: 0.90,
+            roughness: 0.20
+          });
+          obj.traverse(function (child) {
+            if (child.isMesh) {
+              child.material = mat;
+            }
+          });
+          onModelLoaded(obj);
+        },
+        undefined,
+        function (err) {
+          console.error("OBJ load fallback failed:", err);
+        }
+      );
+    }
+
+    // Interactive mouse movement tilt
+    window.addEventListener("mousemove", function (e) {
+      if (isDragging) return;
+      var normX = (e.clientX / window.innerWidth) - 0.5;
+      var normY = (e.clientY / window.innerHeight) - 0.5;
+      targetTiltY = normX * 0.45;
+      targetTiltX = normY * 0.35;
+    }, { passive: true });
+
+    // Drag / Touch to spin with momentum
+    container.addEventListener("pointerdown", function (e) {
+      isDragging = true;
+      lastDragX = e.clientX;
+      dragStartY = e.clientY;
+      extraSpinVelocity = 0;
+    });
+
+    window.addEventListener("pointermove", function (e) {
+      if (!isDragging) return;
+      var deltaX = e.clientX - lastDragX;
+      lastDragX = e.clientX;
+      currentRevolvingAngle += deltaX * 0.015;
+      extraSpinVelocity = deltaX * 0.008;
+
+      var deltaY = e.clientY - dragStartY;
+      targetTiltX = Math.max(-0.6, Math.min(0.6, deltaY * 0.005));
+    }, { passive: true });
+
+    window.addEventListener("pointerup", function () {
+      isDragging = false;
+    });
+    window.addEventListener("pointercancel", function () {
+      isDragging = false;
+    });
+
+    // Visibility Observer to pause rendering when scrolled away
+    var isHeroVisible = true;
+    var heroElem = document.getElementById("hero");
+    if (heroElem && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        isHeroVisible = entries[0].isIntersecting;
+      }).observe(heroElem);
+    }
+
+    // Render Loop
+    function render3D() {
+      requestAnimationFrame(render3D);
+      if (!isHeroVisible || !isModelLoaded) return;
+
+      // Base continuous revolving motion + decay extra spin
+      extraSpinVelocity *= 0.94;
+      currentRevolvingAngle += baseRevolvingSpeed + extraSpinVelocity;
+
+      // Smooth tilt interpolation
+      currentTiltX += (targetTiltX - currentTiltX) * 0.06;
+      currentTiltY += (targetTiltY - currentTiltY) * 0.06;
+
+      // Apply rotations: revolving on Y, tilting on X and Z
+      modelGroup.rotation.y = currentRevolvingAngle + currentTiltY;
+      modelGroup.rotation.x = currentTiltX;
+      modelGroup.rotation.z = -currentTiltY * 0.25;
+
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(render3D);
+
+    // Resize Handler
+    function onResize() {
+      if (!container || !renderer || !camera) return;
+      var w = container.clientWidth || 600;
+      var h = container.clientHeight || 450;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    }
+    window.addEventListener("resize", onResize, { passive: true });
+  }
+
+  // Initialize 3D Hero Model
+  initHero3DModel();
+
+  /* ------------------------------------------------------------
      13. MASTER RAF ANIMATION TICK
      ------------------------------------------------------------ */
   (function tick() {
@@ -981,7 +1248,7 @@
     if (lenis) lenis.stop();
     window.scrollTo(0, 0);
 
-    if (reducedMotion) {
+    if (reducedMotion || location.search.indexOf("nofx") !== -1) {
       finish();
       return;
     }

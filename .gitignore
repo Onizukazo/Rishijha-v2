@@ -9,4 +9,5 @@ desktop.ini
 
 # Logs & temp files
 *.log
-scratch/*.png
+scratch/
+

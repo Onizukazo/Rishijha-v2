@@ -945,64 +945,74 @@ section .marqueeText {
   z-index: 2;
 }
 
-.heading__text--subtitle,
-.heading__text--title {
+/* ==================== 3D REVOLVING RISHI EMBLEM ==================== */
+.hero__3d-container {
+  align-items: center;
+  display: flex;
+  height: clamp(380px, 62vh, 620px);
+  justify-content: center;
+  left: 50%;
+  pointer-events: auto;
+  position: absolute;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  width: clamp(320px, 78vw, 880px);
+  z-index: 2;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.hero__3d-container:active {
+  cursor: grabbing;
+}
+@media screen and (max-width: 820px) {
+  .hero__3d-container {
+    top: 43svh;
+    width: 94vw;
+    height: clamp(280px, 46svh, 400px);
+  }
+}
+#hero3dCanvas {
+  display: block;
+  height: 100% !important;
+  width: 100% !important;
+  pointer-events: none;
+  background: transparent !important;
+}
+
+.heading__text--subtitle {
+  bottom: 2vw;
   left: 15vw;
+  letter-spacing: 0;
+  position: fixed;
   text-align: center;
   width: 70vw;
-  z-index: 2;
+  z-index: 3;
   align-items: center;
   display: flex;
   justify-content: center;
 }
 @media screen and (max-width: 820px) {
-  .heading__text--subtitle, .heading__text--title { left: 0; width: 100%; padding: 0 16px; }
-}
-.heading__text--title {
-  position: absolute;
-  top: 41vh;
-}
-@media screen and (max-width: 820px) {
-  .heading__text--title { top: 35svh; }
-}
-.heading__text--title h2 {
-  font-size: 10vw;
-  letter-spacing: -.03em;
-  color: #fff;
-  line-height: 1;
-  font-family: var(--font-display);
-}
-@media screen and (max-width: 820px) {
-  .heading__text--title h2 { font-size: clamp(38px, 11.5vw, 68px); white-space: nowrap; }
-}
-.heading__text--title sup {
-  font-size: clamp(12px, 1.3vw, 20px);
-  position: relative;
-  top: -2.6vw;
-  margin-left: clamp(8px, 1vw, 18px);
-  letter-spacing: 0.04em;
-  font-family: var(--font-mono);
-  text-transform: lowercase;
-  opacity: 0.85;
-}
-@media screen and (max-width: 820px) {
-  .heading__text--title sup { font-size: clamp(10px, 2.5vw, 14px); top: -0.8em; margin-left: 5px; }
-}
-.heading__text--subtitle {
-  bottom: 2vw;
-  letter-spacing: 0;
-  position: fixed;
-  z-index: 3;
-}
-@media screen and (max-width: 820px) {
-  .heading__text--subtitle { bottom: auto; top: 46svh; position: absolute; }
+  .heading__text--subtitle {
+    left: 0;
+    width: 100%;
+    padding: 0 16px;
+    bottom: auto;
+    top: 65svh;
+    position: absolute;
+  }
 }
 .heading__text--subtitle h4 {
+  color: #fff;
   font-size: 100%;
   letter-spacing: .08em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
 }
 @media screen and (max-width: 820px) {
-  .heading__text--subtitle h4 { font-size: clamp(12px, 3.4vw, 18px); letter-spacing: 0.05em; }
+  .heading__text--subtitle h4 {
+    font-size: clamp(12px, 3.4vw, 18px);
+    letter-spacing: 0.05em;
+  }
 }
 
 .hero__note {
