@@ -1432,16 +1432,63 @@
     var buttonHitbox = null;
     var buttonNode = null;
     var buttonInitialY = 0;
+    var currentModelType = "tps_l2";
     var isHotlineEngaged = false;
     var rootModel = null;
     var tapeMesh = null;
 
-    // Load Walkman model with support for new old_walkman.glb
+    // Load Walkman model with primary support for sony_tps-l2_walkman.glb
     var loader = new THREE.GLTFLoader();
-    function onModelSuccess(gltf, isOldWalkman) {
+    function onModelSuccess(gltf, modelType) {
       rootModel = gltf.scene;
+      currentModelType = modelType;
 
-      if (isOldWalkman) {
+      if (modelType === "tps_l2") {
+        // Model: sony_tps-l2_walkman.glb (Authentic TPS-L2 Sony Walkman)
+        rootModel.traverse(function (child) {
+          if (child.isMesh) {
+            var mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach(function (m) {
+              m.depthWrite = true;
+              m.transparent = false;
+              m.alphaTest = 0.2;
+              m.side = THREE.FrontSide;
+              m.needsUpdate = true;
+            });
+          }
+          if (child.name.indexOf("Button1") !== -1 || (child.parent && child.parent.name.indexOf("Button1") !== -1)) {
+            buttonNode = child;
+          }
+          if (child.name.indexOf("Cylinder.041") !== -1 || child.name.indexOf("Slider") !== -1) {
+            tapeMesh = child;
+          }
+        });
+
+        // Center geometry around (0, 0, 0)
+        var box = new THREE.Box3().setFromObject(rootModel);
+        var center = box.getCenter(new THREE.Vector3());
+        var size = box.getSize(new THREE.Vector3());
+        rootModel.position.set(-center.x, -center.y, -center.z);
+
+        // Scale to fill the left column heroically (height ~0.27m)
+        var targetHeight = 0.27;
+        var scale = targetHeight / size.y;
+        rootModel.scale.setScalar(scale);
+        walkmanGroup.add(rootModel);
+
+        rootModel.updateMatrixWorld(true);
+
+        if (buttonNode) {
+          buttonInitialY = buttonNode.position.y;
+          var bBox = new THREE.Box3().setFromObject(buttonNode);
+          var bCenter = bBox.getCenter(new THREE.Vector3());
+          var hitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
+          var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+          buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
+          buttonHitbox.position.copy(bCenter);
+          walkmanGroup.add(buttonHitbox);
+        }
+      } else if (modelType === "old_walkman") {
         // Model: old_walkman.glb
         rootModel.traverse(function (child) {
           if (child.isMesh) {
@@ -1549,17 +1596,22 @@
       }
     }
 
-    loader.load("assets/model/old_walkman.glb", function (gltf) {
-      onModelSuccess(gltf, true);
+    // Try loading sony_tps-l2_walkman.glb first, then fallback to other models
+    loader.load("assets/model/sony_tps-l2_walkman.glb", function (gltf) {
+      onModelSuccess(gltf, "tps_l2");
     }, undefined, function () {
-      loader.load("old_walkman.glb", function (gltf) {
-        onModelSuccess(gltf, true);
+      loader.load("sony_tps-l2_walkman.glb", function (gltf) {
+        onModelSuccess(gltf, "tps_l2");
       }, undefined, function () {
-        loader.load("assets/model/walkman_music_player.glb", function (gltf) {
-          onModelSuccess(gltf, false);
+        loader.load("assets/model/old_walkman.glb", function (gltf) {
+          onModelSuccess(gltf, "old_walkman");
         }, undefined, function () {
-          loader.load("walkman_music_player.glb", function (gltf) {
-            onModelSuccess(gltf, false);
+          loader.load("assets/model/walkman_music_player.glb", function (gltf) {
+            onModelSuccess(gltf, "classic");
+          }, undefined, function () {
+            loader.load("walkman_music_player.glb", function (gltf) {
+              onModelSuccess(gltf, "classic");
+            });
           });
         });
       });
@@ -1572,13 +1624,15 @@
       // Sound effect
       playCassetteSwitch(!isHotlineEngaged);
 
-      // Button physical 3D animation (for old_walkman.glb native button)
+      // Button physical 3D animation (for native 3D button)
       if (buttonNode && window.gsap) {
         window.gsap.killTweensOf(buttonNode.position);
+        var pressDist = (currentModelType === "tps_l2") ? 0.025 : 0.003;
+        var holdDist = (currentModelType === "tps_l2") ? 0.015 : 0.0018;
         window.gsap.timeline()
-          .to(buttonNode.position, { y: buttonInitialY - 0.003, duration: 0.07, ease: "power2.in" })
+          .to(buttonNode.position, { y: buttonInitialY - pressDist, duration: 0.07, ease: "power2.in" })
           .to(buttonNode.position, {
-            y: isHotlineEngaged ? buttonInitialY - 0.0018 : buttonInitialY,
+            y: isHotlineEngaged ? buttonInitialY - holdDist : buttonInitialY,
             duration: 0.12,
             ease: "back.out(2)"
           });
