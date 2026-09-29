@@ -948,23 +948,24 @@ section .marqueeText {
 /* ==================== 3D REVOLVING RISHI EMBLEM ==================== */
 .hero__3d-container {
   align-items: center;
+  bottom: auto;
   display: flex;
-  height: clamp(380px, 62vh, 620px);
+  height: 32vh;
   justify-content: center;
-  left: 50%;
+  left: 50vw;
   pointer-events: none;
   position: absolute;
-  top: 48%;
+  top: 55vh;
   transform: translate(-50%, -50%);
-  width: clamp(320px, 78vw, 880px);
-  z-index: 2;
+  width: 70vw;
+  z-index: 3;
   user-select: none;
 }
-@media screen and (max-width: 820px) {
+@media screen and (max-width: 600px) {
   .hero__3d-container {
-    top: 43svh;
-    width: 94vw;
-    height: clamp(280px, 46svh, 400px);
+    height: 32vh;
+    top: 45vh;
+    width: 70vw;
   }
 }
 #hero3dCanvas {

@@ -950,9 +950,9 @@
     // Scene
     var scene = new THREE.Scene();
 
-    // Camera
-    var camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(0, 0, 4.3);
+    // Telephoto Perspective Camera matching pxpush.com (FOV: 10 at distance: 13 for isometric architectural view)
+    var camera = new THREE.PerspectiveCamera(10, width / height, 0.1, 100);
+    camera.position.set(0, 0, 13);
 
     // Renderer
     var renderer = new THREE.WebGLRenderer({
@@ -965,7 +965,7 @@
     renderer.setSize(width, height, false);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.15;
 
     // Studio Environment Reflections
     if (typeof window.RoomEnvironment !== "undefined" || THREE.RoomEnvironment) {
@@ -973,25 +973,27 @@
         var RoomEnv = window.RoomEnvironment || THREE.RoomEnvironment;
         var pmremGenerator = new THREE.PMREMGenerator(renderer);
         pmremGenerator.compileEquirectangularShader();
-        scene.environment = pmremGenerator.fromScene(new RoomEnv()).texture;
+        scene.environment = pmremGenerator.fromScene(new RoomEnv(), 0.04).texture;
       } catch (err) {
         console.warn("RoomEnvironment init failed, using directional lights:", err);
       }
     }
 
-    // Dynamic Lighting matching brushed steel material
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.50);
+    // Dynamic Lighting rig matching pxpush studio
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    // Key light for crisp brushed reflection highlights
-    var keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    keyLight.position.set(1.5, 3, 4);
+    var keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    keyLight.position.set(3, 4, 8);
     scene.add(keyLight);
 
-    // Subtle cool-rim fill for edge definition
-    var rimLight = new THREE.DirectionalLight(0xb0c4de, 0.35);
-    rimLight.position.set(-3, 2, -2);
-    scene.add(rimLight);
+    var fillLight = new THREE.DirectionalLight(0xa8d8ff, 1.2);
+    fillLight.position.set(-4, -1, 6);
+    scene.add(fillLight);
+
+    var backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    backLight.position.set(0, 2, -8);
+    scene.add(backLight);
 
     // Root group for multi-axis rotation and tilt
     var modelGroup = new THREE.Group();
@@ -1001,21 +1003,62 @@
     var meshPivot = new THREE.Group();
     modelGroup.add(meshPivot);
 
-    // State for revolving and interactive tilt
-    var baseRevolvingSpeed = 0.012; // Smooth continuous revolution
-    var currentRevolvingAngle = 0;
+    // State for revolving and interactive tilt (matching pxpush speed and initial angle)
+    var baseRevolvingSpeed = -0.010; // Continuous revolution speed matching pxpush
+    var currentRevolvingAngle = -0.45; // Initial 3/4 angle matching pxpush
     var extraSpinVelocity = 0;
+    var scrollSpinVelocity = 0;
+    var targetScrollSpin = 0;
     var isAutoRevolving = true;
     var targetTiltX = 0, targetTiltY = 0;
     var currentTiltX = 0, currentTiltY = 0;
     var isDragging = false;
     var lastDragX = 0, dragStartY = 0;
     var isModelLoaded = false;
+    var modelBoundingSize = null;
+
+    // Exact frustum fitting calculation matching pxpush lt()
+    function updateModelScale() {
+      if (!meshPivot || !modelBoundingSize) return;
+      var w = container.clientWidth || (window.innerWidth * 0.7);
+      var h = container.clientHeight || (window.innerHeight * 0.32);
+      var vFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
+      var visibleHeight = 2 * camera.position.z * Math.tan(vFovRad);
+      var visibleWidth = visibleHeight * (w / h);
+      var scale = Math.min((visibleWidth * 0.8) / modelBoundingSize.x, (visibleHeight * 0.8) / modelBoundingSize.y);
+      meshPivot.scale.setScalar(scale);
+    }
+
+    // Scroll velocity reaction matching pxpush J()
+    if (window.ScrollTrigger) {
+      window.ScrollTrigger.create({
+        trigger: document.body,
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: function (self) {
+          var v = self.getVelocity();
+          targetScrollSpin = THREE.MathUtils.clamp(-v * 2e-5, -0.08, 0.08);
+        }
+      });
+    } else {
+      var lastScrollY = window.scrollY;
+      var lastScrollTime = performance.now();
+      window.addEventListener("scroll", function () {
+        var now = performance.now();
+        var dt = Math.max(1, now - lastScrollTime);
+        var dy = window.scrollY - lastScrollY;
+        var v = (dy / dt) * 1000;
+        lastScrollY = window.scrollY;
+        lastScrollTime = now;
+        targetScrollSpin = Math.max(-0.08, Math.min(0.08, -v * 2e-5));
+      }, { passive: true });
+    }
 
     window.__hero3d = {
       modelGroup: modelGroup,
       scene: scene,
       renderer: renderer,
+      camera: camera,
       setAngle: function (a) { currentRevolvingAngle = a; },
       pause: function () { isAutoRevolving = false; },
       play: function () { isAutoRevolving = true; }
@@ -1044,34 +1087,48 @@
         }
       });
 
-      return new THREE.MeshStandardMaterial({
+      return new THREE.MeshPhysicalMaterial({
         map: baseColor,
         roughnessMap: roughness,
         metalnessMap: metallic,
         normalMap: normal,
-        normalScale: new THREE.Vector2(0.7, 0.7),
+        normalScale: new THREE.Vector2(0.8, 0.8),
         aoMap: ao,
-        aoMapIntensity: 0.85,
-        metalness: 0.95,
-        roughness: 0.32,
-        envMapIntensity: 1.1
+        aoMapIntensity: 0.9,
+        color: new THREE.Color(0xf2f6fa),
+        metalness: 0.96,
+        roughness: 0.28,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.12,
+        envMapIntensity: 1.45
       });
     }
 
     // Center and prepare loaded mesh with brushed steel finish
     function onModelLoaded(object) {
-      var box = new THREE.Box3().setFromObject(object);
-      var center = box.getCenter(new THREE.Vector3());
-      var size = box.getSize(new THREE.Vector3());
+      // Find actual mesh inside object to compute precise unscaled geometry bounding size
+      var mesh = null;
+      object.traverse(function (child) {
+        if (child.isMesh && !mesh) mesh = child;
+      });
+      if (mesh) {
+        mesh.geometry.computeBoundingBox();
+        var bb = mesh.geometry.boundingBox;
+        modelBoundingSize = new THREE.Vector3();
+        bb.getSize(modelBoundingSize);
+        var center = new THREE.Vector3();
+        bb.getCenter(center);
+        mesh.geometry.translate(-center.x, -center.y, -center.z);
+        mesh.geometry.computeVertexNormals();
+      } else {
+        var box = new THREE.Box3().setFromObject(object);
+        var center = box.getCenter(new THREE.Vector3());
+        modelBoundingSize = box.getSize(new THREE.Vector3());
+        object.position.set(-center.x, -center.y, -center.z);
+      }
 
-      // Center geometry around (0, 0, 0)
-      object.position.set(-center.x, -center.y, -center.z);
-
-      // Scale to fit viewport elegantly
-      var maxDim = Math.max(size.x, size.y, size.z) || 1;
-      var targetDim = 2.65;
-      var scale = targetDim / maxDim;
-      meshPivot.scale.set(scale, scale, scale);
+      // Frustum fit matching pxpush lt()
+      updateModelScale();
 
       // Apply authentic brushed steel PBR material
       var brushedMaterial = createBrushedSteelMaterial();
@@ -1084,6 +1141,10 @@
 
       meshPivot.add(object);
       isModelLoaded = true;
+
+      // Initial placement & rotation matching pxpush
+      modelGroup.position.set(0, 0, 0);
+      modelGroup.rotation.set(0, -0.45, 0);
 
       // Smooth entrance scale
       modelGroup.scale.set(0.001, 0.001, 0.001);
@@ -1187,15 +1248,19 @@
       }).observe(heroElem);
     }
 
-    // Render Loop
+    // Render Loop with scroll velocity spring momentum matching pxpush
     function render3D() {
       requestAnimationFrame(render3D);
       if (!isHeroVisible || !isModelLoaded) return;
 
-      // Base continuous revolving motion + decay extra spin
+      // Scroll spin decay & spring interpolation matching pxpush
+      targetScrollSpin *= 0.90;
+      scrollSpinVelocity += (targetScrollSpin - scrollSpinVelocity) * 0.16;
+
+      // Base continuous revolving motion + scroll spin + drag spin
       extraSpinVelocity *= 0.94;
       if (isAutoRevolving) {
-        currentRevolvingAngle += baseRevolvingSpeed + extraSpinVelocity;
+        currentRevolvingAngle += baseRevolvingSpeed + scrollSpinVelocity + extraSpinVelocity;
       }
 
       // Smooth tilt interpolation
@@ -1203,22 +1268,24 @@
       currentTiltY += (targetTiltY - currentTiltY) * 0.06;
 
       // Apply rotations: revolving on Y, tilting on X and Z
-      modelGroup.rotation.y = currentRevolvingAngle + currentTiltY;
       modelGroup.rotation.x = currentTiltX;
+      modelGroup.rotation.y = currentRevolvingAngle + currentTiltY * 0.45;
       modelGroup.rotation.z = -currentTiltY * 0.25;
 
       renderer.render(scene, camera);
     }
     requestAnimationFrame(render3D);
 
-    // Resize Handler
+    // Resize Handler with responsive frustum scaling
     function onResize() {
       if (!container || !renderer || !camera) return;
-      var w = container.clientWidth || 600;
-      var h = container.clientHeight || 450;
+      var w = container.clientWidth || (window.innerWidth * 0.7);
+      var h = container.clientHeight || (window.innerHeight * 0.32);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      updateModelScale();
     }
     window.addEventListener("resize", onResize, { passive: true });
   }
