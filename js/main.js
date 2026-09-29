@@ -743,17 +743,46 @@
   }
 
   /* ------------------------------------------------------------
-     11. PIXEL GRID CURSOR (Authentic PX PUSH mP class)
+     11. PIXEL GRID CURSOR & PRECISION POINTER (Authentic PX PUSH)
      ------------------------------------------------------------ */
   var cursorEl = document.querySelector(".cursor");
+  var cursorDot = document.getElementById("cursorDot");
   if (cursorEl && !reducedMotion) {
     var ju = { x: -9999, y: -9999 };
+    var dotX = -9999, dotY = -9999;
+    var targetDotX = -9999, targetDotY = -9999;
+
     var onPointerMove = function (e) {
       ju.x = e.clientX;
       ju.y = e.clientY;
+      targetDotX = e.clientX;
+      targetDotY = e.clientY;
+      if (cursorDot) {
+        cursorDot.classList.add("is-active");
+      }
     };
     window.addEventListener("mousemove", onPointerMove, { passive: true });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+    // Interactive element hover scale for cursor dot
+    document.addEventListener("mouseover", function (e) {
+      if (!cursorDot) return;
+      if (e.target && e.target.closest && e.target.closest("a, button, .button, [role='button'], input, textarea, .speed")) {
+        cursorDot.classList.add("is-hovering");
+      } else {
+        cursorDot.classList.remove("is-hovering");
+      }
+    }, { passive: true });
+
+    // Smooth cursor dot RAF follower
+    (function updateDot() {
+      if (cursorDot && targetDotX > -1000) {
+        dotX += (targetDotX - dotX) * 0.45;
+        dotY += (targetDotY - dotY) * 0.45;
+        cursorDot.style.transform = "translate3d(" + dotX.toFixed(1) + "px," + dotY.toFixed(1) + "px,0) translate(-50%,-50%)";
+      }
+      requestAnimationFrame(updateDot);
+    })();
 
     var PixelCursor = function (el) {
       this.el = el;
@@ -766,7 +795,7 @@
     };
 
     PixelCursor.prototype.layout = function () {
-      this.columns = parseInt(getComputedStyle(this.el).getPropertyValue("--columns")) || 20;
+      this.columns = parseInt(getComputedStyle(this.el).getPropertyValue("--columns")) || 24;
       this.cellSize = window.innerWidth / this.columns;
       this.rows = Math.ceil(window.innerHeight / this.cellSize);
       this.cellsTotal = this.rows * this.columns;
@@ -799,14 +828,13 @@
       });
 
       var triggerCell = function (e) {
-        if (e && e.target && e.target.closest && e.target.closest(".cursor_disabled, .hover_effect, .button, a, button")) return;
         var cell = self.getCellAtCursor(e ? e.clientX : undefined, e ? e.clientY : undefined);
         if (!cell || self.cachedCell === cell) return;
         self.cachedCell = cell;
         if (window.gsap) {
           window.gsap.killTweensOf(cell);
           window.gsap.set(cell, { opacity: 1 });
-          window.gsap.to(cell, { opacity: 0, duration: 0.35, delay: self.ttl, ease: "power1.out" });
+          window.gsap.to(cell, { opacity: 0, duration: 0.38, delay: self.ttl, ease: "power1.out" });
         }
       };
 
@@ -937,7 +965,7 @@
     renderer.setSize(width, height, false);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 0.88;
 
     // Studio Environment Reflections
     if (typeof window.RoomEnvironment !== "undefined" || THREE.RoomEnvironment) {
@@ -951,27 +979,27 @@
       }
     }
 
-    // Dynamic Lighting for metallic brilliance
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    // Dynamic Lighting tailored for dark gunmetal / titanium look
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.40);
     scene.add(ambientLight);
 
-    // Crisp white key light from upper right
-    var keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    // Subtle steel-white key glint from upper right
+    var keyLight = new THREE.DirectionalLight(0xd5dde5, 1.15);
     keyLight.position.set(4, 5, 5);
     scene.add(keyLight);
 
-    // Cyber cyan fill light from lower left
-    var cyanLight = new THREE.DirectionalLight(0x9fe4f3, 1.3);
+    // Deep cyan-slate rim light from lower left
+    var cyanLight = new THREE.DirectionalLight(0x557088, 0.70);
     cyanLight.position.set(-5, -2, 4);
     scene.add(cyanLight);
 
-    // Bright backlight for edge glint
-    var backLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    // Backlight for sharp silhouette against clouds
+    var backLight = new THREE.DirectionalLight(0x9aa5b2, 0.65);
     backLight.position.set(0, 5, -4);
     scene.add(backLight);
 
-    // Warm specular rim
-    var warmLight = new THREE.PointLight(0xffe8d0, 1.0, 25);
+    // Soft warm specular glint
+    var warmLight = new THREE.PointLight(0xb0a595, 0.45, 25);
     warmLight.position.set(3, -3, 3);
     scene.add(warmLight);
 
@@ -993,7 +1021,7 @@
     var lastDragX = 0, dragStartY = 0;
     var isModelLoaded = false;
 
-    // Center and prepare loaded mesh
+    // Center and prepare loaded mesh with dark titanium finish
     function onModelLoaded(object) {
       var box = new THREE.Box3().setFromObject(object);
       var center = box.getCenter(new THREE.Vector3());
@@ -1008,14 +1036,13 @@
       var scale = targetDim / maxDim;
       meshPivot.scale.set(scale, scale, scale);
 
-      // Enhance metallic reflections and roughness
+      // Enhance with dark gunmetal metallic material to blend with dark design
       object.traverse(function (child) {
-        if (child.isMesh) {
-          if (child.material) {
-            child.material.metalness = 0.90;
-            child.material.roughness = 0.20;
-            child.material.needsUpdate = true;
-          }
+        if (child.isMesh && child.material) {
+          child.material.color.setHex(0x30343a); // Dark gunmetal/titanium
+          child.material.metalness = 0.95;
+          child.material.roughness = 0.32;
+          child.material.needsUpdate = true;
         }
       });
 
@@ -1076,8 +1103,9 @@
         function (obj) {
           var mat = new THREE.MeshStandardMaterial({
             map: texture,
-            metalness: 0.90,
-            roughness: 0.20
+            color: 0x30343a, // Dark gunmetal/titanium
+            metalness: 0.95,
+            roughness: 0.32
           });
           obj.traverse(function (child) {
             if (child.isMesh) {
@@ -1102,8 +1130,10 @@
       targetTiltX = normY * 0.35;
     }, { passive: true });
 
-    // Drag / Touch to spin with momentum
-    container.addEventListener("pointerdown", function (e) {
+    // Drag / Touch to spin with momentum (bound to hero banner so pointer-events: none on container works)
+    var heroBanner = document.querySelector(".banner__hero") || window;
+    heroBanner.addEventListener("pointerdown", function (e) {
+      if (e.target && e.target.closest && e.target.closest("button, a, .homeMiniVideo, .speed")) return;
       isDragging = true;
       lastDragX = e.clientX;
       dragStartY = e.clientY;
