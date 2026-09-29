@@ -1439,13 +1439,22 @@
     function onModelSuccess(gltf) {
       rootModel = gltf.scene;
 
-      // Hide headphones (Circle.003) so the Walkman body & cassette player stand out cleanly
+      // Hide headphones and fix material depthWrite/transparency glitch
       rootModel.traverse(function (child) {
         if (child.isMesh) {
-          if (child.name.indexOf("Circle.003") !== -1) {
+          if (child.name.indexOf("Circle") !== -1) {
             child.visible = false;
+            return;
           }
-          if (child.name.indexOf("Cube.005") !== -1) {
+          var mats = Array.isArray(child.material) ? child.material : [child.material];
+          mats.forEach(function (m) {
+            m.depthWrite = true;
+            m.transparent = false;
+            m.alphaTest = 0.2;
+            m.side = THREE.FrontSide;
+            m.needsUpdate = true;
+          });
+          if (child.name.indexOf("Cube.005") !== -1 || child.name.indexOf("Cube005") !== -1) {
             tapeMesh = child;
           }
         }
