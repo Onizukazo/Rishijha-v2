@@ -1306,16 +1306,13 @@
   function initAboutWalkman() {
     var canvas = document.getElementById("aboutWalkmanCanvas");
     var stage = document.getElementById("aboutWalkmanStage");
-    var hotlineBtn = document.getElementById("walkmanHotlineBtn");
-    var hotlineText = document.getElementById("walkmanHotlineText");
-    var hotlineLed = document.getElementById("walkmanHotlineLed");
     var aboutSection = document.getElementById("about");
 
     if (!canvas || !stage || typeof window.THREE === "undefined") return;
 
     var THREE = window.THREE;
-    var width = stage.clientWidth || 360;
-    var height = stage.clientHeight || 440;
+    var width = stage.clientWidth || 400;
+    var height = stage.clientHeight || 560;
 
     // Web Audio Synthesizer for tactile mechanical cassette switch clicks
     var audioCtx = null;
@@ -1389,9 +1386,9 @@
     // Scene
     var scene = new THREE.Scene();
 
-    // Camera
+    // Camera (tuned for bold heroic presence filling the left column)
     var camera = new THREE.PerspectiveCamera(24, width / height, 0.1, 100);
-    camera.position.set(0.16, 0.18, 1.08);
+    camera.position.set(0.10, 0.07, 0.78);
     camera.lookAt(0, 0.005, 0);
 
     // Renderer
@@ -1518,23 +1515,6 @@
           });
         }
       }
-
-      // UI state
-      if (hotlineBtn) {
-        if (isHotlineEngaged) hotlineBtn.classList.add("is-active");
-        else hotlineBtn.classList.remove("is-active");
-      }
-      if (hotlineText) {
-        hotlineText.textContent = isHotlineEngaged ? "HOT LINE : ACTIVE [ON AIR]" : "HOT LINE : READY";
-      }
-    }
-
-    // Attach click to HUD button
-    if (hotlineBtn) {
-      hotlineBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        pressYellowButton();
-      });
     }
 
     // Raycasting & Interaction
@@ -1685,8 +1665,8 @@
     // Resize handler
     function onResize() {
       if (!stage || !renderer || !camera) return;
-      var w = stage.clientWidth || 360;
-      var h = stage.clientHeight || 440;
+      var w = stage.clientWidth || 400;
+      var h = stage.clientHeight || 560;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
