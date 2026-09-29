@@ -965,7 +965,7 @@
     renderer.setSize(width, height, false);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.88;
+    renderer.toneMappingExposure = 0.92;
 
     // Studio Environment Reflections
     if (typeof window.RoomEnvironment !== "undefined" || THREE.RoomEnvironment) {
@@ -979,29 +979,19 @@
       }
     }
 
-    // Dynamic Lighting tailored for dark gunmetal / titanium look
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.40);
+    // Dynamic Lighting matching authentic liquid chrome reference
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
     scene.add(ambientLight);
 
-    // Subtle steel-white key glint from upper right
-    var keyLight = new THREE.DirectionalLight(0xd5dde5, 1.15);
-    keyLight.position.set(4, 5, 5);
+    // Key light for crisp chrome reflection bands
+    var keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    keyLight.position.set(1.5, 3, 4);
     scene.add(keyLight);
 
-    // Deep cyan-slate rim light from lower left
-    var cyanLight = new THREE.DirectionalLight(0x557088, 0.70);
-    cyanLight.position.set(-5, -2, 4);
-    scene.add(cyanLight);
-
-    // Backlight for sharp silhouette against clouds
-    var backLight = new THREE.DirectionalLight(0x9aa5b2, 0.65);
-    backLight.position.set(0, 5, -4);
-    scene.add(backLight);
-
-    // Soft warm specular glint
-    var warmLight = new THREE.PointLight(0xb0a595, 0.45, 25);
-    warmLight.position.set(3, -3, 3);
-    scene.add(warmLight);
+    // Subtle cool-rim fill for edge definition
+    var rimLight = new THREE.DirectionalLight(0xb0c4de, 0.25);
+    rimLight.position.set(-3, 2, -2);
+    scene.add(rimLight);
 
     // Root group for multi-axis rotation and tilt
     var modelGroup = new THREE.Group();
@@ -1015,13 +1005,23 @@
     var baseRevolvingSpeed = 0.012; // Smooth continuous revolution
     var currentRevolvingAngle = 0;
     var extraSpinVelocity = 0;
+    var isAutoRevolving = true;
     var targetTiltX = 0, targetTiltY = 0;
     var currentTiltX = 0, currentTiltY = 0;
     var isDragging = false;
     var lastDragX = 0, dragStartY = 0;
     var isModelLoaded = false;
 
-    // Center and prepare loaded mesh with dark titanium finish
+    window.__hero3d = {
+      modelGroup: modelGroup,
+      scene: scene,
+      renderer: renderer,
+      setAngle: function (a) { currentRevolvingAngle = a; },
+      pause: function () { isAutoRevolving = false; },
+      play: function () { isAutoRevolving = true; }
+    };
+
+    // Center and prepare loaded mesh matching user reference chrome
     function onModelLoaded(object) {
       var box = new THREE.Box3().setFromObject(object);
       var center = box.getCenter(new THREE.Vector3());
@@ -1036,12 +1036,13 @@
       var scale = targetDim / maxDim;
       meshPivot.scale.set(scale, scale, scale);
 
-      // Enhance with dark gunmetal metallic material to blend with dark design
+      // Liquid chrome platinum material matching exact reference image
       object.traverse(function (child) {
         if (child.isMesh && child.material) {
-          child.material.color.setHex(0x30343a); // Dark gunmetal/titanium
-          child.material.metalness = 0.95;
-          child.material.roughness = 0.32;
+          child.material.color.setHex(0xffffff);
+          child.material.metalness = 0.20;
+          child.material.roughness = 0.35;
+          child.material.envMapIntensity = 0.75;
           child.material.needsUpdate = true;
         }
       });
@@ -1103,9 +1104,10 @@
         function (obj) {
           var mat = new THREE.MeshStandardMaterial({
             map: texture,
-            color: 0x30343a, // Dark gunmetal/titanium
-            metalness: 0.95,
-            roughness: 0.32
+            color: 0xffffff,
+            metalness: 0.20,
+            roughness: 0.35,
+            envMapIntensity: 0.75
           });
           obj.traverse(function (child) {
             if (child.isMesh) {
@@ -1174,7 +1176,9 @@
 
       // Base continuous revolving motion + decay extra spin
       extraSpinVelocity *= 0.94;
-      currentRevolvingAngle += baseRevolvingSpeed + extraSpinVelocity;
+      if (isAutoRevolving) {
+        currentRevolvingAngle += baseRevolvingSpeed + extraSpinVelocity;
+      }
 
       // Smooth tilt interpolation
       currentTiltX += (targetTiltX - currentTiltX) * 0.06;
