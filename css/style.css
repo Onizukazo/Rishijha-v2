@@ -950,22 +950,22 @@ section .marqueeText {
   align-items: center;
   bottom: auto;
   display: flex;
-  height: 32vh;
+  height: 38vh;
   justify-content: center;
   left: 50vw;
   pointer-events: none;
   position: absolute;
   top: 55vh;
   transform: translate(-50%, -50%);
-  width: 70vw;
+  width: 72vw;
   z-index: 3;
   user-select: none;
 }
 @media screen and (max-width: 600px) {
   .hero__3d-container {
-    height: 32vh;
+    height: 36vh;
     top: 45vh;
-    width: 70vw;
+    width: 80vw;
   }
 }
 #hero3dCanvas {

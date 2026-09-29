@@ -1003,8 +1003,8 @@
     var meshPivot = new THREE.Group();
     modelGroup.add(meshPivot);
 
-    // State for revolving and interactive tilt (relaxed, elegant speed)
-    var baseRevolvingSpeed = -0.005; // Calmer, elegant continuous revolution speed
+    // State for revolving and interactive tilt (balanced golden-mean speed)
+    var baseRevolvingSpeed = -0.0075; // Tuned rotation speed: lively yet smooth
     var currentRevolvingAngle = -0.45; // Initial 3/4 angle matching pxpush
     var extraSpinVelocity = 0;
     var scrollSpinVelocity = 0;
@@ -1017,15 +1017,15 @@
     var isModelLoaded = false;
     var modelBoundingSize = null;
 
-    // Exact frustum fitting calculation matching pxpush lt()
+    // Exact frustum fitting calculation with bolder heroic scale
     function updateModelScale() {
       if (!meshPivot || !modelBoundingSize) return;
-      var w = container.clientWidth || (window.innerWidth * 0.7);
-      var h = container.clientHeight || (window.innerHeight * 0.32);
+      var w = container.clientWidth || (window.innerWidth * 0.72);
+      var h = container.clientHeight || (window.innerHeight * 0.38);
       var vFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
       var visibleHeight = 2 * camera.position.z * Math.tan(vFovRad);
       var visibleWidth = visibleHeight * (w / h);
-      var scale = Math.min((visibleWidth * 0.8) / modelBoundingSize.x, (visibleHeight * 0.8) / modelBoundingSize.y);
+      var scale = Math.min((visibleWidth * 0.90) / modelBoundingSize.x, (visibleHeight * 0.92) / modelBoundingSize.y);
       meshPivot.scale.setScalar(scale);
     }
 
@@ -1286,8 +1286,8 @@
     // Resize Handler with responsive frustum scaling
     function onResize() {
       if (!container || !renderer || !camera) return;
-      var w = container.clientWidth || (window.innerWidth * 0.7);
-      var h = container.clientHeight || (window.innerHeight * 0.32);
+      var w = container.clientWidth || (window.innerWidth * 0.72);
+      var h = container.clientHeight || (window.innerHeight * 0.38);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
