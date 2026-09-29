@@ -1596,21 +1596,99 @@
       }
     }
 
-    // Try loading sony_tps-l2_walkman.glb first, then fallback to other models
-    loader.load("assets/model/sony_tps-l2_walkman.glb", function (gltf) {
-      onModelSuccess(gltf, "tps_l2");
-    }, undefined, function () {
-      loader.load("sony_tps-l2_walkman.glb", function (gltf) {
+    // FBX Walkman Loader (Direct FBX format with custom PBR textures)
+    function loadFbxWalkman(onSuccess, onError) {
+      if (typeof THREE.FBXLoader === "undefined") {
+        if (onError) onError(new Error("FBXLoader not loaded"));
+        return;
+      }
+      var texLoader = new THREE.TextureLoader();
+      var baseColor = texLoader.load("assets/model/textures/Walkman_BaseColor.png");
+      baseColor.encoding = THREE.sRGBEncoding;
+      var metallic = texLoader.load("assets/model/textures/Walkman_Metallic.png");
+      var roughness = texLoader.load("assets/model/textures/Walkman_Roughness.png");
+      var normal = texLoader.load("assets/model/textures/Walkman_Normal.png");
+
+      var walkmanMat = new THREE.MeshStandardMaterial({
+        map: baseColor,
+        metalnessMap: metallic,
+        roughnessMap: roughness,
+        normalMap: normal,
+        roughness: 0.7,
+        metalness: 0.8,
+        side: THREE.FrontSide,
+        depthWrite: true,
+        transparent: false
+      });
+
+      function applyFbxSetup(fbx) {
+        fbx.traverse(function (c) {
+          if (c.isMesh) {
+            c.material = walkmanMat;
+            if (c.name.indexOf("Button1") !== -1) {
+              buttonNode = c;
+            }
+            if (c.name.indexOf("Cylinder") !== -1 || c.name.indexOf("Slider") !== -1) {
+              tapeMesh = c;
+            }
+          }
+        });
+
+        var rawBox = new THREE.Box3().setFromObject(fbx);
+        var rawSize = rawBox.getSize(new THREE.Vector3());
+        var targetHeight = 0.27;
+        var scale = targetHeight / (rawSize.y || 1);
+        fbx.scale.setScalar(scale);
+
+        var box = new THREE.Box3().setFromObject(fbx);
+        var center = box.getCenter(new THREE.Vector3());
+        fbx.position.set(-center.x, -center.y, -center.z);
+
+        walkmanGroup.add(fbx);
+        rootModel = fbx;
+        currentModelType = "fbx";
+
+        if (buttonNode) {
+          buttonInitialY = buttonNode.position.y;
+          var bBox = new THREE.Box3().setFromObject(buttonNode);
+          var bCenter = bBox.getCenter(new THREE.Vector3());
+          var hitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
+          var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+          buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
+          buttonHitbox.position.copy(bCenter);
+          walkmanGroup.add(buttonHitbox);
+        }
+
+        if (onSuccess) onSuccess();
+      }
+
+      var fbxLoader = new THREE.FBXLoader();
+      fbxLoader.load("assets/model/walkman.fbx", function (fbx) {
+        applyFbxSetup(fbx);
+      }, undefined, function () {
+        fbxLoader.load("sony-tps-l2-walkman/source/walkman.fbx", function (fbx) {
+          applyFbxSetup(fbx);
+        }, undefined, onError);
+      });
+    }
+
+    // Load Walkman: Try FBX first, then GLB models as fallbacks
+    loadFbxWalkman(undefined, function () {
+      loader.load("assets/model/sony_tps-l2_walkman.glb", function (gltf) {
         onModelSuccess(gltf, "tps_l2");
       }, undefined, function () {
-        loader.load("assets/model/old_walkman.glb", function (gltf) {
-          onModelSuccess(gltf, "old_walkman");
+        loader.load("sony_tps-l2_walkman.glb", function (gltf) {
+          onModelSuccess(gltf, "tps_l2");
         }, undefined, function () {
-          loader.load("assets/model/walkman_music_player.glb", function (gltf) {
-            onModelSuccess(gltf, "classic");
+          loader.load("assets/model/old_walkman.glb", function (gltf) {
+            onModelSuccess(gltf, "old_walkman");
           }, undefined, function () {
-            loader.load("walkman_music_player.glb", function (gltf) {
+            loader.load("assets/model/walkman_music_player.glb", function (gltf) {
               onModelSuccess(gltf, "classic");
+            }, undefined, function () {
+              loader.load("walkman_music_player.glb", function (gltf) {
+                onModelSuccess(gltf, "classic");
+              });
             });
           });
         });
@@ -1627,8 +1705,8 @@
       // Button physical 3D animation (for native 3D button)
       if (buttonNode && window.gsap) {
         window.gsap.killTweensOf(buttonNode.position);
-        var pressDist = (currentModelType === "tps_l2") ? 0.025 : 0.003;
-        var holdDist = (currentModelType === "tps_l2") ? 0.015 : 0.0018;
+        var pressDist = (currentModelType === "fbx") ? 2.5 : ((currentModelType === "tps_l2") ? 0.025 : 0.003);
+        var holdDist = (currentModelType === "fbx") ? 1.5 : ((currentModelType === "tps_l2") ? 0.015 : 0.0018);
         window.gsap.timeline()
           .to(buttonNode.position, { y: buttonInitialY - pressDist, duration: 0.07, ease: "power2.in" })
           .to(buttonNode.position, {
