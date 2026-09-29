@@ -979,19 +979,19 @@
       }
     }
 
-    // Dynamic Lighting rig matching pxpush studio
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // Dynamic Lighting rig matching pxpush studio with enhanced contrast
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
     scene.add(ambientLight);
 
-    var keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    var keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
     keyLight.position.set(3, 4, 8);
     scene.add(keyLight);
 
-    var fillLight = new THREE.DirectionalLight(0xa8d8ff, 1.2);
+    var fillLight = new THREE.DirectionalLight(0xa8d8ff, 0.9);
     fillLight.position.set(-4, -1, 6);
     scene.add(fillLight);
 
-    var backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    var backLight = new THREE.DirectionalLight(0xffffff, 1.3);
     backLight.position.set(0, 2, -8);
     scene.add(backLight);
 
@@ -1094,13 +1094,13 @@
         normalMap: normal,
         normalScale: new THREE.Vector2(0.8, 0.8),
         aoMap: ao,
-        aoMapIntensity: 0.9,
-        color: new THREE.Color(0xf2f6fa),
-        metalness: 0.96,
+        aoMapIntensity: 0.95,
+        color: new THREE.Color(0x464e57),
+        metalness: 0.95,
         roughness: 0.28,
-        clearcoat: 0.6,
-        clearcoatRoughness: 0.12,
-        envMapIntensity: 1.45
+        clearcoat: 0.7,
+        clearcoatRoughness: 0.1,
+        envMapIntensity: 0.95
       });
     }
 
