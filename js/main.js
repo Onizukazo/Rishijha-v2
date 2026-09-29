@@ -1003,8 +1003,8 @@
     var meshPivot = new THREE.Group();
     modelGroup.add(meshPivot);
 
-    // State for revolving and interactive tilt (matching pxpush speed and initial angle)
-    var baseRevolvingSpeed = -0.010; // Continuous revolution speed matching pxpush
+    // State for revolving and interactive tilt (relaxed, elegant speed)
+    var baseRevolvingSpeed = -0.005; // Calmer, elegant continuous revolution speed
     var currentRevolvingAngle = -0.45; // Initial 3/4 angle matching pxpush
     var extraSpinVelocity = 0;
     var scrollSpinVelocity = 0;
@@ -1248,24 +1248,31 @@
       }).observe(heroElem);
     }
 
-    // Render Loop with scroll velocity spring momentum matching pxpush
+    // Render Loop with frame-rate independent delta timing and scroll velocity spring momentum
+    var clock = new THREE.Clock();
     function render3D() {
       requestAnimationFrame(render3D);
-      if (!isHeroVisible || !isModelLoaded) return;
+      if (!isHeroVisible || !isModelLoaded) {
+        if (clock.running) clock.getDelta();
+        return;
+      }
 
-      // Scroll spin decay & spring interpolation matching pxpush
-      targetScrollSpin *= 0.90;
-      scrollSpinVelocity += (targetScrollSpin - scrollSpinVelocity) * 0.16;
+      var delta = Math.min(clock.getDelta(), 0.1);
+      var timeFactor = delta * 60; // 1.0 at 60fps, 0.5 at 120fps
+
+      // Scroll spin decay & spring interpolation
+      targetScrollSpin *= Math.pow(0.90, timeFactor);
+      scrollSpinVelocity += (targetScrollSpin - scrollSpinVelocity) * (1 - Math.pow(1 - 0.16, timeFactor));
 
       // Base continuous revolving motion + scroll spin + drag spin
-      extraSpinVelocity *= 0.94;
+      extraSpinVelocity *= Math.pow(0.94, timeFactor);
       if (isAutoRevolving) {
-        currentRevolvingAngle += baseRevolvingSpeed + scrollSpinVelocity + extraSpinVelocity;
+        currentRevolvingAngle += (baseRevolvingSpeed + scrollSpinVelocity + extraSpinVelocity) * timeFactor;
       }
 
       // Smooth tilt interpolation
-      currentTiltX += (targetTiltX - currentTiltX) * 0.06;
-      currentTiltY += (targetTiltY - currentTiltY) * 0.06;
+      currentTiltX += (targetTiltX - currentTiltX) * (1 - Math.pow(1 - 0.06, timeFactor));
+      currentTiltY += (targetTiltY - currentTiltY) * (1 - Math.pow(1 - 0.06, timeFactor));
 
       // Apply rotations: revolving on Y, tilting on X and Z
       modelGroup.rotation.x = currentTiltX;
