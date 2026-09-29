@@ -1003,9 +1003,9 @@
     var meshPivot = new THREE.Group();
     modelGroup.add(meshPivot);
 
-    // State for revolving and interactive tilt (balanced golden-mean speed)
-    var baseRevolvingSpeed = -0.0075; // Tuned rotation speed: lively yet smooth
-    var currentRevolvingAngle = -0.45; // Initial 3/4 angle matching pxpush
+    // State for revolving and interactive tilt
+    var baseRevolvingSpeed = 0.0075; // Continuous revolution from front towards right
+    var currentRevolvingAngle = 0; // Starts clean front-facing
     var extraSpinVelocity = 0;
     var scrollSpinVelocity = 0;
     var targetScrollSpin = 0;
@@ -1029,7 +1029,7 @@
       meshPivot.scale.setScalar(scale);
     }
 
-    // Scroll velocity reaction matching pxpush J()
+    // Scroll velocity reaction matching scroll direction
     if (window.ScrollTrigger) {
       window.ScrollTrigger.create({
         trigger: document.body,
@@ -1037,7 +1037,7 @@
         end: "bottom bottom",
         onUpdate: function (self) {
           var v = self.getVelocity();
-          targetScrollSpin = THREE.MathUtils.clamp(-v * 2e-5, -0.08, 0.08);
+          targetScrollSpin = THREE.MathUtils.clamp(v * 2e-5, -0.08, 0.08);
         }
       });
     } else {
@@ -1050,7 +1050,7 @@
         var v = (dy / dt) * 1000;
         lastScrollY = window.scrollY;
         lastScrollTime = now;
-        targetScrollSpin = Math.max(-0.08, Math.min(0.08, -v * 2e-5));
+        targetScrollSpin = Math.max(-0.08, Math.min(0.08, v * 2e-5));
       }, { passive: true });
     }
 
@@ -1142,9 +1142,9 @@
       meshPivot.add(object);
       isModelLoaded = true;
 
-      // Initial placement & rotation matching pxpush
+      // Initial placement & rotation
       modelGroup.position.set(0, 0, 0);
-      modelGroup.rotation.set(0, -0.45, 0);
+      modelGroup.rotation.set(0, 0, 0);
 
       // Smooth entrance scale
       modelGroup.scale.set(0.001, 0.001, 0.001);
