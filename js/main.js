@@ -1705,13 +1705,22 @@
       // Button physical 3D animation (for native 3D button)
       if (buttonNode && window.gsap) {
         window.gsap.killTweensOf(buttonNode.position);
-        var pressDist = (currentModelType === "fbx") ? 2.5 : ((currentModelType === "tps_l2") ? 0.025 : 0.003);
-        var holdDist = (currentModelType === "fbx") ? 1.5 : ((currentModelType === "tps_l2") ? 0.015 : 0.0018);
+        window.gsap.killTweensOf(buttonNode.scale);
+        var pressDist = (currentModelType === "fbx") ? 8.0 : ((currentModelType === "tps_l2") ? 0.025 : 0.003);
+        var holdDist = (currentModelType === "fbx") ? 5.0 : ((currentModelType === "tps_l2") ? 0.015 : 0.0018);
         window.gsap.timeline()
-          .to(buttonNode.position, { y: buttonInitialY - pressDist, duration: 0.07, ease: "power2.in" })
+          .to(buttonNode.position, { y: buttonInitialY - pressDist, duration: 0.08, ease: "power2.in" })
           .to(buttonNode.position, {
             y: isHotlineEngaged ? buttonInitialY - holdDist : buttonInitialY,
-            duration: 0.12,
+            duration: 0.15,
+            ease: "back.out(2.5)"
+          });
+        // Squash effect on the button cap for tactile feedback
+        window.gsap.timeline()
+          .to(buttonNode.scale, { y: 0.5, duration: 0.08, ease: "power2.in" })
+          .to(buttonNode.scale, {
+            y: isHotlineEngaged ? 0.7 : 1.0,
+            duration: 0.15,
             ease: "back.out(2)"
           });
       }
