@@ -1706,8 +1706,8 @@
       if (buttonNode && window.gsap) {
         window.gsap.killTweensOf(buttonNode.position);
         window.gsap.killTweensOf(buttonNode.scale);
-        var pressDist = (currentModelType === "fbx") ? 8.0 : ((currentModelType === "tps_l2") ? 0.025 : 0.003);
-        var holdDist = (currentModelType === "fbx") ? 5.0 : ((currentModelType === "tps_l2") ? 0.015 : 0.0018);
+        var pressDist = (currentModelType === "fbx") ? 0.4 : ((currentModelType === "tps_l2") ? 0.025 : 0.003);
+        var holdDist = (currentModelType === "fbx") ? 0.25 : ((currentModelType === "tps_l2") ? 0.015 : 0.0018);
         window.gsap.timeline()
           .to(buttonNode.position, { y: buttonInitialY - pressDist, duration: 0.08, ease: "power2.in" })
           .to(buttonNode.position, {
@@ -1717,9 +1717,9 @@
           });
         // Squash effect on the button cap for tactile feedback
         window.gsap.timeline()
-          .to(buttonNode.scale, { y: 0.5, duration: 0.08, ease: "power2.in" })
+          .to(buttonNode.scale, { y: 0.7, duration: 0.08, ease: "power2.in" })
           .to(buttonNode.scale, {
-            y: isHotlineEngaged ? 0.7 : 1.0,
+            y: isHotlineEngaged ? 0.85 : 1.0,
             duration: 0.15,
             ease: "back.out(2)"
           });
