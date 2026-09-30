@@ -1704,24 +1704,25 @@
 
       // Button physical 3D animation (for native 3D button)
       if (buttonNode && window.gsap) {
-        window.gsap.killTweensOf(buttonNode.position);
         window.gsap.killTweensOf(buttonNode.scale);
 
         if (isHotlineEngaged) {
-          // PRESSING IN: push down a little, then hide
-          buttonNode.visible = true;
-          window.gsap.timeline()
-            .to(buttonNode.position, { y: buttonInitialY - 0.3, duration: 0.1, ease: "power2.in" })
-            .to(buttonNode.scale, { y: 0.3, duration: 0.1, ease: "power2.in" }, 0)
-            .call(function () { buttonNode.visible = false; });
+          // PRESSING IN: quickly shrink then hide
+          window.gsap.to(buttonNode.scale, {
+            x: 1, y: 0.01, z: 1,
+            duration: 0.1,
+            ease: "power2.in",
+            onComplete: function () { buttonNode.visible = false; }
+          });
         } else {
-          // POPPING BACK UP: show and animate up into position
+          // POPPING BACK UP: show and scale back to normal
           buttonNode.visible = true;
-          buttonNode.position.y = buttonInitialY - 0.3;
-          buttonNode.scale.y = 0.3;
-          window.gsap.timeline()
-            .to(buttonNode.position, { y: buttonInitialY, duration: 0.15, ease: "back.out(3)" })
-            .to(buttonNode.scale, { y: 1.0, duration: 0.15, ease: "back.out(3)" }, 0);
+          buttonNode.scale.set(1, 0.01, 1);
+          window.gsap.to(buttonNode.scale, {
+            x: 1, y: 1, z: 1,
+            duration: 0.15,
+            ease: "back.out(3)"
+          });
         }
       }
 
