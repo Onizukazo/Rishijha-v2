@@ -941,8 +941,6 @@
   function initHeroDvdAnimation() {
     var container = document.getElementById("heroDvdContainer") || document.querySelector(".banner__hero");
     var logo = document.getElementById("heroDvdLogo");
-    var mask = document.getElementById("heroDvdMask");
-    var cornerBadge = document.getElementById("heroDvdCornerBadge");
     var heroSection = document.getElementById("hero");
 
     if (!container || !logo) return;
@@ -953,7 +951,7 @@
       var w = rect.width;
       var h = rect.height;
       if (!w || w <= 0) {
-        w = Math.max(180, Math.min(340, window.innerWidth * 0.22));
+        w = Math.max(160, Math.min(300, window.innerWidth * 0.19));
         h = w * (1024 / 1536);
       }
       return { width: w, height: h };
@@ -965,9 +963,9 @@
     var maxX = Math.max(10, cW - logoSize.width);
     var maxY = Math.max(10, cH - logoSize.height);
 
-    // Speed in pixels per second
-    var baseSpeedX = 160;
-    var baseSpeedY = 128; // Distinct ratio avoids repetitive diamond loops
+    // Calm, smooth DVD drift speed in pixels per second
+    var baseSpeedX = 105;
+    var baseSpeedY = 82; // Non-repeating trajectory ratio
 
     // Velocity
     var vx = (Math.random() < 0.5 ? 1 : -1) * baseSpeedX;
@@ -983,53 +981,10 @@
     var dragStartPosX = 0;
     var dragStartPosY = 0;
     var lastDragSamples = [];
-    var isSquishing = false;
-    var squishScaleX = 1;
-    var squishScaleY = 1;
-    var cornerTimeout = null;
 
-    // Corner Hit Celebration (The Office Easter Egg!)
-    function triggerCornerCelebration() {
-      if (cornerBadge) {
-        cornerBadge.classList.add("active");
-        clearTimeout(cornerTimeout);
-        cornerTimeout = setTimeout(function () {
-          cornerBadge.classList.remove("active");
-        }, 2200);
-      }
-      // Celebratory bounce scale
-      squishScaleX = 1.25;
-      squishScaleY = 1.25;
-      isSquishing = true;
-      setTimeout(function () {
-        squishScaleX = 1;
-        squishScaleY = 1;
-        setTimeout(function () { isSquishing = false; }, 150);
-      }, 200);
-    }
-
-    // Wall Bounce squash & stretch
-    function triggerWallSquish(axis) {
-      if (axis === "x") {
-        squishScaleX = 0.90;
-        squishScaleY = 1.10;
-      } else {
-        squishScaleX = 1.10;
-        squishScaleY = 0.90;
-      }
-      isSquishing = true;
-      setTimeout(function () {
-        squishScaleX = 1;
-        squishScaleY = 1;
-        setTimeout(function () { isSquishing = false; }, 100);
-      }, 90);
-    }
-
-    // Render transform
+    // Clean, rigid transform update without cartoon distortion
     function updateTransform() {
-      var sX = squishScaleX;
-      var sY = squishScaleY;
-      logo.style.transform = "translate3d(" + posX.toFixed(2) + "px, " + posY.toFixed(2) + "px, 0) scale(" + sX + ", " + sY + ")";
+      logo.style.transform = "translate3d(" + posX.toFixed(2) + "px, " + posY.toFixed(2) + "px, 0)";
     }
 
     // Animation Loop with delta time
@@ -1044,43 +999,27 @@
       lastTime = currentTime;
 
       // Guard against huge spikes when tab was backgrounded
-      if (dt > 0.1) dt = 0.1;
+      if (dt > 0.08) dt = 0.08;
 
       if (!isDragging) {
         posX += vx * dt;
         posY += vy * dt;
 
-        var hitLeft = false, hitRight = false, hitTop = false, hitBottom = false;
-
+        // Clean, authentic DVD Screensaver bouncing
         if (posX <= 0) {
           posX = 0;
           vx = Math.abs(vx);
-          hitLeft = true;
         } else if (posX >= maxX) {
           posX = maxX;
           vx = -Math.abs(vx);
-          hitRight = true;
         }
 
         if (posY <= 0) {
           posY = 0;
           vy = Math.abs(vy);
-          hitTop = true;
         } else if (posY >= maxY) {
           posY = maxY;
           vy = -Math.abs(vy);
-          hitBottom = true;
-        }
-
-        var hitX = hitLeft || hitRight;
-        var hitY = hitTop || hitBottom;
-
-        if (hitX && hitY) {
-          triggerCornerCelebration();
-        } else if (hitX) {
-          triggerWallSquish("x");
-        } else if (hitY) {
-          triggerWallSquish("y");
         }
 
         updateTransform();
@@ -1134,9 +1073,8 @@
           var throwVx = (last.x - first.x) / dt;
           var throwVy = (last.y - first.y) / dt;
           var speed = Math.sqrt(throwVx * throwVx + throwVy * throwVy);
-          if (speed > 80) {
-            // Apply throw direction with bounded speed
-            var targetSpeed = Math.min(450, Math.max(140, speed));
+          if (speed > 60) {
+            var targetSpeed = Math.min(260, Math.max(90, speed));
             vx = (throwVx / speed) * targetSpeed;
             vy = (throwVy / speed) * targetSpeed;
           }
@@ -1152,20 +1090,11 @@
     window.addEventListener("touchmove", onPointerMove, { passive: true });
     window.addEventListener("touchend", onPointerUp);
 
-    // Click to bump direction
+    // Subtle click nudge
     logo.addEventListener("click", function (e) {
       if (Math.abs(posX - dragStartPosX) < 5 && Math.abs(posY - dragStartPosY) < 5) {
-        // Reverse direction and bump angle
-        vx = -Math.sign(vx) * (baseSpeedX + Math.random() * 40 - 20);
-        vy = -Math.sign(vy) * (baseSpeedY + Math.random() * 40 - 20);
-        squishScaleX = 1.15;
-        squishScaleY = 1.15;
-        updateTransform();
-        setTimeout(function () {
-          squishScaleX = 1;
-          squishScaleY = 1;
-          updateTransform();
-        }, 180);
+        vx = -Math.sign(vx) * baseSpeedX;
+        vy = -Math.sign(vy) * baseSpeedY;
       }
     });
 
