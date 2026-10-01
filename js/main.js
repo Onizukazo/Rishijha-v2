@@ -936,369 +936,319 @@
   }
 
   /* ------------------------------------------------------------
-     12b. 3D REVOLVING RISHI EMBLEM (THREE.JS)
+     12b. HERO DVD SCREENSAVER ANIMATION (BOUNCING RISHI LOGO)
      ------------------------------------------------------------ */
-  function initHero3DModel() {
-    var canvas = document.getElementById("hero3dCanvas");
-    var container = document.getElementById("hero3dContainer");
-    if (!canvas || !container || typeof window.THREE === "undefined") return;
+  function initHeroDvdAnimation() {
+    var container = document.getElementById("heroDvdContainer") || document.querySelector(".banner__hero");
+    var logo = document.getElementById("heroDvdLogo");
+    var mask = document.getElementById("heroDvdMask");
+    var cornerBadge = document.getElementById("heroDvdCornerBadge");
+    var heroSection = document.getElementById("hero");
 
-    var THREE = window.THREE;
-    var width = container.clientWidth || 600;
-    var height = container.clientHeight || 450;
+    if (!container || !logo) return;
 
-    // Scene
-    var scene = new THREE.Scene();
+    // Iconic vibrant DVD Screensaver palette
+    var DVD_COLORS = [
+      { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.75)" },  // Electric Cyan
+      { color: "#ff2a85", glow: "rgba(255, 42, 133, 0.75)" },  // Hot Magenta
+      { color: "#ffe600", glow: "rgba(255, 230, 0, 0.75)" },   // Cyber Yellow
+      { color: "#00ff88", glow: "rgba(0, 255, 136, 0.75)" },   // Neon Mint
+      { color: "#ff7700", glow: "rgba(255, 119, 0, 0.75)" },   // Sunset Orange
+      { color: "#b042ff", glow: "rgba(176, 66, 255, 0.75)" },  // Ultra Violet
+      { color: "#ffffff", glow: "rgba(255, 255, 255, 0.85)" },  // Crisp White
+      { color: "#ff3355", glow: "rgba(255, 51, 85, 0.75)" },   // Crimson Pink
+      { color: "#00bfff", glow: "rgba(0, 191, 255, 0.75)" },  // Deep Sky
+      { color: "#39ff14", glow: "rgba(57, 255, 20, 0.75)" }   // Matrix Lime
+    ];
+    var colorIndex = 0;
 
-    // Telephoto Perspective Camera matching pxpush.com (FOV: 10 at distance: 13 for isometric architectural view)
-    var camera = new THREE.PerspectiveCamera(10, width / height, 0.1, 100);
-    camera.position.set(0, 0, 13);
-
-    // Renderer
-    var renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance"
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(width, height, false);
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
-
-    // Studio Environment Reflections
-    if (typeof window.RoomEnvironment !== "undefined" || THREE.RoomEnvironment) {
-      try {
-        var RoomEnv = window.RoomEnvironment || THREE.RoomEnvironment;
-        var pmremGenerator = new THREE.PMREMGenerator(renderer);
-        pmremGenerator.compileEquirectangularShader();
-        scene.environment = pmremGenerator.fromScene(new RoomEnv(), 0.04).texture;
-      } catch (err) {
-        console.warn("RoomEnvironment init failed, using directional lights:", err);
+    // Apply color and glow
+    function applyColor(idx) {
+      colorIndex = (idx + DVD_COLORS.length) % DVD_COLORS.length;
+      var c = DVD_COLORS[colorIndex];
+      logo.style.setProperty("--dvd-color", c.color);
+      logo.style.setProperty("--dvd-glow", c.glow);
+      if (mask) {
+        mask.style.backgroundColor = c.color;
       }
     }
 
-    // Dynamic Lighting rig matching pxpush studio with enhanced contrast
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
-    scene.add(ambientLight);
+    function setNextColor() {
+      applyColor(colorIndex + 1);
+    }
 
-    var keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    keyLight.position.set(3, 4, 8);
-    scene.add(keyLight);
+    // Set initial color
+    applyColor(0);
 
-    var fillLight = new THREE.DirectionalLight(0xa8d8ff, 0.9);
-    fillLight.position.set(-4, -1, 6);
-    scene.add(fillLight);
+    // Calculate dimensions & bounds
+    function getLogoDimensions() {
+      var rect = logo.getBoundingClientRect();
+      var w = rect.width;
+      var h = rect.height;
+      if (!w || w <= 0) {
+        w = Math.max(180, Math.min(340, window.innerWidth * 0.22));
+        h = w * (1024 / 1536);
+      }
+      return { width: w, height: h };
+    }
 
-    var backLight = new THREE.DirectionalLight(0xffffff, 1.3);
-    backLight.position.set(0, 2, -8);
-    scene.add(backLight);
+    var cW = container.clientWidth || window.innerWidth;
+    var cH = container.clientHeight || window.innerHeight;
+    var logoSize = getLogoDimensions();
+    var maxX = Math.max(10, cW - logoSize.width);
+    var maxY = Math.max(10, cH - logoSize.height);
 
-    // Root group for multi-axis rotation and tilt
-    var modelGroup = new THREE.Group();
-    scene.add(modelGroup);
+    // Speed in pixels per second
+    var baseSpeedX = 160;
+    var baseSpeedY = 128; // Distinct ratio avoids repetitive diamond loops
 
-    // Mesh pivot for precise center alignment
-    var meshPivot = new THREE.Group();
-    modelGroup.add(meshPivot);
+    // Velocity
+    var vx = (Math.random() < 0.5 ? 1 : -1) * baseSpeedX;
+    var vy = (Math.random() < 0.5 ? 1 : -1) * baseSpeedY;
 
-    // State for revolving and interactive tilt
-    var baseRevolvingSpeed = 0.0075; // Continuous revolution from front towards right
-    var currentRevolvingAngle = 0; // Starts clean front-facing
-    var extraSpinVelocity = 0;
-    var scrollSpinVelocity = 0;
-    var targetScrollSpin = 0;
-    var isAutoRevolving = true;
-    var targetTiltX = 0, targetTiltY = 0;
-    var currentTiltX = 0, currentTiltY = 0;
+    // Position (start in a golden-ratio center area)
+    var posX = (cW - logoSize.width) * (0.32 + Math.random() * 0.25);
+    var posY = (cH - logoSize.height) * (0.28 + Math.random() * 0.25);
+
     var isDragging = false;
-    var lastDragX = 0, dragStartY = 0;
-    var isModelLoaded = false;
-    var modelBoundingSize = null;
+    var dragStartX = 0;
+    var dragStartY = 0;
+    var dragStartPosX = 0;
+    var dragStartPosY = 0;
+    var lastDragSamples = [];
+    var isSquishing = false;
+    var squishScaleX = 1;
+    var squishScaleY = 1;
+    var cornerTimeout = null;
 
-    // Exact frustum fitting calculation with bolder heroic scale
-    function updateModelScale() {
-      if (!meshPivot || !modelBoundingSize) return;
-      var w = container.clientWidth || (window.innerWidth * 0.72);
-      var h = container.clientHeight || (window.innerHeight * 0.38);
-      var vFovRad = THREE.MathUtils.degToRad(camera.fov / 2);
-      var visibleHeight = 2 * camera.position.z * Math.tan(vFovRad);
-      var visibleWidth = visibleHeight * (w / h);
-      var scale = Math.min((visibleWidth * 0.90) / modelBoundingSize.x, (visibleHeight * 0.92) / modelBoundingSize.y);
-      meshPivot.scale.setScalar(scale);
+    // Corner Hit Celebration (The Office Easter Egg!)
+    function triggerCornerCelebration() {
+      setNextColor();
+      if (cornerBadge) {
+        cornerBadge.classList.add("active");
+        clearTimeout(cornerTimeout);
+        cornerTimeout = setTimeout(function () {
+          cornerBadge.classList.remove("active");
+        }, 2200);
+      }
+      // Celebratory bounce scale
+      squishScaleX = 1.25;
+      squishScaleY = 1.25;
+      isSquishing = true;
+      setTimeout(function () {
+        squishScaleX = 1;
+        squishScaleY = 1;
+        setTimeout(function () { isSquishing = false; }, 150);
+      }, 200);
     }
 
-    // Scroll velocity reaction matching scroll direction
-    if (window.ScrollTrigger) {
-      window.ScrollTrigger.create({
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        onUpdate: function (self) {
-          var v = self.getVelocity();
-          targetScrollSpin = THREE.MathUtils.clamp(v * 2e-5, -0.08, 0.08);
-        }
-      });
-    } else {
-      var lastScrollY = window.scrollY;
-      var lastScrollTime = performance.now();
-      window.addEventListener("scroll", function () {
-        var now = performance.now();
-        var dt = Math.max(1, now - lastScrollTime);
-        var dy = window.scrollY - lastScrollY;
-        var v = (dy / dt) * 1000;
-        lastScrollY = window.scrollY;
-        lastScrollTime = now;
-        targetScrollSpin = Math.max(-0.08, Math.min(0.08, v * 2e-5));
-      }, { passive: true });
-    }
-
-    window.__hero3d = {
-      modelGroup: modelGroup,
-      scene: scene,
-      renderer: renderer,
-      camera: camera,
-      setAngle: function (a) { currentRevolvingAngle = a; },
-      pause: function () { isAutoRevolving = false; },
-      play: function () { isAutoRevolving = true; }
-    };
-
-    // Load Poliigon Brushed Steel PBR Material
-    var texLoader = new THREE.TextureLoader();
-    function createBrushedSteelMaterial() {
-      var baseColor = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_BaseColor_2k.webp", undefined, undefined, function () {
-        baseColor = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_BaseColor_2k.jpg");
-      });
-      var roughness = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Roughness_2k.webp", undefined, undefined, function () {
-        roughness = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Roughness_2k.jpg");
-      });
-      var metallic = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Metallic_2k.webp", undefined, undefined, function () {
-        metallic = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Metallic_2k.jpg");
-      });
-      var normal = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_Normal_2k.png");
-      var ao = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_AmbientOcclusion_2k.webp", undefined, undefined, function () {
-        ao = texLoader.load("assets/model/textures/brushed_steel/Poliigon_MetalSteelBrushed_7174_AmbientOcclusion_2k.jpg");
-      });
-
-      [baseColor, roughness, metallic, normal, ao].forEach(function (tex) {
-        if (tex) {
-          tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-        }
-      });
-
-      return new THREE.MeshPhysicalMaterial({
-        map: baseColor,
-        roughnessMap: roughness,
-        metalnessMap: metallic,
-        normalMap: normal,
-        normalScale: new THREE.Vector2(0.8, 0.8),
-        aoMap: ao,
-        aoMapIntensity: 0.95,
-        color: new THREE.Color(0x464e57),
-        metalness: 0.95,
-        roughness: 0.28,
-        clearcoat: 0.7,
-        clearcoatRoughness: 0.1,
-        envMapIntensity: 0.95
-      });
-    }
-
-    // Center and prepare loaded mesh with brushed steel finish
-    function onModelLoaded(object) {
-      // Find actual mesh inside object to compute precise unscaled geometry bounding size
-      var mesh = null;
-      object.traverse(function (child) {
-        if (child.isMesh && !mesh) mesh = child;
-      });
-      if (mesh) {
-        mesh.geometry.computeBoundingBox();
-        var bb = mesh.geometry.boundingBox;
-        modelBoundingSize = new THREE.Vector3();
-        bb.getSize(modelBoundingSize);
-        var center = new THREE.Vector3();
-        bb.getCenter(center);
-        mesh.geometry.translate(-center.x, -center.y, -center.z);
-        mesh.geometry.computeVertexNormals();
+    // Wall Bounce squash & stretch
+    function triggerWallSquish(axis) {
+      setNextColor();
+      if (axis === "x") {
+        squishScaleX = 0.90;
+        squishScaleY = 1.10;
       } else {
-        var box = new THREE.Box3().setFromObject(object);
-        var center = box.getCenter(new THREE.Vector3());
-        modelBoundingSize = box.getSize(new THREE.Vector3());
-        object.position.set(-center.x, -center.y, -center.z);
+        squishScaleX = 1.10;
+        squishScaleY = 0.90;
+      }
+      isSquishing = true;
+      setTimeout(function () {
+        squishScaleX = 1;
+        squishScaleY = 1;
+        setTimeout(function () { isSquishing = false; }, 100);
+      }, 90);
+    }
+
+    // Render transform
+    function updateTransform() {
+      var sX = squishScaleX;
+      var sY = squishScaleY;
+      logo.style.transform = "translate3d(" + posX.toFixed(2) + "px, " + posY.toFixed(2) + "px, 0) scale(" + sX + ", " + sY + ")";
+    }
+
+    // Animation Loop with delta time
+    var lastTime = performance.now();
+    var isLoopRunning = true;
+    var rafId = null;
+
+    function animate(currentTime) {
+      if (!isLoopRunning) return;
+
+      var dt = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+
+      // Guard against huge spikes when tab was backgrounded
+      if (dt > 0.1) dt = 0.1;
+
+      if (!isDragging) {
+        posX += vx * dt;
+        posY += vy * dt;
+
+        var hitLeft = false, hitRight = false, hitTop = false, hitBottom = false;
+
+        if (posX <= 0) {
+          posX = 0;
+          vx = Math.abs(vx);
+          hitLeft = true;
+        } else if (posX >= maxX) {
+          posX = maxX;
+          vx = -Math.abs(vx);
+          hitRight = true;
+        }
+
+        if (posY <= 0) {
+          posY = 0;
+          vy = Math.abs(vy);
+          hitTop = true;
+        } else if (posY >= maxY) {
+          posY = maxY;
+          vy = -Math.abs(vy);
+          hitBottom = true;
+        }
+
+        var hitX = hitLeft || hitRight;
+        var hitY = hitTop || hitBottom;
+
+        if (hitX && hitY) {
+          triggerCornerCelebration();
+        } else if (hitX) {
+          triggerWallSquish("x");
+        } else if (hitY) {
+          triggerWallSquish("y");
+        }
+
+        updateTransform();
       }
 
-      // Frustum fit matching pxpush lt()
-      updateModelScale();
-
-      // Apply authentic brushed steel PBR material
-      var brushedMaterial = createBrushedSteelMaterial();
-      object.traverse(function (child) {
-        if (child.isMesh) {
-          child.material = brushedMaterial;
-          child.material.needsUpdate = true;
-        }
-      });
-
-      meshPivot.add(object);
-      isModelLoaded = true;
-
-      // Initial placement & rotation
-      modelGroup.position.set(0, 0, 0);
-      modelGroup.rotation.set(0, 0, 0);
-
-      // Smooth entrance scale
-      modelGroup.scale.set(0.001, 0.001, 0.001);
-      if (window.gsap) {
-        window.gsap.to(modelGroup.scale, {
-          x: 1,
-          y: 1,
-          z: 1,
-          duration: 1.4,
-          ease: "power3.out"
-        });
-      } else {
-        modelGroup.scale.set(1, 1, 1);
-      }
+      rafId = requestAnimationFrame(animate);
     }
 
-    // Try loading optimized GLB first, then fallback to OBJ
-    var gltfLoaded = false;
-    if (typeof THREE.GLTFLoader !== "undefined") {
-      var gltfLoader = new THREE.GLTFLoader();
-      gltfLoader.load(
-        "assets/model/rishi_emblem_opt.glb",
-        function (gltf) {
-          gltfLoaded = true;
-          onModelLoaded(gltf.scene);
-        },
-        undefined,
-        function (err) {
-          console.warn("GLTF load failed, attempting OBJ fallback:", err);
-          loadOBJFallback();
-        }
-      );
-    } else {
-      loadOBJFallback();
-    }
+    rafId = requestAnimationFrame(animate);
 
-    function loadOBJFallback() {
-      if (gltfLoaded || typeof THREE.OBJLoader === "undefined") return;
-      var objLoader = new THREE.OBJLoader();
-      objLoader.load(
-        "assets/model/Meshy_AI_Metallic_Rishi_Emblem_0929095700_texture.obj",
-        function (obj) {
-          var mat = createBrushedSteelMaterial();
-          obj.traverse(function (child) {
-            if (child.isMesh) {
-              child.material = mat;
-            }
-          });
-          onModelLoaded(obj);
-        },
-        undefined,
-        function (err) {
-          console.error("OBJ load fallback failed:", err);
-        }
-      );
-    }
-
-    // Interactive mouse movement tilt
-    window.addEventListener("mousemove", function (e) {
-      if (isDragging) return;
-      var normX = (e.clientX / window.innerWidth) - 0.5;
-      var normY = (e.clientY / window.innerHeight) - 0.5;
-      targetTiltY = normX * 0.45;
-      targetTiltX = normY * 0.35;
-    }, { passive: true });
-
-    // Drag / Touch to spin with momentum (bound to hero banner so pointer-events: none on container works)
-    var heroBanner = document.querySelector(".banner__hero") || window;
-    heroBanner.addEventListener("pointerdown", function (e) {
-      if (e.target && e.target.closest && e.target.closest("button, a, .homeMiniVideo, .speed")) return;
+    // Interactive Drag & Throw Controls
+    function onPointerDown(e) {
       isDragging = true;
-      lastDragX = e.clientX;
-      dragStartY = e.clientY;
-      extraSpinVelocity = 0;
-    });
+      var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      var clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      dragStartX = clientX;
+      dragStartY = clientY;
+      dragStartPosX = posX;
+      dragStartPosY = posY;
+      lastDragSamples = [{ x: clientX, y: clientY, t: performance.now() }];
+      logo.style.cursor = "grabbing";
+    }
 
-    window.addEventListener("pointermove", function (e) {
+    function onPointerMove(e) {
       if (!isDragging) return;
-      var deltaX = e.clientX - lastDragX;
-      lastDragX = e.clientX;
-      currentRevolvingAngle += deltaX * 0.015;
-      extraSpinVelocity = deltaX * 0.008;
+      var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      var clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      var dx = clientX - dragStartX;
+      var dy = clientY - dragStartY;
 
-      var deltaY = e.clientY - dragStartY;
-      targetTiltX = Math.max(-0.6, Math.min(0.6, deltaY * 0.005));
-    }, { passive: true });
+      posX = Math.max(0, Math.min(maxX, dragStartPosX + dx));
+      posY = Math.max(0, Math.min(maxY, dragStartPosY + dy));
+      updateTransform();
 
-    window.addEventListener("pointerup", function () {
-      isDragging = false;
-    });
-    window.addEventListener("pointercancel", function () {
-      isDragging = false;
-    });
-
-    // Visibility Observer to pause rendering when scrolled away
-    var isHeroVisible = true;
-    var heroElem = document.getElementById("hero");
-    if (heroElem && "IntersectionObserver" in window) {
-      new IntersectionObserver(function (entries) {
-        isHeroVisible = entries[0].isIntersecting;
-      }).observe(heroElem);
+      var now = performance.now();
+      lastDragSamples.push({ x: clientX, y: clientY, t: now });
+      if (lastDragSamples.length > 5) lastDragSamples.shift();
     }
 
-    // Render Loop with frame-rate independent delta timing and scroll velocity spring momentum
-    var clock = new THREE.Clock();
-    function render3D() {
-      requestAnimationFrame(render3D);
-      if (!isHeroVisible || !isModelLoaded) {
-        if (clock.running) clock.getDelta();
-        return;
+    function onPointerUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      logo.style.cursor = "grab";
+
+      // Calculate throw release velocity
+      if (lastDragSamples.length >= 2) {
+        var first = lastDragSamples[0];
+        var last = lastDragSamples[lastDragSamples.length - 1];
+        var dt = (last.t - first.t) / 1000;
+        if (dt > 0.01) {
+          var throwVx = (last.x - first.x) / dt;
+          var throwVy = (last.y - first.y) / dt;
+          var speed = Math.sqrt(throwVx * throwVx + throwVy * throwVy);
+          if (speed > 80) {
+            // Apply throw direction with bounded speed
+            var targetSpeed = Math.min(450, Math.max(140, speed));
+            vx = (throwVx / speed) * targetSpeed;
+            vy = (throwVy / speed) * targetSpeed;
+            setNextColor();
+          }
+        }
       }
-
-      var delta = Math.min(clock.getDelta(), 0.1);
-      var timeFactor = delta * 60; // 1.0 at 60fps, 0.5 at 120fps
-
-      // Scroll spin decay & spring interpolation
-      targetScrollSpin *= Math.pow(0.90, timeFactor);
-      scrollSpinVelocity += (targetScrollSpin - scrollSpinVelocity) * (1 - Math.pow(1 - 0.16, timeFactor));
-
-      // Base continuous revolving motion + scroll spin + drag spin
-      extraSpinVelocity *= Math.pow(0.94, timeFactor);
-      if (isAutoRevolving) {
-        currentRevolvingAngle += (baseRevolvingSpeed + scrollSpinVelocity + extraSpinVelocity) * timeFactor;
-      }
-
-      // Smooth tilt interpolation
-      currentTiltX += (targetTiltX - currentTiltX) * (1 - Math.pow(1 - 0.06, timeFactor));
-      currentTiltY += (targetTiltY - currentTiltY) * (1 - Math.pow(1 - 0.06, timeFactor));
-
-      // Apply rotations: revolving on Y, tilting on X and Z
-      modelGroup.rotation.x = currentTiltX;
-      modelGroup.rotation.y = currentRevolvingAngle + currentTiltY * 0.45;
-      modelGroup.rotation.z = -currentTiltY * 0.25;
-
-      renderer.render(scene, camera);
     }
-    requestAnimationFrame(render3D);
 
-    // Resize Handler with responsive frustum scaling
+    logo.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("mousemove", onPointerMove, { passive: true });
+    window.addEventListener("mouseup", onPointerUp);
+
+    logo.addEventListener("touchstart", onPointerDown, { passive: true });
+    window.addEventListener("touchmove", onPointerMove, { passive: true });
+    window.addEventListener("touchend", onPointerUp);
+
+    // Click to bump direction & switch color
+    logo.addEventListener("click", function (e) {
+      if (Math.abs(posX - dragStartPosX) < 5 && Math.abs(posY - dragStartPosY) < 5) {
+        // Reverse direction and bump angle
+        vx = -Math.sign(vx) * (baseSpeedX + Math.random() * 40 - 20);
+        vy = -Math.sign(vy) * (baseSpeedY + Math.random() * 40 - 20);
+        setNextColor();
+        squishScaleX = 1.15;
+        squishScaleY = 1.15;
+        updateTransform();
+        setTimeout(function () {
+          squishScaleX = 1;
+          squishScaleY = 1;
+          updateTransform();
+        }, 180);
+      }
+    });
+
+    // Resize handler
     function onResize() {
-      if (!container || !renderer || !camera) return;
-      var w = container.clientWidth || (window.innerWidth * 0.72);
-      var h = container.clientHeight || (window.innerHeight * 0.38);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h, false);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      updateModelScale();
+      cW = container.clientWidth || window.innerWidth;
+      cH = container.clientHeight || window.innerHeight;
+      logoSize = getLogoDimensions();
+      maxX = Math.max(10, cW - logoSize.width);
+      maxY = Math.max(10, cH - logoSize.height);
+      posX = Math.max(0, Math.min(posX, maxX));
+      posY = Math.max(0, Math.min(posY, maxY));
+      updateTransform();
     }
     window.addEventListener("resize", onResize, { passive: true });
+
+    // IntersectionObserver to pause loop when scrolled out of view
+    if (window.IntersectionObserver && heroSection) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            if (!isLoopRunning) {
+              isLoopRunning = true;
+              lastTime = performance.now();
+              rafId = requestAnimationFrame(animate);
+            }
+          } else {
+            isLoopRunning = false;
+            if (rafId) cancelAnimationFrame(rafId);
+          }
+        });
+      }, { threshold: 0.05 });
+      observer.observe(heroSection);
+    }
+
+    // Expose for external controls / debug
+    window.__heroDvd = {
+      bump: function () { vx = -vx; vy = -vy; setNextColor(); },
+      setColor: function (idx) { applyColor(idx); },
+      setSpeed: function (sX, sY) { vx = sX; vy = sY; },
+      logo: logo
+    };
   }
 
-  // Initialize 3D Hero Model
-  initHero3DModel();
+  // Initialize DVD Screensaver Hero Logo
+  initHeroDvdAnimation();
 
   /* ------------------------------------------------------------
      12.b ABOUT WALKMAN 3D MODEL & INTERACTIVE HOT LINE BUTTON

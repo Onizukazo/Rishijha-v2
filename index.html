@@ -13,13 +13,14 @@
   <link rel="preload" href="assets/fonts/PPNeueMontrealMono-Book.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Graphik-Regular-Web.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/crt-tv.png" as="image">
+  <link rel="preload" href="rishi.png" as="image">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Silkscreen:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/splitting.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=3.4">
   <script>
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
@@ -168,8 +169,13 @@
             </div>
           </div>
 
-          <div class="hero__3d-container" id="hero3dContainer" aria-label="3D Rishi Emblem">
-            <canvas id="hero3dCanvas"></canvas>
+          <!-- ================= HERO DVD SCREENSAVER ANIMATION ================= -->
+          <div class="hero__dvd-container" id="heroDvdContainer" aria-label="Rishi DVD Screensaver Animation">
+            <div class="hero__dvd-logo" id="heroDvdLogo" role="img" aria-label="Rishi DVD Logo" title="Click to bump!">
+              <div class="hero__dvd-mask" id="heroDvdMask"></div>
+              <img src="rishi.png" alt="Rishi" class="hero__dvd-fallback" draggable="false">
+            </div>
+            <div class="hero__dvd-corner-badge" id="heroDvdCornerBadge" aria-hidden="true">CORNER HIT! 🎉</div>
           </div>
           <div class="heading__text heading__text--subtitle" effect__fadeOut>
             <h4><span class="line"><span class="line__inner">PRODUCT &amp; EXPERIENCE DESIGNER</span></span></h4>
@@ -483,6 +489,6 @@
   <script src="js/libs/gsap.min.js"></script>
   <script src="js/libs/ScrollTrigger.min.js"></script>
   <script src="js/libs/splitting.min.js"></script>
-  <script src="js/main.js?v=3.3"></script>
+  <script src="js/main.js?v=3.4"></script>
 </body>
 </html>
