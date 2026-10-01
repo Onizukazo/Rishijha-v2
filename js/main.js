@@ -201,12 +201,11 @@
       var words = el.querySelectorAll(".word, .line__inner");
       var targets = words.length ? words : [el];
       gsap.fromTo(targets, {
-        willChange: "opacity",
-        opacity: 0.1
+        opacity: 0.12
       }, {
         ease: "none",
         opacity: 1,
-        stagger: 0.05,
+        stagger: 0.03,
         scrollTrigger: {
           trigger: el,
           scroller: window,
@@ -289,16 +288,16 @@
       });
     });
 
-    /* effect__fadeOut (blur & fade out for hero elements on scroll) */
+    /* effect__fadeOut (GPU-accelerated fade out for hero elements on scroll) */
     document.querySelectorAll("[effect__fadeOut]").forEach(function (el) {
       gsap.fromTo(el, {
-        willChange: "opacity, filter",
+        willChange: "opacity, transform",
         opacity: 1,
-        filter: "blur(0px)"
+        y: 0
       }, {
         ease: "none",
         opacity: 0,
-        filter: "blur(20px)",
+        y: -40,
         scrollTrigger: {
           trigger: el,
           scroller: window,
@@ -895,7 +894,7 @@
       tgtTypoY = ((e.clientY / window.innerHeight) - 0.5) * 16;
     }, { passive: true });
 
-    // Visibility observer to pause rendering when out of viewport
+    // Visibility observer and ScrollTrigger to pause video and RAF when scrolled out of viewport
     var isSceneVisible = true;
     var heroSection = document.getElementById("hero");
     if (heroSection && "IntersectionObserver" in window) {
@@ -903,13 +902,34 @@
         var visible = entries[0].isIntersecting;
         if (visible && !isSceneVisible) {
           isSceneVisible = true;
+          if (heroVideo && heroVideo.paused) heroVideo.play().catch(function () {});
           requestAnimationFrame(animate);
-        } else {
-          isSceneVisible = visible;
+        } else if (!visible && isSceneVisible) {
+          isSceneVisible = false;
+          if (heroVideo && !heroVideo.paused) heroVideo.pause();
         }
-      }).observe(heroSection);
+      }, { threshold: 0.05 }).observe(heroSection);
     }
 
+    if (heroSection && typeof window.ScrollTrigger !== "undefined") {
+      window.ScrollTrigger.create({
+        trigger: heroSection,
+        start: "bottom top",
+        onEnter: function () {
+          isSceneVisible = false;
+          if (heroVideo && !heroVideo.paused) heroVideo.pause();
+          if (window.__heroDvd && window.__heroDvd.pause) window.__heroDvd.pause();
+        },
+        onLeaveBack: function () {
+          isSceneVisible = true;
+          if (heroVideo && heroVideo.paused) heroVideo.play().catch(function () {});
+          if (window.__heroDvd && window.__heroDvd.resume) window.__heroDvd.resume();
+          requestAnimationFrame(animate);
+        }
+      });
+    }
+
+    var lastCamX = 0, lastCamY = 0;
     // Efficient Animation Loop that truly pauses when off-screen
     function animate() {
       if (!isSceneVisible) return;
@@ -923,9 +943,11 @@
         if (typoNote) typoNote.style.transform = "translate3d(" + (curTypoX * 0.4).toFixed(2) + "px, " + (curTypoY * 0.4).toFixed(2) + "px, 0)";
       }
 
-      // Background clouds video parallax
-      if (heroVideo) {
-        heroVideo.style.transform = "scale(1.06) translate3d(" + (-targetCamX * 0.05).toFixed(1) + "px, " + (targetCamY * 0.05).toFixed(1) + "px, 0)";
+      // Background clouds video parallax only when camera target moves
+      if (heroVideo && (Math.abs(targetCamX - lastCamX) > 0.1 || Math.abs(targetCamY - lastCamY) > 0.1)) {
+        lastCamX += (targetCamX - lastCamX) * 0.06;
+        lastCamY += (targetCamY - lastCamY) * 0.06;
+        heroVideo.style.transform = "scale(1.06) translate3d(" + (-lastCamX * 0.05).toFixed(1) + "px, " + (lastCamY * 0.05).toFixed(1) + "px, 0)";
       }
     }
     requestAnimationFrame(animate);
@@ -1124,19 +1146,29 @@
     window.addEventListener("resize", onResize, { passive: true });
     setTimeout(onResize, 100);
 
+    function pauseLoop() {
+      if (isLoopRunning) {
+        isLoopRunning = false;
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }
+    function resumeLoop() {
+      if (!isLoopRunning) {
+        isLoopRunning = true;
+        lastTime = performance.now();
+        rafId = requestAnimationFrame(animate);
+      }
+    }
+
     // IntersectionObserver to pause loop when scrolled out of view
     if (window.IntersectionObserver && heroSection) {
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
-            if (!isLoopRunning) {
-              isLoopRunning = true;
-              lastTime = performance.now();
-              rafId = requestAnimationFrame(animate);
-            }
+            resumeLoop();
           } else {
-            isLoopRunning = false;
-            if (rafId) cancelAnimationFrame(rafId);
+            pauseLoop();
           }
         });
       }, { threshold: 0.05 });
@@ -1147,6 +1179,8 @@
     window.__heroDvd = {
       bump: function () { vx = -vx; vy = -vy; },
       setSpeed: function (sX, sY) { vx = sX; vy = sY; },
+      pause: pauseLoop,
+      resume: resumeLoop,
       logo: logo
     };
   }
@@ -1252,7 +1286,7 @@
       antialias: true,
       powerPreference: "high-performance"
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height, false);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -1448,6 +1482,12 @@
         buttonHitbox.position.set(-0.0175, 0.104, 0.0364);
         rootModel.add(buttonHitbox);
       }
+
+      // Pre-compile shaders and upload textures ahead of time
+      try {
+        renderer.compile(scene, camera);
+        renderer.render(scene, camera);
+      } catch (e) {}
     }
 
     // FBX Walkman Loader (Direct FBX format with custom PBR textures)
@@ -1456,12 +1496,23 @@
         if (onError) onError(new Error("FBXLoader not loaded"));
         return;
       }
+      var texturesPending = 4;
+      var onTextureLoad = function () {
+        texturesPending--;
+        if (texturesPending <= 0 && rootModel) {
+          try {
+            renderer.compile(scene, camera);
+            renderer.render(scene, camera);
+          } catch (e) {}
+        }
+      };
+
       var texLoader = new THREE.TextureLoader();
-      var baseColor = texLoader.load("assets/model/textures/Walkman_BaseColor.png");
+      var baseColor = texLoader.load("assets/model/textures/Walkman_BaseColor.png", onTextureLoad);
       baseColor.encoding = THREE.sRGBEncoding;
-      var metallic = texLoader.load("assets/model/textures/Walkman_Metallic.png");
-      var roughness = texLoader.load("assets/model/textures/Walkman_Roughness.png");
-      var normal = texLoader.load("assets/model/textures/Walkman_Normal.png");
+      var metallic = texLoader.load("assets/model/textures/Walkman_Metallic.png", onTextureLoad);
+      var roughness = texLoader.load("assets/model/textures/Walkman_Roughness.png", onTextureLoad);
+      var normal = texLoader.load("assets/model/textures/Walkman_Normal.png", onTextureLoad);
 
       var walkmanMat = new THREE.MeshStandardMaterial({
         map: baseColor,
@@ -1512,6 +1563,12 @@
           buttonHitbox.position.copy(bCenter);
           walkmanGroup.add(buttonHitbox);
         }
+
+        // Pre-compile shaders and upload textures to GPU ahead of time so scrolling into about has 0 freeze
+        try {
+          renderer.compile(scene, camera);
+          renderer.render(scene, camera);
+        } catch (e) {}
 
         if (onSuccess) onSuccess();
       }
@@ -1763,7 +1820,7 @@
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     }
     // Expose for inspection and integration
     window.__aboutWalkman = {
@@ -1784,6 +1841,16 @@
   /* ------------------------------------------------------------
      13. MASTER RAF ANIMATION TICK
      ------------------------------------------------------------ */
+  var isShowcaseVisible = false;
+  var showcaseEl = document.querySelector("[data-showcase]");
+  if (showcaseEl && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      isShowcaseVisible = entries[0].isIntersecting;
+    }, { rootMargin: "150px" }).observe(showcaseEl);
+  } else {
+    isShowcaseVisible = true;
+  }
+
   (function tick() {
     scrollVel *= 0.92;
 
@@ -1795,22 +1862,23 @@
       m.track.style.transform = "translate3d(" + m.x.toFixed(2) + "px,0,0)";
     });
 
-    /* Showcase ticker */
-    showcases.forEach(function (s) {
-      // Hold-to-skim: when held down, speed accelerates to 15x smoothly!
-      var targetSpeed = s.isHolding ? 15.0 : 0.95;
-      var lerpFactor = s.isHolding ? 0.12 : 0.05;
-      s.speed += (targetSpeed - s.speed) * lerpFactor;
-      s.vel *= 0.92;
+    /* Showcase ticker (only update if visible in viewport) */
+    if (isShowcaseVisible) {
+      showcases.forEach(function (s) {
+        var targetSpeed = s.isHolding ? 15.0 : 0.95;
+        var lerpFactor = s.isHolding ? 0.12 : 0.05;
+        s.speed += (targetSpeed - s.speed) * lerpFactor;
+        s.vel *= 0.92;
 
-      s.x -= (s.speed + s.vel);
+        s.x -= (s.speed + s.vel);
 
-      if (s.half > 0) {
-        if (s.x <= -s.half) s.x += s.half;
-        if (s.x > 0) s.x -= s.half;
-      }
-      s.loop.style.transform = "translate3d(" + s.x.toFixed(2) + "px,0,0)";
-    });
+        if (s.half > 0) {
+          if (s.x <= -s.half) s.x += s.half;
+          if (s.x > 0) s.x -= s.half;
+        }
+        s.loop.style.transform = "translate3d(" + s.x.toFixed(2) + "px,0,0)";
+      });
+    }
 
     requestAnimationFrame(tick);
   })();
