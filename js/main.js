@@ -33,7 +33,7 @@
       window.gsap.ticker.add(function (time) {
         lenis.raf(time * 1000);
       });
-      window.gsap.ticker.lagSmoothing(0);
+      window.gsap.ticker.lagSmoothing(500, 33);
     } else {
       (function raf(time) {
         lenis.raf(time);
@@ -868,32 +868,31 @@
     var centerScreenX = window.innerWidth / 2;
     var centerScreenY = window.innerHeight / 2;
 
-    var isSpeedHovered = false;
     var cover = document.querySelector(".canvas__cover");
+    var speedEl = document.querySelector(".speed");
+    if (speedEl) {
+      speedEl.addEventListener("mouseenter", function () {
+        if (cover) cover.style.opacity = "1";
+        if (heroVideo) heroVideo.playbackRate = 2.5;
+      });
+      speedEl.addEventListener("mouseleave", function () {
+        if (cover) cover.style.opacity = "0";
+        if (heroVideo) heroVideo.playbackRate = 1.0;
+      });
+    }
 
-    window.addEventListener("mousemove", function (e) {
-      targetCamX = (e.clientX - centerScreenX) * 0.22;
-      targetCamY = (e.clientY - centerScreenY) * 0.15;
-
-      var hoveredEl = document.elementFromPoint(e.clientX, e.clientY);
-      var onSpeed = !!(hoveredEl && hoveredEl.closest && hoveredEl.closest(".speed"));
-      if (onSpeed !== isSpeedHovered) {
-        isSpeedHovered = onSpeed;
-        if (cover) cover.style.opacity = isSpeedHovered ? "1" : "0";
-        if (heroVideo) heroVideo.playbackRate = isSpeedHovered ? 2.5 : 1.0;
-      }
-    }, { passive: true });
-
-    // Multi-plane parallax on hero typography
-    var typoTitle = document.querySelector(".heading__text--title");
+    // Multi-plane parallax targets
     var typoSub = document.querySelector(".heading__text--subtitle");
     var typoNote = document.querySelector(".hero__note");
     var curTypoX = 0, curTypoY = 0;
     var tgtTypoX = 0, tgtTypoY = 0;
 
+    // Single passive mousemove for hero parallax
     window.addEventListener("mousemove", function (e) {
-      tgtTypoX = ((e.clientX / window.innerWidth) - 0.5) * 28;
-      tgtTypoY = ((e.clientY / window.innerHeight) - 0.5) * 20;
+      targetCamX = (e.clientX - centerScreenX) * 0.22;
+      targetCamY = (e.clientY - centerScreenY) * 0.15;
+      tgtTypoX = ((e.clientX / window.innerWidth) - 0.5) * 24;
+      tgtTypoY = ((e.clientY / window.innerHeight) - 0.5) * 16;
     }, { passive: true });
 
     // Visibility observer to pause rendering when out of viewport
@@ -901,21 +900,28 @@
     var heroSection = document.getElementById("hero");
     if (heroSection && "IntersectionObserver" in window) {
       new IntersectionObserver(function (entries) {
-        isSceneVisible = entries[0].isIntersecting;
+        var visible = entries[0].isIntersecting;
+        if (visible && !isSceneVisible) {
+          isSceneVisible = true;
+          requestAnimationFrame(animate);
+        } else {
+          isSceneVisible = visible;
+        }
       }).observe(heroSection);
     }
 
-    // Animation Loop
+    // Efficient Animation Loop that truly pauses when off-screen
     function animate() {
-      requestAnimationFrame(animate);
       if (!isSceneVisible) return;
+      requestAnimationFrame(animate);
 
-      // Parallax typography interpolation
-      curTypoX += (tgtTypoX - curTypoX) * 0.04;
-      curTypoY += (tgtTypoY - curTypoY) * 0.04;
-      if (typoTitle) typoTitle.style.transform = "translate3d(" + (curTypoX * 0.8).toFixed(2) + "px, " + (curTypoY * 0.8).toFixed(2) + "px, 0)";
-      if (typoSub) typoSub.style.transform = "translate3d(" + (curTypoX * 1.5).toFixed(2) + "px, " + (curTypoY * 1.5).toFixed(2) + "px, 0)";
-      if (typoNote) typoNote.style.transform = "translate3d(" + (curTypoX * 0.4).toFixed(2) + "px, " + (curTypoY * 0.4).toFixed(2) + "px, 0)";
+      // Only update DOM if noticeable motion occurred
+      if (Math.abs(tgtTypoX - curTypoX) > 0.05 || Math.abs(tgtTypoY - curTypoY) > 0.05) {
+        curTypoX += (tgtTypoX - curTypoX) * 0.04;
+        curTypoY += (tgtTypoY - curTypoY) * 0.04;
+        if (typoSub) typoSub.style.transform = "translate3d(" + (curTypoX * 1.5).toFixed(2) + "px, " + (curTypoY * 1.5).toFixed(2) + "px, 0)";
+        if (typoNote) typoNote.style.transform = "translate3d(" + (curTypoX * 0.4).toFixed(2) + "px, " + (curTypoY * 0.4).toFixed(2) + "px, 0)";
+      }
 
       // Background clouds video parallax
       if (heroVideo) {
@@ -1044,6 +1050,10 @@
       dragStartPosY = posY;
       lastDragSamples = [{ x: clientX, y: clientY, t: performance.now() }];
       logo.style.cursor = "grabbing";
+      window.addEventListener("mousemove", onPointerMove, { passive: true });
+      window.addEventListener("touchmove", onPointerMove, { passive: true });
+      window.addEventListener("mouseup", onPointerUp);
+      window.addEventListener("touchend", onPointerUp);
     }
 
     function onPointerMove(e) {
@@ -1066,6 +1076,10 @@
       if (!isDragging) return;
       isDragging = false;
       logo.style.cursor = "grab";
+      window.removeEventListener("mousemove", onPointerMove);
+      window.removeEventListener("touchmove", onPointerMove);
+      window.removeEventListener("mouseup", onPointerUp);
+      window.removeEventListener("touchend", onPointerUp);
 
       // Calculate throw release velocity
       if (lastDragSamples.length >= 2) {
@@ -1086,12 +1100,7 @@
     }
 
     logo.addEventListener("mousedown", onPointerDown);
-    window.addEventListener("mousemove", onPointerMove, { passive: true });
-    window.addEventListener("mouseup", onPointerUp);
-
     logo.addEventListener("touchstart", onPointerDown, { passive: true });
-    window.addEventListener("touchmove", onPointerMove, { passive: true });
-    window.addEventListener("touchend", onPointerUp);
 
     // Subtle click nudge
     logo.addEventListener("click", function (e) {
