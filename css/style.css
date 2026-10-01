@@ -993,12 +993,21 @@ section .marqueeText {
 /* ==================== HERO DVD SCREENSAVER ANIMATION ==================== */
 .hero__dvd-container {
   position: absolute;
-  inset: 0;
+  top: calc(4.8vw + 14vw);
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - (4.8vw + 14vw));
   overflow: hidden;
   pointer-events: none;
   z-index: 3;
+}
+@media screen and (max-width: 600px) {
+  .hero__dvd-container {
+    top: 163px;
+    height: calc(100% - 163px);
+  }
 }
 
 .hero__dvd-logo {

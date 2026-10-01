@@ -957,8 +957,11 @@
       return { width: w, height: h };
     }
 
+    function getFallbackHeight() {
+      return window.innerHeight - (window.innerWidth <= 600 ? 163 : window.innerWidth * 0.188);
+    }
     var cW = container.clientWidth || window.innerWidth;
-    var cH = container.clientHeight || window.innerHeight;
+    var cH = container.clientHeight || getFallbackHeight();
     var logoSize = getLogoDimensions();
     var maxX = Math.max(10, cW - logoSize.width);
     var maxY = Math.max(10, cH - logoSize.height);
@@ -971,9 +974,9 @@
     var vx = (Math.random() < 0.5 ? 1 : -1) * baseSpeedX;
     var vy = (Math.random() < 0.5 ? 1 : -1) * baseSpeedY;
 
-    // Position (start in a golden-ratio center area)
-    var posX = (cW - logoSize.width) * (0.32 + Math.random() * 0.25);
-    var posY = (cH - logoSize.height) * (0.28 + Math.random() * 0.25);
+    // Position (start in a golden-ratio center area strictly under the line)
+    var posX = Math.max(0, Math.min(maxX, (cW - logoSize.width) * (0.32 + Math.random() * 0.25)));
+    var posY = Math.max(0, Math.min(maxY, (cH - logoSize.height) * (0.28 + Math.random() * 0.25)));
 
     var isDragging = false;
     var dragStartX = 0;
@@ -1101,7 +1104,7 @@
     // Resize handler
     function onResize() {
       cW = container.clientWidth || window.innerWidth;
-      cH = container.clientHeight || window.innerHeight;
+      cH = container.clientHeight || getFallbackHeight();
       logoSize = getLogoDimensions();
       maxX = Math.max(10, cW - logoSize.width);
       maxY = Math.max(10, cH - logoSize.height);
@@ -1110,6 +1113,7 @@
       updateTransform();
     }
     window.addEventListener("resize", onResize, { passive: true });
+    setTimeout(onResize, 100);
 
     // IntersectionObserver to pause loop when scrolled out of view
     if (window.IntersectionObserver && heroSection) {
