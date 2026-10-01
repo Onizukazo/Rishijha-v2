@@ -947,39 +947,6 @@
 
     if (!container || !logo) return;
 
-    // Iconic vibrant DVD Screensaver palette
-    var DVD_COLORS = [
-      { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.75)" },  // Electric Cyan
-      { color: "#ff2a85", glow: "rgba(255, 42, 133, 0.75)" },  // Hot Magenta
-      { color: "#ffe600", glow: "rgba(255, 230, 0, 0.75)" },   // Cyber Yellow
-      { color: "#00ff88", glow: "rgba(0, 255, 136, 0.75)" },   // Neon Mint
-      { color: "#ff7700", glow: "rgba(255, 119, 0, 0.75)" },   // Sunset Orange
-      { color: "#b042ff", glow: "rgba(176, 66, 255, 0.75)" },  // Ultra Violet
-      { color: "#ffffff", glow: "rgba(255, 255, 255, 0.85)" },  // Crisp White
-      { color: "#ff3355", glow: "rgba(255, 51, 85, 0.75)" },   // Crimson Pink
-      { color: "#00bfff", glow: "rgba(0, 191, 255, 0.75)" },  // Deep Sky
-      { color: "#39ff14", glow: "rgba(57, 255, 20, 0.75)" }   // Matrix Lime
-    ];
-    var colorIndex = 0;
-
-    // Apply color and glow
-    function applyColor(idx) {
-      colorIndex = (idx + DVD_COLORS.length) % DVD_COLORS.length;
-      var c = DVD_COLORS[colorIndex];
-      logo.style.setProperty("--dvd-color", c.color);
-      logo.style.setProperty("--dvd-glow", c.glow);
-      if (mask) {
-        mask.style.backgroundColor = c.color;
-      }
-    }
-
-    function setNextColor() {
-      applyColor(colorIndex + 1);
-    }
-
-    // Set initial color
-    applyColor(0);
-
     // Calculate dimensions & bounds
     function getLogoDimensions() {
       var rect = logo.getBoundingClientRect();
@@ -1023,7 +990,6 @@
 
     // Corner Hit Celebration (The Office Easter Egg!)
     function triggerCornerCelebration() {
-      setNextColor();
       if (cornerBadge) {
         cornerBadge.classList.add("active");
         clearTimeout(cornerTimeout);
@@ -1044,7 +1010,6 @@
 
     // Wall Bounce squash & stretch
     function triggerWallSquish(axis) {
-      setNextColor();
       if (axis === "x") {
         squishScaleX = 0.90;
         squishScaleY = 1.10;
@@ -1174,7 +1139,6 @@
             var targetSpeed = Math.min(450, Math.max(140, speed));
             vx = (throwVx / speed) * targetSpeed;
             vy = (throwVy / speed) * targetSpeed;
-            setNextColor();
           }
         }
       }
@@ -1188,13 +1152,12 @@
     window.addEventListener("touchmove", onPointerMove, { passive: true });
     window.addEventListener("touchend", onPointerUp);
 
-    // Click to bump direction & switch color
+    // Click to bump direction
     logo.addEventListener("click", function (e) {
       if (Math.abs(posX - dragStartPosX) < 5 && Math.abs(posY - dragStartPosY) < 5) {
         // Reverse direction and bump angle
         vx = -Math.sign(vx) * (baseSpeedX + Math.random() * 40 - 20);
         vy = -Math.sign(vy) * (baseSpeedY + Math.random() * 40 - 20);
-        setNextColor();
         squishScaleX = 1.15;
         squishScaleY = 1.15;
         updateTransform();
@@ -1240,8 +1203,7 @@
 
     // Expose for external controls / debug
     window.__heroDvd = {
-      bump: function () { vx = -vx; vy = -vy; setNextColor(); },
-      setColor: function (idx) { applyColor(idx); },
+      bump: function () { vx = -vx; vy = -vy; },
       setSpeed: function (sX, sY) { vx = sX; vy = sY; },
       logo: logo
     };
