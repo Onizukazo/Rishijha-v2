@@ -1307,6 +1307,9 @@
 
     // Root group for multi-axis rotation and tilt
     var walkmanGroup = new THREE.Group();
+    // Balance size against taller canvas aspect ratio (~80% of previous 1.15 scale)
+    walkmanGroup.scale.set(0.92, 0.92, 0.92);
+    walkmanGroup.position.set(0, 0.02, 0);
     scene.add(walkmanGroup);
 
     // Base rotation: classic 3/4 isometric perspective
@@ -1317,14 +1320,328 @@
 
     var buttonCap = null;
     var buttonCapMat = null;
+    // Authentic Spotify Playlist for Sony TPS-L2 Walkman
+    var WALKMAN_PLAYLIST = [
+      {
+        title: "Aria Math",
+        artist: "C418",
+        spotifyId: "6VK8OMA2FhX4KoS3QCH7rL",
+        previewUrl: "https://p.scdn.co/mp3-preview/a2c123cece7486badba9b00e8ced81b68b63f779"
+      },
+      {
+        title: "Moog City 2",
+        artist: "C418",
+        spotifyId: "4ZN7u9FmQa7Lp1TCafAgsn",
+        previewUrl: "https://p.scdn.co/mp3-preview/52641e02d3b27b3c2b3483a4151fefcd7ae424ae"
+      },
+      {
+        title: "MEGALOVANIA",
+        artist: "Toby Fox",
+        spotifyId: "0WrwF6MWqUTdjWAr1uIZHO",
+        previewUrl: "https://p.scdn.co/mp3-preview/929f178f45d3e58a7c9811a5752e939455e74914"
+      }
+    ];
+
     var buttonHitbox = null;
+    var seekNextHitbox = null;
+    var seekPrevHitbox = null;
     var buttonNode = null;
-    var buttonInitialY = 0;
+    var button2Node = null; // Upper side seek button (Next track)
+    var button3Node = null; // Lower side seek button (Prev track)
+    var buttonCap = null;
+    var buttonCapMat = null;
     var currentModelType = "tps_l2";
-    var isHotlineEngaged = false;
+    var isPlaying = false;
+    var currentTrackIndex = 0;
     var rootModel = null;
     var tapeMesh = null;
 
+    // Black screen dynamic canvas texture variables
+    var screenMesh = null;
+    var screenCanvas = null;
+    var screenCtx = null;
+    var screenTexture = null;
+
+    // HTML5 Audio Player for Spotify direct preview stream
+    var walkmanAudio = new Audio();
+    walkmanAudio.preload = "auto";
+    walkmanAudio.crossOrigin = "anonymous";
+
+    // Loop current song on finish
+    walkmanAudio.addEventListener("ended", function () {
+      walkmanAudio.currentTime = 0;
+      walkmanAudio.play().catch(function(e){});
+    });
+
+    // Web Audio Synthesizer for tactile mechanical cassette switch clicks
+    function playCassetteSeekClick() {
+      try {
+        var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+
+        var now = audioCtx.currentTime;
+        var osc = audioCtx.createOscillator();
+        var oscGain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(820, now);
+        osc.frequency.exponentialRampToValueAtTime(130, now + 0.032);
+
+        oscGain.gain.setValueAtTime(0.28, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+
+        osc.connect(oscGain);
+        oscGain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.035);
+
+        // Spring mechanical return pop
+        setTimeout(function () {
+          try {
+            var t = audioCtx.currentTime;
+            var osc2 = audioCtx.createOscillator();
+            var g2 = audioCtx.createGain();
+            osc2.type = "triangle";
+            osc2.frequency.setValueAtTime(1150, t);
+            osc2.frequency.exponentialRampToValueAtTime(240, t + 0.03);
+            g2.gain.setValueAtTime(0.2, t);
+            g2.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+            osc2.connect(g2);
+            g2.connect(audioCtx.destination);
+            osc2.start(t);
+            osc2.stop(t + 0.035);
+          } catch (e) {}
+        }, 90);
+      } catch (err) {}
+    }
+
+    // Dynamic LCD Vertical Song Name Display
+    function setupScreenDisplay() {
+      if (screenMesh) return;
+      screenCanvas = document.createElement("canvas");
+      // Increase resolution for crisp rendering
+      var scale = 4;
+      screenCanvas.width = 128 * scale;
+      screenCanvas.height = 512 * scale;
+      screenCtx = screenCanvas.getContext("2d");
+      screenCtx.imageSmoothingEnabled = false;
+
+      screenTexture = new THREE.CanvasTexture(screenCanvas);
+      screenTexture.magFilter = THREE.NearestFilter;
+      screenTexture.minFilter = THREE.NearestFilter;
+      screenTexture.encoding = THREE.sRGBEncoding;
+
+      var geom = new THREE.PlaneGeometry(0.027, 0.076);
+      var mat = new THREE.MeshBasicMaterial({
+        map: screenTexture,
+        transparent: true,
+        opacity: 0.96,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+
+      screenMesh = new THREE.Mesh(geom, mat);
+      // Position inside the black cassette door window
+      screenMesh.position.set(-0.032, -0.018, 0.0336);
+      walkmanGroup.add(screenMesh);
+
+      renderScreenTexture();
+    }
+
+    var hasStartedPlayback = false;
+    var lastRenderTime = 0;
+    var marqueeOffset = 0;
+    var marqueeState = "PAUSE_START"; // PAUSE_START, SCROLLING, PAUSE_END
+    var marqueePauseTimer = 0;
+    var lastAnimationTime = performance.now();
+
+    function renderScreenTexture(time) {
+      if (!screenCtx || !screenCanvas) return;
+      var track = WALKMAN_PLAYLIST[currentTrackIndex];
+      if (!track) return;
+
+      time = time || 0;
+
+      var w = screenCanvas.width;
+      var h = screenCanvas.height;
+
+      screenCtx.fillStyle = "#05080c";
+      screenCtx.fillRect(0, 0, w, h);
+
+      // CRT scanlines
+      screenCtx.fillStyle = "rgba(0, 255, 120, 0.05)";
+      for (var y = 0; y < h; y += 4 * 4) {
+        screenCtx.fillRect(0, y, w, 2 * 4);
+      }
+
+      // Header: Track number and Play status
+      screenCtx.fillStyle = "#ffffff";
+      screenCtx.font = "bold 96px monospace";
+      screenCtx.textAlign = "center";
+      screenCtx.textBaseline = "middle";
+      screenCtx.shadowColor = "rgba(0,0,0,0.8)";
+      screenCtx.shadowBlur = 8;
+
+      if (!hasStartedPlayback) {
+        screenCtx.fillText("STANDBY", w/2, 104);
+      } else {
+        var numStr = (currentTrackIndex + 1 < 10 ? "0" : "") + (currentTrackIndex + 1);
+        var statusStr = isPlaying ? "▶ RUN" : "❚❚ STP";
+        screenCtx.fillText(numStr + " " + statusStr, w/2, 104);
+      }
+
+      // Subtle separator line
+      screenCtx.strokeStyle = "rgba(255,255,255,0.2)";
+      screenCtx.lineWidth = 4;
+      screenCtx.beginPath();
+      screenCtx.moveTo(w * 0.15, 160);
+      screenCtx.lineTo(w * 0.85, 160);
+      screenCtx.stroke();
+
+      // Sideways Song Info (Only Track Title as requested)
+      var title = "RISHI MIX 01";
+      if (hasStartedPlayback) {
+        title = track.title.toUpperCase();
+      }
+      
+      var fullText = title;
+
+      screenCtx.save();
+      
+      // Clipping region for marquee
+      screenCtx.beginPath();
+      screenCtx.rect(0, 200, w, h - 400);
+      screenCtx.clip();
+
+      // Shift a bit to the left (physical top) to avoid bottom crop
+      screenCtx.translate(w / 2 - 24, 220);
+      screenCtx.rotate(Math.PI / 2); // Rotate 90 degrees clockwise
+
+      screenCtx.fillStyle = "#ffffff";
+      // Use slightly reduced font size (was 300, now 260) to prevent any bottom cropping
+      screenCtx.font = 'bold 260px "Space Mono", "Courier New", monospace';
+      screenCtx.textAlign = "left";
+      screenCtx.textBaseline = "middle";
+      // Very subtle contrast shadow for readability against dark screen
+      screenCtx.shadowColor = "rgba(0,0,0,1)";
+      screenCtx.shadowBlur = 6;
+      
+      var textWidth = screenCtx.measureText(fullText).width;
+      var availableWidth = h - 400; // available physical height (since it's rotated)
+
+      if (textWidth > availableWidth && isPlaying) {
+          var now = performance.now();
+          var delta = (now - lastAnimationTime) / 1000;
+          lastAnimationTime = now;
+          if (delta > 0.1) delta = 0.016; // Prevent massive jumps if tab was inactive
+
+          var scrollSpeed = 60; // 60 pixels per second for readable scrolling
+          
+          if (marqueeState === "PAUSE_START") {
+              marqueePauseTimer += delta;
+              if (marqueePauseTimer > 1.5) {
+                  marqueeState = "SCROLLING";
+                  marqueePauseTimer = 0;
+              }
+          } else if (marqueeState === "SCROLLING") {
+              marqueeOffset += scrollSpeed * delta;
+              console.log("Marquee Offset:", marqueeOffset.toFixed(1)); // Debug as requested
+              
+              if (marqueeOffset >= (textWidth - availableWidth)) {
+                  marqueeOffset = textWidth - availableWidth;
+                  marqueeState = "PAUSE_END";
+              }
+          } else if (marqueeState === "PAUSE_END") {
+              marqueePauseTimer += delta;
+              if (marqueePauseTimer > 1.5) {
+                  marqueeState = "PAUSE_START";
+                  marqueePauseTimer = 0;
+                  marqueeOffset = 0;
+              }
+          }
+      } else {
+          marqueeOffset = 0;
+          marqueeState = "PAUSE_START";
+          marqueePauseTimer = 0;
+          lastAnimationTime = performance.now();
+      }
+
+      // Draw text
+      screenCtx.fillText(fullText, -marqueeOffset, 0);
+
+      screenCtx.restore();
+
+      // Bottom Tape badge
+      screenCtx.fillStyle = "rgba(255,255,255,0.7)";
+      screenCtx.font = "56px monospace";
+      screenCtx.shadowBlur = 0;
+      screenCtx.textAlign = "center";
+      screenCtx.fillText("SONY TPS-L2", w/2, h - 80);
+
+      if (screenTexture) {
+        screenTexture.needsUpdate = true;
+      }
+    }
+    function updateWalkmanDisplay() {
+      renderScreenTexture();
+    }
+
+    function playCurrentTrack() {
+      var track = WALKMAN_PLAYLIST[currentTrackIndex];
+      if (!track) return;
+      if (walkmanAudio.src !== track.previewUrl) {
+        walkmanAudio.src = track.previewUrl;
+        // Reset marquee on track change
+        marqueeOffset = 0;
+        marqueeState = "PAUSE_START";
+        marqueePauseTimer = 0;
+      }
+      walkmanAudio.play().catch(function (err) {
+        console.log("Audio playback notice:", err);
+      });
+      lastAnimationTime = performance.now();
+      updateWalkmanDisplay();
+    }
+
+    function pauseCurrentTrack() {
+      walkmanAudio.pause();
+      updateWalkmanDisplay();
+    }
+
+    // Yellow Button Press Logic (Plays "Stayin' Alive" and toggles Stop)
+    function pressYellowButton() {
+      if (!hasStartedPlayback) {
+        hasStartedPlayback = true;
+      }
+      isPlaying = !isPlaying;
+
+      // Sound effect
+      playCassetteSwitch(!isPlaying);
+
+      if (isPlaying) {
+        playCurrentTrack();
+      } else {
+        pauseCurrentTrack();
+      }
+    }
+
+    // Side Seek Buttons (Disappear and appear immediately + change songs)
+    function triggerSeekButton(btnNode, isNext) {
+      playCassetteSeekClick();
+
+      if (isNext) {
+        currentTrackIndex = (currentTrackIndex + 1) % WALKMAN_PLAYLIST.length;
+      } else {
+        currentTrackIndex = (currentTrackIndex - 1 + WALKMAN_PLAYLIST.length) % WALKMAN_PLAYLIST.length;
+      }
+
+      if (isPlaying) {
+        playCurrentTrack();
+      } else {
+        updateWalkmanDisplay();
+      }
+    }
     // Load Walkman model with primary support for sony_tps-l2_walkman.glb
     var loader = new THREE.GLTFLoader();
     function onModelSuccess(gltf, modelType) {
@@ -1332,7 +1649,6 @@
       currentModelType = modelType;
 
       if (modelType === "tps_l2") {
-        // Model: sony_tps-l2_walkman.glb (Authentic TPS-L2 Sony Walkman)
         rootModel.traverse(function (child) {
           if (child.isMesh) {
             var mats = Array.isArray(child.material) ? child.material : [child.material];
@@ -1346,6 +1662,12 @@
           }
           if (child.name.indexOf("Button1") !== -1 || (child.parent && child.parent.name.indexOf("Button1") !== -1)) {
             buttonNode = child;
+          }
+          if (child.name.indexOf("Button2") !== -1 || (child.parent && child.parent.name.indexOf("Button2") !== -1)) {
+            button2Node = child;
+          }
+          if (child.name.indexOf("Button3") !== -1 || (child.parent && child.parent.name.indexOf("Button3") !== -1)) {
+            button3Node = child;
           }
           if (child.name.indexOf("Cylinder.041") !== -1 || child.name.indexOf("Slider") !== -1) {
             tapeMesh = child;
@@ -1367,78 +1689,41 @@
         rootModel.updateMatrixWorld(true);
 
         if (buttonNode) {
-          buttonInitialY = buttonNode.position.y;
           var bBox = new THREE.Box3().setFromObject(buttonNode);
           var bCenter = bBox.getCenter(new THREE.Vector3());
           var hitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
           var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
           buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
           buttonHitbox.position.copy(bCenter);
+          buttonHitbox.userData = { action: "yellow" };
           walkmanGroup.add(buttonHitbox);
         }
-      } else if (modelType === "old_walkman") {
-        // Model: old_walkman.glb
-        rootModel.traverse(function (child) {
-          if (child.isMesh) {
-            if (child.name.toLowerCase().indexOf("headphone") !== -1 || (child.parent && child.parent.name.toLowerCase().indexOf("headphone") !== -1)) {
-              child.visible = false;
-              return;
-            }
-            var isGlass = child.name.toLowerCase().indexOf("glass") !== -1 || (child.parent && child.parent.name.toLowerCase().indexOf("glass") !== -1);
-            if (isGlass) {
-              child.material = child.material.clone();
-              child.material.transparent = true;
-              child.material.opacity = 0.35;
-              child.material.depthWrite = false;
-              child.material.side = THREE.DoubleSide;
-              child.material.roughness = 0.1;
-              child.material.metalness = 0.1;
-            } else {
-              child.material = child.material.clone();
-              child.material.depthWrite = true;
-              child.material.transparent = false;
-              child.material.side = THREE.FrontSide;
-              child.material.needsUpdate = true;
-            }
-          }
-          if (child.name === "top" || (child.parent && child.parent.name === "top" && !buttonNode)) {
-            buttonNode = child;
-          }
-          if (child.name === "rings" || (child.parent && child.parent.name === "rings")) {
-            tapeMesh = child;
-          }
-        });
 
-        // Face front towards camera
-        var pivot = new THREE.Group();
-        rootModel.rotation.y = -Math.PI / 2;
-        pivot.add(rootModel);
-
-        var box = new THREE.Box3().setFromObject(pivot);
-        var center = box.getCenter(new THREE.Vector3());
-        var size = box.getSize(new THREE.Vector3());
-        rootModel.position.set(-center.x, -center.y, -center.z);
-
-        // Scale to fill the left column heroically
-        var targetHeight = 0.27;
-        var scale = targetHeight / size.y;
-        pivot.scale.setScalar(scale);
-        walkmanGroup.add(pivot);
-
-        pivot.updateMatrixWorld(true);
-
-        if (buttonNode) {
-          buttonInitialY = buttonNode.position.y;
-          var bBox = new THREE.Box3().setFromObject(buttonNode);
-          var bCenter = bBox.getCenter(new THREE.Vector3());
-          var hitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
-          var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
-          buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
-          buttonHitbox.position.copy(bCenter);
-          walkmanGroup.add(buttonHitbox);
+        if (button2Node) {
+          var b2Box = new THREE.Box3().setFromObject(button2Node);
+          var b2Center = b2Box.getCenter(new THREE.Vector3());
+          var b2HitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
+          var b2HitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+          seekNextHitbox = new THREE.Mesh(b2HitboxGeom, b2HitboxMat);
+          seekNextHitbox.position.copy(b2Center);
+          seekNextHitbox.userData = { action: "seekNext" };
+          walkmanGroup.add(seekNextHitbox);
         }
+
+        if (button3Node) {
+          var b3Box = new THREE.Box3().setFromObject(button3Node);
+          var b3Center = b3Box.getCenter(new THREE.Vector3());
+          var b3HitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
+          var b3HitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+          seekPrevHitbox = new THREE.Mesh(b3HitboxGeom, b3HitboxMat);
+          seekPrevHitbox.position.copy(b3Center);
+          seekPrevHitbox.userData = { action: "seekPrev" };
+          walkmanGroup.add(seekPrevHitbox);
+        }
+
+        setupScreenDisplay();
       } else {
-        // Fallback: walkman_music_player.glb
+        // Fallback GLB models
         rootModel.traverse(function (child) {
           if (child.isMesh) {
             if (child.name.indexOf("Circle") !== -1) {
@@ -1480,10 +1765,12 @@
         var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
         buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
         buttonHitbox.position.set(-0.0175, 0.104, 0.0364);
+        buttonHitbox.userData = { action: "yellow" };
         rootModel.add(buttonHitbox);
+
+        setupScreenDisplay();
       }
 
-      // Pre-compile shaders and upload textures ahead of time
       try {
         renderer.compile(scene, camera);
         renderer.render(scene, camera);
@@ -1533,6 +1820,12 @@
             if (c.name.indexOf("Button1") !== -1) {
               buttonNode = c;
             }
+            if (c.name.indexOf("Button2") !== -1) {
+              button2Node = c;
+            }
+            if (c.name.indexOf("Button3") !== -1) {
+              button3Node = c;
+            }
             if (c.name.indexOf("Cylinder") !== -1 || c.name.indexOf("Slider") !== -1) {
               tapeMesh = c;
             }
@@ -1554,17 +1847,40 @@
         currentModelType = "fbx";
 
         if (buttonNode) {
-          buttonInitialY = buttonNode.position.y;
           var bBox = new THREE.Box3().setFromObject(buttonNode);
           var bCenter = bBox.getCenter(new THREE.Vector3());
           var hitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
           var hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
           buttonHitbox = new THREE.Mesh(hitboxGeom, hitboxMat);
           buttonHitbox.position.copy(bCenter);
+          buttonHitbox.userData = { action: "yellow" };
           walkmanGroup.add(buttonHitbox);
         }
 
-        // Pre-compile shaders and upload textures to GPU ahead of time so scrolling into about has 0 freeze
+        if (button2Node) {
+          var b2Box = new THREE.Box3().setFromObject(button2Node);
+          var b2Center = b2Box.getCenter(new THREE.Vector3());
+          var b2HitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
+          var b2HitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+          seekNextHitbox = new THREE.Mesh(b2HitboxGeom, b2HitboxMat);
+          seekNextHitbox.position.copy(b2Center);
+          seekNextHitbox.userData = { action: "seekNext" };
+          walkmanGroup.add(seekNextHitbox);
+        }
+
+        if (button3Node) {
+          var b3Box = new THREE.Box3().setFromObject(button3Node);
+          var b3Center = b3Box.getCenter(new THREE.Vector3());
+          var b3HitboxGeom = new THREE.SphereGeometry(0.024, 12, 12);
+          var b3HitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+          seekPrevHitbox = new THREE.Mesh(b3HitboxGeom, b3HitboxMat);
+          seekPrevHitbox.position.copy(b3Center);
+          seekPrevHitbox.userData = { action: "seekPrev" };
+          walkmanGroup.add(seekPrevHitbox);
+        }
+
+        setupScreenDisplay();
+
         try {
           renderer.compile(scene, camera);
           renderer.render(scene, camera);
@@ -1606,63 +1922,6 @@
       });
     });
 
-    // Button press logic
-    function pressYellowButton() {
-      isHotlineEngaged = !isHotlineEngaged;
-
-      // Sound effect
-      playCassetteSwitch(!isHotlineEngaged);
-
-      // Button physical 3D animation (for native 3D button)
-      if (buttonNode && window.gsap) {
-        window.gsap.killTweensOf(buttonNode.scale);
-
-        if (isHotlineEngaged) {
-          // PRESSING IN: quickly shrink then hide
-          window.gsap.to(buttonNode.scale, {
-            x: 1, y: 0.01, z: 1,
-            duration: 0.1,
-            ease: "power2.in",
-            onComplete: function () { buttonNode.visible = false; }
-          });
-        } else {
-          // POPPING BACK UP: show and scale back to normal
-          buttonNode.visible = true;
-          buttonNode.scale.set(1, 0.01, 1);
-          window.gsap.to(buttonNode.scale, {
-            x: 1, y: 1, z: 1,
-            duration: 0.15,
-            ease: "back.out(3)"
-          });
-        }
-      }
-
-      // Button physical 3D animation (for fallback button cap)
-      if (buttonCap && window.gsap) {
-        window.gsap.killTweensOf(buttonCap.position);
-        window.gsap.timeline()
-          .to(buttonCap.position, { y: 0.098, duration: 0.07, ease: "power2.in" })
-          .to(buttonCap.position, {
-            y: isHotlineEngaged ? 0.101 : 0.104,
-            duration: 0.12,
-            ease: "back.out(2)"
-          });
-
-        if (buttonCapMat) {
-          window.gsap.to(buttonCapMat.color, {
-            r: 1.0,
-            g: isHotlineEngaged ? 0.25 : 0.67,
-            b: isHotlineEngaged ? 0.25 : 0.0,
-            duration: 0.2
-          });
-          window.gsap.to(buttonCapMat, {
-            emissiveIntensity: isHotlineEngaged ? 1.3 : 0.7,
-            duration: 0.2
-          });
-        }
-      }
-    }
-
     // Raycasting & Interaction
     var raycaster = new THREE.Raycaster();
     var pointer = new THREE.Vector2();
@@ -1691,14 +1950,44 @@
     function checkButtonIntersection(coords) {
       var targets = [];
       if (buttonHitbox) targets.push(buttonHitbox);
+      if (seekNextHitbox) targets.push(seekNextHitbox);
+      if (seekPrevHitbox) targets.push(seekPrevHitbox);
       if (buttonCap) targets.push(buttonCap);
       if (buttonNode) targets.push(buttonNode);
-      if (targets.length === 0) return false;
+      if (button2Node) targets.push(button2Node);
+      if (button3Node) targets.push(button3Node);
+      if (targets.length === 0) return null;
+
       pointer.x = coords.x;
       pointer.y = coords.y;
       raycaster.setFromCamera(pointer, camera);
       var hits = raycaster.intersectObjects(targets, true);
-      return hits.length > 0;
+      if (hits.length === 0) return null;
+
+      var hitObj = hits[0].object;
+      function isOrChildOf(obj, root) {
+        if (!root) return false;
+        var cur = obj;
+        while (cur) {
+          if (cur === root) return true;
+          cur = cur.parent;
+        }
+        return false;
+      }
+
+      if (hitObj === buttonHitbox || hitObj === buttonCap || isOrChildOf(hitObj, buttonNode)) {
+        return "yellow";
+      }
+      if (hitObj === seekNextHitbox || isOrChildOf(hitObj, button2Node)) {
+        return "seekNext";
+      }
+      if (hitObj === seekPrevHitbox || isOrChildOf(hitObj, button3Node)) {
+        return "seekPrev";
+      }
+      if (hitObj.userData && hitObj.userData.action) {
+        return hitObj.userData.action;
+      }
+      return null;
     }
 
     // Pointer events on stage
@@ -1709,6 +1998,35 @@
       dragStartY = c.rawY;
       dragDist = 0;
       stage.setPointerCapture(e.pointerId);
+
+      var hitAction = checkButtonIntersection(c);
+      if (hitAction && window.gsap) {
+        var node = null;
+        if (hitAction === "yellow") { node = buttonNode || buttonCap; }
+        else if (hitAction === "seekNext") { node = button2Node; }
+        else if (hitAction === "seekPrev") { node = button3Node; }
+        
+        if (node) {
+          if (!node.userData.origPos) {
+            node.userData.origPos = node.position.clone();
+          }
+          var targetPos = node.userData.origPos.clone();
+          // Visibly physical mechanical inward press
+          if (hitAction === "yellow") {
+            // Top button: press downwards noticeably
+            targetPos.y -= 0.015;
+          } else {
+            // Side buttons: press inward from the right side noticeably (negative X)
+            targetPos.x -= 0.012; 
+          }
+          window.gsap.to(node.position, {
+            x: targetPos.x, y: targetPos.y, z: targetPos.z,
+            duration: 0.1, ease: "power1.in"
+          });
+          stage.userData = stage.userData || {};
+          stage.userData.pressedNode = node;
+        }
+      }
     });
 
     stage.addEventListener("pointermove", function (e) {
@@ -1725,12 +2043,13 @@
         targetRotX = THREE.MathUtils.clamp(targetRotX + dy * 0.010, -0.6, 0.8);
       } else {
         // Hover raycasting
-        var hit = checkButtonIntersection(c);
-        if (hit !== isHoveringButton) {
-          isHoveringButton = hit;
-          stage.style.cursor = hit ? "pointer" : "grab";
+        var hitAction = checkButtonIntersection(c);
+        var isHit = !!hitAction;
+        if (isHit !== isHoveringButton) {
+          isHoveringButton = isHit;
+          stage.style.cursor = isHit ? "pointer" : "grab";
           if (buttonCapMat) {
-            buttonCapMat.emissiveIntensity = hit ? 1.1 : (isHotlineEngaged ? 1.3 : 0.7);
+            buttonCapMat.emissiveIntensity = isHit ? 1.1 : (isPlaying ? 1.3 : 0.7);
           }
         }
       }
@@ -1741,11 +2060,30 @@
       isDragging = false;
       try { stage.releasePointerCapture(e.pointerId); } catch (err) {}
 
+      if (stage.userData && stage.userData.pressedNode) {
+        var node = stage.userData.pressedNode;
+        if (node.userData.origPos && window.gsap) {
+          window.gsap.to(node.position, {
+            x: node.userData.origPos.x,
+            y: node.userData.origPos.y,
+            z: node.userData.origPos.z,
+            duration: 0.15,
+            ease: "back.out(2)"
+          });
+        }
+        stage.userData.pressedNode = null;
+      }
+
       // If clicked (little to no drag), trigger button press
       if (dragDist < 6) {
         var c = getNormalizedCoords(e);
-        if (checkButtonIntersection(c)) {
+        var hitAction = checkButtonIntersection(c);
+        if (hitAction === "yellow") {
           pressYellowButton();
+        } else if (hitAction === "seekNext") {
+          triggerSeekButton(button2Node, true);
+        } else if (hitAction === "seekPrev") {
+          triggerSeekButton(button3Node, false);
         }
       }
 
@@ -1769,7 +2107,6 @@
 
       // Smooth rotation interpolation
       if (!isDragging) {
-        // If released, gently return toward default angle after delay
         var timeSinceRelease = performance.now() - releaseEaseTimer;
         if (timeSinceRelease > 2200) {
           targetRotX = THREE.MathUtils.lerp(targetRotX, defaultRotX, 0.02);
@@ -1786,9 +2123,18 @@
       walkmanGroup.rotation.x = currentRotX;
       walkmanGroup.rotation.y = currentRotY;
 
-      // When HOT LINE is engaged, tape cassette spools pulse subtly
-      if (isHotlineEngaged && tapeMesh) {
-        tapeMesh.position.y = Math.sin(time * 8.0) * 0.0003;
+      // Tape spool pulse and screen alive glow during playback
+      if (isPlaying) {
+        if (tapeMesh) {
+          tapeMesh.position.y = Math.sin(time * 8.0) * 0.0003;
+        }
+        if (screenMesh && screenMesh.material) {
+          screenMesh.material.opacity = 0.94 + Math.sin(time * 5.0) * 0.04;
+        }
+      }
+      
+      if (typeof renderScreenTexture === 'function') {
+        renderScreenTexture(time);
       }
 
       renderer.render(scene, camera);
@@ -1822,6 +2168,7 @@
       renderer.setSize(w, h, false);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     }
+
     // Expose for inspection and integration
     window.__aboutWalkman = {
       scene: scene,
@@ -1829,7 +2176,12 @@
       renderer: renderer,
       walkmanGroup: walkmanGroup,
       pressYellowButton: pressYellowButton,
-      isHotlineEngaged: function () { return isHotlineEngaged; }
+      triggerSeekButton: triggerSeekButton,
+      playNext: function () { triggerSeekButton(button2Node, true); },
+      playPrev: function () { triggerSeekButton(button3Node, false); },
+      isPlaying: function () { return isPlaying; },
+      getPlaylist: function () { return WALKMAN_PLAYLIST; },
+      getCurrentTrack: function () { return WALKMAN_PLAYLIST[currentTrackIndex]; }
     };
 
     window.addEventListener("resize", onResize, { passive: true });
@@ -1837,6 +2189,8 @@
 
   // Initialize About Walkman 3D Model
   initAboutWalkman();
+
+
 
   /* ------------------------------------------------------------
      13. MASTER RAF ANIMATION TICK
