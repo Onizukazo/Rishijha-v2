@@ -135,10 +135,14 @@
       var startPos = "top 0%";
       var endPos = "top -80%";
 
+      let shouldPin = false;
       if (parentSection && !parentSection.classList.contains("section--hero")) {
         triggerEl = parentSection;
-        startPos = "bottom 100%";
-        endPos = "bottom 20%";
+        startPos = "bottom bottom";
+        endPos = "+=70%"; // 70vh scroll duration for the wipe
+        if (parentSection.id === 'services') {
+            shouldPin = true;
+        }
       }
 
       gsap.fromTo(strips, {
@@ -160,7 +164,9 @@
           scroller: window,
           start: startPos,
           end: endPos,
-          scrub: true
+          scrub: true,
+          pin: shouldPin,
+          pinSpacing: false
         }
       });
     });
@@ -672,6 +678,18 @@
       closeVideoModal();
     }
   });
+
+  // Speed text hover effect for hero video
+  var speedText = document.querySelector(".hero__note .speed");
+  var heroVid = document.getElementById("heroVideo");
+  if (speedText && heroVid) {
+    speedText.addEventListener("mouseenter", function() {
+      heroVid.playbackRate = 4.0;
+    });
+    speedText.addEventListener("mouseleave", function() {
+      heroVid.playbackRate = 1.0;
+    });
+  }
 
 
 
@@ -2521,4 +2539,196 @@
 
   // Initialize Sticky Stacking Methodology Cards
   initStickyStackingCards();
+
+
+
+
+  // ==========================================
+  // FOOTER MAKE-B EXACT GLSL SHADER (BLUE ON WHITE)
+  // ==========================================
+  function initMakeBShader() {
+    const canvas = document.getElementById('makeb-canvas');
+    if (!canvas || !window.THREE) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    camera.position.z = 1;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    
+    function resize() {
+      const parent = canvas.parentElement;
+      if(parent) {
+        renderer.setSize(parent.offsetWidth, parent.offsetHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        if(uniforms) {
+          uniforms.u_resolution.value.set(parent.offsetWidth, parent.offsetHeight);
+        }
+      }
+    }
+    window.addEventListener('resize', resize);
+
+    const vertexShader = `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1.0);
+      }
+    `;
+
+    // Supersolid-style Interactive TV Color Bars Shader
+    const fragmentShader = `
+      uniform float u_time;
+      uniform vec2 u_resolution;
+      uniform float u_hover;
+      varying vec2 vUv;
+
+      // Random noise function
+      float rand(vec2 co){
+          return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+      }
+
+      vec3 getSMPTEColor(float x) {
+          float bar = mod(x, 1.0);
+          if (bar < 0.125) return vec3(0.75, 0.75, 0.75); // Gray
+          if (bar < 0.250) return vec3(0.75, 0.75, 0.0); // Yellow
+          if (bar < 0.375) return vec3(0.0, 0.75, 0.75); // Cyan
+          if (bar < 0.500) return vec3(0.0, 0.75, 0.0); // Green
+          if (bar < 0.625) return vec3(0.75, 0.0, 0.75); // Magenta
+          if (bar < 0.750) return vec3(0.75, 0.0, 0.0); // Red
+          if (bar < 0.875) return vec3(0.0, 0.0, 0.75); // Blue
+          return vec3(0.0, 0.0, 0.0); // Black
+      }
+
+      void main() {
+          vec2 uv = vUv;
+          
+          // Base tearing intensity, explodes on hover
+          float tearIntensity = 0.005 + 0.15 * u_hover;
+          
+          // Create horizontal slices (tears) based on time and y position
+          float bands = 40.0;
+          float tearY = floor(uv.y * bands);
+          
+          // Smooth time for some tears, jittery for others
+          float jitterTime = floor(u_time * 20.0);
+          float tearOffset = (rand(vec2(tearY, jitterTime)) - 0.5) * tearIntensity;
+          
+          // Jitter (whole screen shake) active mostly on hover
+          float jitter = (rand(vec2(uv.y, u_time)) - 0.5) * 0.02 * u_hover;
+          
+          vec2 distortedUV = uv;
+          distortedUV.x += tearOffset + jitter;
+          
+          // Chromatic aberration (RGB split) heavily amplifies on hover
+          float splitDist = 0.002 + 0.05 * u_hover;
+          
+          // Sample colors with RGB shift
+          vec3 color;
+          color.r = getSMPTEColor(distortedUV.x - splitDist).r;
+          color.g = getSMPTEColor(distortedUV.x).g;
+          color.b = getSMPTEColor(distortedUV.x + splitDist).b;
+          
+          // Static noise overlay
+          float noise = rand(uv + mod(u_time, 10.0));
+          
+          // Noise intensity: standard is low, spikes on hover
+          float noiseIntensity = 0.15 + 0.4 * u_hover;
+          color += (noise - 0.5) * noiseIntensity;
+          
+          gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+
+    const uniforms = {
+      u_time: { value: 0.0 },
+      u_resolution: { value: new THREE.Vector2() },
+      u_hover: { value: 0.0 }
+    };
+
+    let targetHover = 0.0;
+    const parent = document.getElementById('tv-color-bars');
+    if (parent) {
+      parent.addEventListener('mouseenter', () => { targetHover = 1.0; });
+      parent.addEventListener('mouseleave', () => { targetHover = 0.0; });
+    }
+
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    resize();
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      uniforms.u_time.value = clock.getElapsedTime();
+      
+      // Smoothly interpolate hover state
+      uniforms.u_hover.value += (targetHover - uniforms.u_hover.value) * 0.1;
+      
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+
+  // Trigger initialization
+  document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(initMakeBShader, 500);
+  });
+
 })();
+
+      
+      // Update time for the footer
+      const timeEl = document.getElementById('footer-time');
+      if(timeEl) {
+        setInterval(() => {
+          const d = new Date();
+          const timeString = d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+          timeEl.innerHTML = `IST &rarr; ${timeString}`;
+        }, 1000);
+      }
+
+// Footer TV Color Bars ScrollTrigger Animation
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    
+    const wrapper = document.querySelector('.wrapper');
+    const colorBars = document.getElementById('tv-color-bars');
+    
+    if (wrapper && colorBars) {
+      const tl = gsap.timeline();
+      
+      // Add a small empty duration (delay) so the user has to scroll a bit before it starts moving
+      tl.to({}, { duration: 0.3 });
+      
+      // The actual animation that stretches the color bars
+      tl.to(colorBars, { 
+        height: '30vh', 
+        ease: 'none',
+        duration: 1,
+        onUpdate: function() {
+          // Force WebGL canvas to resize its internal buffers dynamically to avoid stretching/blurriness
+          window.dispatchEvent(new Event('resize'));
+        }
+      });
+
+      ScrollTrigger.create({
+        trigger: wrapper,
+        start: 'bottom-=1 bottom', // Trigger 1px before absolute bottom to guarantee pin-spacer generation
+        end: '+=1500', // Heavily increased scroll distance to require roughly 3 mouse wheel scrolls
+        pin: true,
+        animation: tl,
+        scrub: true
+      });
+    }
+  }
+});

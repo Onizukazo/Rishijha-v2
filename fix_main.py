@@ -1,0 +1,4 @@
+import re
+content = open('js/main.js', 'r', encoding='utf-8').read()
+new_content = re.sub(r'// Initialize Fax Footer \(deferred until full DOM is parsed\).*?\}\(\)\);', '''// Initialize Nothin style Footer Reveal\n  document.addEventListener(\"DOMContentLoaded\", function () {\n    var footerContainer = document.getElementById(\"footerRevealContainer\");\n    var revealVideo = document.getElementById(\"footerRevealVideo\");\n\n    if (footerContainer && revealVideo) {\n      footerContainer.addEventListener(\"mousemove\", function(e) {\n        var rect = footerContainer.getBoundingClientRect();\n        var x = e.clientX - rect.left;\n        var y = e.clientY - rect.top;\n        revealVideo.style.left = x + \"px\";\n        revealVideo.style.top = y + \"px\";\n      });\n    }\n  });\n\n})();''', content, flags=re.DOTALL)
+open('js/main.js', 'w', encoding='utf-8').write(new_content)

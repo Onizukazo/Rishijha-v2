@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Silkscreen:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/splitting.css">
-  <link rel="stylesheet" href="css/style.css?v=9.0">
+  <link rel="stylesheet" href="css/style.css?v=56.0">
   <script>
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
@@ -78,18 +78,20 @@
   <div class="homeVideoOverlay cursor_disabled" id="videoOverlay" aria-modal="true" role="dialog" aria-hidden="true" style="display: none;">
     <button class="homeVideoOverlay__closeButton" id="closeVideoBtn" aria-label="Close video" type="button">✕ Close</button>
     <div class="homeVideoOverlay__stage">
-      <div class="homeVideoOverlay__placeholder">
-        <div class="homeVideoOverlay__placeholder-badge monospace">SHOWREEL</div>
-        <div class="homeVideoOverlay__placeholder-title">RISHI JHA</div>
-        <div class="homeVideoOverlay__placeholder-sub monospace">Product &amp; Experience Designer</div>
-        <p class="homeVideoOverlay__placeholder-note monospace">Showreel video coming soon</p>
-      </div>
-      <!-- Drop showreel.mp4 in /assets/ to publish -->
-      <video class="homeVideoOverlay__video" id="overlayVideo" loop playsinline controls preload="none" style="display: none;">
-        <source src="assets/showreel.mp4" type="video/mp4">
+      <video class="homeVideoOverlay__video" id="overlayVideo" loop playsinline controls preload="none">
+        <source src="assets/rishi-showreel-final-v5.mp4" type="video/mp4">
       </video>
     </div>
   </div>
+
+    <!-- ===== MINI SHOWREEL CARD ===== -->
+    <div class="homeMiniVideo cursor_disabled" data-mini>
+      <button class="mini-video__button mini-video__wrapper" id="openVideoBtn" type="button" aria-label="Open portfolio showreel">
+        <video autoplay loop muted playsinline style="position: absolute; width: 100%; height: 100%; object-fit: cover; inset: 0; z-index: 0;">
+          <source src="assets/rishi-showreel-final-v5.mp4" type="video/mp4">
+        </video>
+      </button>
+    </div>
 
   <div class="wrapper">
 
@@ -137,22 +139,7 @@
       </div>
     </div>
 
-    <!-- ===== MINI SHOWREEL CARD (Placeholder - click to open) ===== -->
-    <div class="homeMiniVideo cursor_disabled" data-mini>
-      <button class="mini-video__button mini-video__wrapper mini-video--placeholder" id="openVideoBtn" type="button" aria-label="Open portfolio showreel placeholder">
-        <div class="mini-video__placeholder-content">
-          <div class="mini-video__scanlines" aria-hidden="true"></div>
-          <span class="mini-video__badge monospace">SHOWREEL</span>
-          <div class="mini-video__play-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          </div>
-          <span class="mini-video__status monospace">SOON</span>
-        </div>
-      </button>
-      <p class="monospace miniCard__caption">Scroll down to access<br>the portfolio</p>
-    </div>
+
 
     <main>
 
@@ -161,7 +148,7 @@
         <div class="banner__hero">
           <div class="banner__hero--wrapper" effect__fadeOutVideo>
             <video class="hero-video" id="heroVideo" autoplay loop muted playsinline preload="auto">
-              <source src="assets/clouds.mp4" type="video/mp4">
+              <source src="assets/clouds_vibrant.mp4" type="video/mp4">
             </video>
             <div class="home-cloud-canvas">
               <div class="canvas" id="canvas"></div>
@@ -194,6 +181,7 @@
       <!-- ================= INTRO ================= -->
       <section class="section section--about" id="about" style="z-index: 10;">
         <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
+        
         <div class="separator" effect__separatorIn aria-hidden="true"></div>
 
         <div class="marqueeText" data-marquee data-static data-base-speed="1.5" aria-hidden="true">
@@ -258,6 +246,7 @@
       <!-- ================= WORKS ================= -->
       <section class="section section--works" id="works">
         <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
+        
         <div class="separator" effect__separatorIn aria-hidden="true"></div>
 
         <div class="layout section__head">
@@ -339,6 +328,7 @@
       <!-- ================= METHODOLOGY (PXPUSH BENEFITS STICKY STACKING) ================= -->
       <section class="section section__blue no__pt" id="services">
         <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
+        
 
         <div class="benefits">
           <div class="benefits__title layout">
@@ -406,7 +396,7 @@
             </div>
 
             <!-- Item 04 -->
-            <div class="benefits__items--item" style="--stack-index: 3">
+            <div class="benefits__items--item" id="process-validation" style="--stack-index: 3">
               <div class="layout">
                 <div class="layout__third monospace"> Nº004</div>
                 <div class="layout__second">
@@ -422,44 +412,77 @@
                 </div>
               </div>
             </div>
-          </div>
         </div>
-
       </section>
 
       <!-- ================= FOOTER ================= -->
-      <footer class="section section--footer" id="contact">
-        <div class="footer__wrapper">
-          <div class="footer__logoStack">
-            <div class="footer__logo footer__logo--trail" style="--trail-index:3; --trail-crop-offset:10%; z-index:3;" aria-hidden="true">リシ</div>
-            <div class="footer__logo footer__logo--trail" style="--trail-index:2; --trail-crop-offset:5%; z-index:2;" aria-hidden="true">リシ</div>
-            <div class="footer__logo footer__logo--trail" style="--trail-index:1; --trail-crop-offset:0%; z-index:1;" aria-hidden="true">リシ</div>
-            <div class="footer__logo footer__logo--front" role="img" aria-label="Rishi (リシ)">リシ</div>
+      <section class="section section--footer" id="footer" style="background: var(--blue); color: #fff;">
+        <!-- TV Color Bars (Cropped at bottom) with WebGL interaction -->
+        <div class="tv-color-bars" id="tv-color-bars" aria-hidden="true">
+          <canvas id="makeb-canvas"></canvas>
+        </div>
+
+        <div class="footer-container">
+          <!-- Top Bar -->
+          <div class="footer-top-bar monospace">
+            <div class="left">LET'S CREATE TOGETHER.</div>
+            <div class="right" id="footer-time">IST &rarr; 13:19</div>
           </div>
-
-          <div class="layout footer__grid">
-            <div class="footer__addr monospace">
-              <span class="footer__bullet" aria-hidden="true">⬤</span>
-              <address>
-                RISHI JHA STUDIO<br>
-                Based in India<br>
-                tarunjha.rishi@gmail.com
-              </address>
-              <p class="footer__gmt" data-clock>GMT +05:30 (IST)</p>
+          
+          <!-- Giant Headline & CTAs -->
+          <div class="footer-hero">
+            <h2 class="footer-hero-text">Let's build<br>something great<br>together.</h2>
+            <div class="footer-cta monospace">
+              <a href="mailto:tarunjkha.rishi@gmail.com" class="footer-link">START A PROJECT &rarr;</a>
+              <a href="mailto:tarunjkha.rishi@gmail.com" class="footer-link">SAY HELLO &rarr;</a>
             </div>
-
-            <div class="footer__links">
-              <a href="https://drive.google.com/file/d/1_3mG3uvyGgM9FJiwiCuYvdRgmfoehdO8/view?usp=sharing" target="_blank" rel="noopener" class="linkrow"><span>Resume</span><span class="linkrow__arrow">↗</span></a>
-              <a href="https://www.linkedin.com/in/rishi5462/" target="_blank" rel="noopener" class="linkrow"><span>LinkedIn</span><span class="linkrow__arrow">↗</span></a>
-              <a href="https://www.behance.net/rishijha5462" target="_blank" rel="noopener" class="linkrow"><span>Behance</span><span class="linkrow__arrow">↗</span></a>
-              <a href="https://www.instagram.com/rishisensei/" target="_blank" rel="noopener" class="linkrow"><span>Instagram</span><span class="linkrow__arrow">↗</span></a>
-              <a href="https://rishijha.designfolio.me/" target="_blank" rel="noopener" class="linkrow"><span>Designfolio</span><span class="linkrow__arrow">↗</span></a>
-              <a href="mailto:tarunjha.rishi@gmail.com" class="linkrow"><span>Get in Touch</span><span class="linkrow__arrow">↗</span></a>
+          </div>
+          
+          <!-- Info Columns -->
+          <div class="footer-info monospace">
+            <div class="footer-col">
+              <p>@RISHI JHA 2026</p>
+              <p style="color: rgba(255,255,255,0.6); margin-top: 12px; font-size: 0.9em;">PRODUCT &amp; EXPERIENCE DESIGNER</p>
+            </div>
+            <div class="footer-col">
+              <p class="footer-col-title">CONTACT</p>
+              <p style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                tarunjkha.rishi@gmail.com
+              </p>
+              <p style="display: flex; align-items: center; gap: 8px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Pune, Maharashtra, India
+              </p>
+            </div>
+            <div class="footer-col">
+              <p class="footer-col-title">SOCIAL</p>
+              <div class="footer-social-grid">
+                <a href="https://www.linkedin.com/in/rishi5462/?isSelfProfile=true" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                  LinkedIn
+                </a>
+                <a href="https://www.behance.net/rishijha5462" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14H4v-4h4a2 2 0 1 1 0 4Z"/><path d="M8 10a2 2 0 1 0 0-4H4v4Z"/><path d="M4 18v-4h4a3 3 0 0 1 0 6H4Z"/><path d="M16 9h4"/><path d="M16 13a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v2h-8a3 3 0 0 0 6 0"/></svg>
+                  Behance
+                </a>
+                <a href="https://steamcommunity.com/profiles/76561199521917102/" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 0 0 9 -9a9 9 0 0 0 -9 -9a9 9 0 0 0 -9 9a9 9 0 0 0 9 9z"/><path d="M9.5 12a2.5 2.5 0 0 0 2.5 -2.5a2.5 2.5 0 0 0 -2.5 -2.5a2.5 2.5 0 0 0 -2.5 2.5a2.5 2.5 0 0 0 2.5 2.5z"/><path d="M14.5 16a2.5 2.5 0 0 0 2.5 -2.5a2.5 2.5 0 0 0 -2.5 -2.5a2.5 2.5 0 0 0 -2.5 2.5a2.5 2.5 0 0 0 2.5 2.5z"/><path d="M12 11l-1 -1.5l1.5 -1.5"/><path d="M11 15.5l1.5 -1.5l2 1"/></svg>
+                  Steam
+                </a>
+                <a href="https://www.instagram.com/rishisensei/" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  Instagram
+                </a>
+                <a href="https://open.spotify.com/user/31ans3iqchkb4em5i2uerrwbnddq?si=1602d6281ff54f5c" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 11.973c2.5 -1.473 5.5 -.973 7.5 .527"/><path d="M9 15c1.5 -1 4 -1 5 .5"/><path d="M7 9c2 -1 6 -2 10 .5"/></svg>
+                  Spotify
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </footer>
-
+      </section>
     </main>
 
     <!-- custom pixel cursor with gooey SVG filter and precision follower dot -->
@@ -490,6 +513,8 @@
   <script src="js/libs/gsap.min.js"></script>
   <script src="js/libs/ScrollTrigger.min.js"></script>
   <script src="js/libs/splitting.min.js"></script>
-  <script src="js/main.js?v=19.0"></script>
+  <script src="js/main.js?v=56.0"></script>
+
+
 </body>
 </html>
