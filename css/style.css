@@ -6377,6 +6377,11 @@ body.is-loading .cursor {
   .about__walkman-instructions { transform: translateY(1vw); } 
 }
 
+/* SHIFT ABOUT TEXT DOWNWARD */
+.section--about .layout__second {
+  padding-top: clamp(28px, 3.5vw, 56px);
+}
+
 /* ============================================================
    AUTHENTIC PXPUSH / PHILIP READMAN WORKS PINNED SHOWCASE
    ============================================================ */
@@ -6739,5 +6744,21 @@ body.is-loading .cursor {
   }
 }
 
+/* ============================================================
+   AUTHENTIC PXPUSH LINK HOVER ANIMATION (CIPHER TEXT SCRAMBLE)
+   ============================================================ */
+.hover_effect {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
 
+header .nav a.hover_effect {
+  display: block;
+}
 
+.hover_effect .char {
+  display: inline-block;
+  position: relative;
+  will-change: opacity;
+}

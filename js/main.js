@@ -99,6 +99,168 @@
   }
 
   /* ------------------------------------------------------------
+     2b. AUTHENTIC PX PUSH TEXT ANIMATOR (CIPHER SCRAMBLE HOVER EFFECT)
+     ------------------------------------------------------------ */
+  var RANDOM_CIPHER_CHARS = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","!","@","#","$","%","*","-","_","+","=",";",":","/","?","~"];
+
+  function TextAnimator(el) {
+    if (!el || !(el instanceof HTMLElement)) return;
+    this.textElement = el;
+    this.originalChars = [];
+    this.timers = [];
+    this.isAnimating = false;
+    this.splitText();
+    this.bindEvents();
+  }
+
+  TextAnimator.prototype.splitText = function () {
+    var target = this.textElement.querySelector("span:not(.nav__sep):not(.dot)");
+    if (!target) {
+      var hasChildElements = this.textElement.children.length > 0;
+      if (hasChildElements) {
+        var textNodes = Array.from(this.textElement.childNodes).filter(function (n) {
+          return n.nodeType === Node.TEXT_NODE && n.textContent.trim().length > 0;
+        });
+        if (textNodes.length) {
+          var s = document.createElement("span");
+          s.className = "hover-text";
+          s.textContent = textNodes.map(function (n) { return n.textContent; }).join("");
+          textNodes.forEach(function (n) { n.remove(); });
+          this.textElement.appendChild(s);
+          target = s;
+        }
+      } else {
+        var s = document.createElement("span");
+        s.className = "hover-text";
+        s.innerHTML = this.textElement.innerHTML;
+        this.textElement.innerHTML = "";
+        this.textElement.appendChild(s);
+        target = s;
+      }
+    }
+
+    if (!target) target = this.textElement;
+
+    if (typeof window.Splitting === "function") {
+      this.splitter = window.Splitting({ target: target, whitespace: true });
+    }
+    if (typeof window.gsap !== "undefined") {
+      window.gsap.set(target, { opacity: 1 });
+      window.gsap.set(target.querySelectorAll(".splitting, .word, .char"), { opacity: 1 });
+    }
+    this.originalChars = (this.splitter && this.splitter[0] && this.splitter[0].chars)
+      ? this.splitter[0].chars.map(function (r) { return r.innerHTML; })
+      : [];
+  };
+
+  TextAnimator.prototype.bindEvents = function () {
+    var self = this;
+    this.textElement.addEventListener("mouseenter", function () {
+      self.animate();
+    }, { passive: true });
+    this.textElement.addEventListener("mouseleave", function () {
+      self.animateBack();
+    }, { passive: true });
+  };
+
+  TextAnimator.prototype.animate = function () {
+    this.reset();
+    var chars = this.splitter && this.splitter[0] ? this.splitter[0].chars : [];
+    if (!chars || !chars.length) return;
+    var self = this;
+    this.isAnimating = true;
+
+    chars.forEach(function (charEl, idx) {
+      var orig = (self.originalChars[idx] !== undefined)
+        ? self.originalChars[idx]
+        : (charEl.dataset.char || charEl.textContent);
+
+      if (!orig || orig.trim() === "") return;
+
+      var flips = 5;
+      var flipInterval = 65;
+      var startDelay = Math.min(idx * 30, 180);
+
+      for (var f = 0; f < flips; f++) {
+        (function (step) {
+          var timerId = setTimeout(function () {
+            if (!self.isAnimating) return;
+            charEl.textContent = RANDOM_CIPHER_CHARS[Math.floor(Math.random() * RANDOM_CIPHER_CHARS.length)];
+          }, startDelay + (step * flipInterval));
+          self.timers.push(timerId);
+        })(f);
+      }
+
+      var finalTimer = setTimeout(function () {
+        if (!self.isAnimating) return;
+        charEl.innerHTML = orig;
+      }, startDelay + (flips * flipInterval));
+      self.timers.push(finalTimer);
+    });
+  };
+
+  TextAnimator.prototype.animateBack = function () {
+    this.reset();
+  };
+
+  TextAnimator.prototype.reset = function () {
+    this.isAnimating = false;
+    if (this.timers && this.timers.length) {
+      this.timers.forEach(function (t) { clearTimeout(t); });
+      this.timers = [];
+    }
+    var chars = this.splitter && this.splitter[0] ? this.splitter[0].chars : [];
+    if (chars && chars.length) {
+      var self = this;
+      chars.forEach(function (charEl, idx) {
+        if (typeof window.gsap !== "undefined") {
+          window.gsap.killTweensOf(charEl);
+        }
+        charEl.style.opacity = "";
+        var orig = (self.originalChars[idx] !== undefined)
+          ? self.originalChars[idx]
+          : (charEl.dataset.char || charEl.textContent);
+        charEl.innerHTML = orig;
+      });
+      if (typeof window.gsap !== "undefined") {
+        window.gsap.killTweensOf(this.textElement);
+      }
+    }
+  };
+
+  function initHoverTextEffects() {
+    var selectors = [
+      "header .nav a",
+      "header .branding a",
+      "header .logo",
+      "header .menu",
+      ".mobilenav__main a",
+      ".mobilenav__social a",
+      ".footer-link",
+      ".footer-col a",
+      ".footer-social-grid a",
+      ".button.button__big",
+      ".button.button__half",
+      ".works__head a",
+      ".works__item a",
+      ".journal__list--item a",
+      ".experience__row a",
+      ".hover_effect",
+      "[data-hover-effect]"
+    ].join(", ");
+
+    document.querySelectorAll(selectors).forEach(function (el) {
+      if (el.dataset.textAnimatorReady === "true") return;
+      el.classList.add("hover_effect");
+      new TextAnimator(el);
+      el.dataset.textAnimatorReady = "true";
+    });
+  }
+
+  // Initial call
+  initHoverTextEffects();
+
+  /* ------------------------------------------------------------
      3. GSAP SCROLLTRIGGER EFFECTS (PX PUSH style)
      ------------------------------------------------------------ */
   if (typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined" && !reducedMotion) {
@@ -2150,6 +2312,9 @@
       if (typeof window.ScrollTrigger !== "undefined") {
         window.ScrollTrigger.refresh();
       }
+      if (typeof initHoverTextEffects === "function") {
+        initHoverTextEffects();
+      }
       if (typeof onComplete === "function") {
         onComplete();
       }
@@ -2445,11 +2610,13 @@
       }
     `;
 
-    // Supersolid-style Interactive TV Color Bars Shader
+    // Supersolid-style Interactive TV Color Bars Shader with Dynamic Mouse Motion Static
     const fragmentShader = `
       uniform float u_time;
       uniform vec2 u_resolution;
       uniform float u_hover;
+      uniform vec2 u_mouse;
+      uniform float u_motion;
       varying vec2 vUv;
 
       // Random noise function
@@ -2472,25 +2639,38 @@
       void main() {
           vec2 uv = vUv;
           
-          // Base tearing intensity, explodes on hover
-          float tearIntensity = 0.005 + 0.15 * u_hover;
+          // Normalized aspect ratio for circular mouse field
+          vec2 aspect = vec2(u_resolution.x / max(u_resolution.y, 1.0), 1.0);
+          float mouseDist = length((uv - u_mouse) * aspect);
+          float localField = smoothstep(0.45, 0.0, mouseDist);
+          
+          // Activity level: increases with hover and spikes with mouse motion
+          float activity = clamp(u_hover * 0.4 + u_motion * 0.8 + localField * (u_motion * 0.6 + 0.15), 0.0, 2.0);
+          
+          // Base tearing intensity, explodes on mouse motion
+          float nearMouseY = smoothstep(0.3, 0.0, abs(uv.y - u_mouse.y));
+          float tearIntensity = 0.005 + 0.12 * activity + 0.14 * nearMouseY * u_motion;
           
           // Create horizontal slices (tears) based on time and y position
           float bands = 40.0;
           float tearY = floor(uv.y * bands);
           
-          // Smooth time for some tears, jittery for others
-          float jitterTime = floor(u_time * 20.0);
+          // Jitter time for tears
+          float jitterTime = floor(u_time * (20.0 + 30.0 * u_motion));
           float tearOffset = (rand(vec2(tearY, jitterTime)) - 0.5) * tearIntensity;
           
-          // Jitter (whole screen shake) active mostly on hover
-          float jitter = (rand(vec2(uv.y, u_time)) - 0.5) * 0.02 * u_hover;
+          // Whole screen jitter active on motion
+          float jitter = (rand(vec2(uv.y, u_time * 25.0)) - 0.5) * (0.015 * activity);
+          
+          // Magnetic displacement around cursor
+          vec2 mouseDir = uv - u_mouse;
+          float magWarp = mouseDir.x * localField * 0.05 * (u_motion + 0.2);
           
           vec2 distortedUV = uv;
-          distortedUV.x += tearOffset + jitter;
+          distortedUV.x += tearOffset + jitter + magWarp;
           
-          // Chromatic aberration (RGB split) heavily amplifies on hover
-          float splitDist = 0.002 + 0.05 * u_hover;
+          // Chromatic aberration (RGB split) heavily amplifies on motion & near cursor
+          float splitDist = 0.002 + 0.035 * activity + 0.04 * localField * (u_motion + 0.1);
           
           // Sample colors with RGB shift
           vec3 color;
@@ -2498,12 +2678,19 @@
           color.g = getSMPTEColor(distortedUV.x).g;
           color.b = getSMPTEColor(distortedUV.x + splitDist).b;
           
-          // Static noise overlay
-          float noise = rand(uv + mod(u_time, 10.0));
+          // Static noise overlay (multi-frequency TV snow)
+          float fastTime = mod(u_time * 30.0, 10.0);
+          float noise = rand(uv + fastTime);
+          float fineNoise = rand(uv * 2.5 + fastTime * 1.3);
+          float combinedNoise = mix(noise, fineNoise, 0.5);
           
-          // Noise intensity: standard is low, spikes on hover
-          float noiseIntensity = 0.15 + 0.4 * u_hover;
-          color += (noise - 0.5) * noiseIntensity;
+          // Static noise intensity surges when moving mouse over it
+          float noiseIntensity = 0.12 + 0.25 * u_hover + 0.50 * u_motion + 0.35 * localField * (u_motion + 0.15);
+          
+          // CRT scanline grid hum
+          float scanline = sin(uv.y * u_resolution.y * 1.5) * 0.035;
+          
+          color += (combinedNoise - 0.5) * noiseIntensity - scanline;
           
           gl_FragColor = vec4(color, 1.0);
       }
@@ -2512,15 +2699,48 @@
     const uniforms = {
       u_time: { value: 0.0 },
       u_resolution: { value: new THREE.Vector2() },
-      u_hover: { value: 0.0 }
+      u_hover: { value: 0.0 },
+      u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
+      u_motion: { value: 0.0 }
     };
 
     let targetHover = 0.0;
-    const parent = document.getElementById('tv-color-bars');
-    if (parent) {
-      parent.addEventListener('mouseenter', () => { targetHover = 1.0; });
-      parent.addEventListener('mouseleave', () => { targetHover = 0.0; });
+    let targetMotion = 0.0;
+    let currentMotion = 0.0;
+    const targetMouse = new THREE.Vector2(0.5, 0.5);
+    let lastX = 0;
+    let lastY = 0;
+    let lastTime = performance.now();
+
+    function onPointerMove(e) {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const inX = e.clientX >= rect.left && e.clientX <= rect.right;
+      const inY = e.clientY >= rect.top && e.clientY <= rect.bottom;
+
+      if (inX && inY && rect.height > 0) {
+        targetHover = 1.0;
+        const mx = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        const my = Math.max(0, Math.min(1, 1.0 - (e.clientY - rect.top) / rect.height));
+        targetMouse.set(mx, my);
+
+        const now = performance.now();
+        const dt = Math.max(16, now - lastTime);
+        const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+        lastX = e.clientX;
+        lastY = e.clientY;
+        lastTime = now;
+
+        const speed = dist / dt;
+        // Moving mouse around directly fuels targetMotion static glitch
+        targetMotion = Math.min(2.0, targetMotion + speed * 0.4 + 0.2);
+      } else {
+        targetHover = 0.0;
+      }
     }
+
+    window.addEventListener('mousemove', onPointerMove, { passive: true });
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
 
     const geometry = new THREE.PlaneGeometry(2, 2);
     const material = new THREE.ShaderMaterial({
@@ -2539,8 +2759,16 @@
       requestAnimationFrame(animate);
       uniforms.u_time.value = clock.getElapsedTime();
       
+      // Decay motion smoothly when mouse slows down or stops
+      targetMotion *= 0.88;
+      currentMotion += (targetMotion - currentMotion) * 0.16;
+      uniforms.u_motion.value = Math.max(0.0, currentMotion);
+
       // Smoothly interpolate hover state
-      uniforms.u_hover.value += (targetHover - uniforms.u_hover.value) * 0.1;
+      uniforms.u_hover.value += (targetHover - uniforms.u_hover.value) * 0.12;
+
+      // Smooth mouse coordinate tracking
+      uniforms.u_mouse.value.lerp(targetMouse, 0.25);
       
       renderer.render(scene, camera);
     }
@@ -2572,28 +2800,54 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const footer = document.querySelector('.section--footer');
     const colorBars = document.getElementById('tv-color-bars');
+    const footerContainer = document.querySelector('.footer-container');
     
     if (footer && colorBars) {
       const tl = gsap.timeline();
       
-      // Add a small empty duration (delay) so the user has to scroll a bit before it starts moving
-      tl.to({}, { duration: 0.3 });
+      // Delay before bars start expanding
+      tl.to({}, { duration: 0.25 });
       
-      // The actual animation that stretches the color bars
+      // Phase 1: stretch from 80px to 30vh (the point shown in screenshot)
       tl.to(colorBars, { 
         height: '30vh', 
         ease: 'none',
-        duration: 1,
+        duration: 1.0,
         onUpdate: function() {
-          // Force WebGL canvas to resize its internal buffers dynamically to avoid stretching/blurriness
           window.dispatchEvent(new Event('resize'));
         }
       });
 
+      // Brief plateau at 30vh so user can rest at this point
+      tl.to({}, { duration: 0.4 });
+
+      // Phase 2: As user keeps scrolling past 30vh, expand to full viewport (100vh)
+      tl.to(colorBars, {
+        height: '100vh',
+        zIndex: 10,
+        ease: 'power1.inOut',
+        duration: 1.6,
+        onUpdate: function() {
+          window.dispatchEvent(new Event('resize'));
+        }
+      }, 'fullExpansion');
+
+      if (footerContainer) {
+        tl.to(footerContainer, {
+          opacity: 0,
+          y: -40,
+          ease: 'power1.inOut',
+          duration: 1.2
+        }, 'fullExpansion');
+      }
+
+      // Final hold at 100vh so user can freely interact across the whole viewport
+      tl.to({}, { duration: 0.5 });
+
       ScrollTrigger.create({
         trigger: footer,
         start: 'bottom bottom',
-        end: '+=1500', // Heavily increased scroll distance to require roughly 3 mouse wheel scrolls
+        end: '+=2800',
         pin: true,
         animation: tl,
         scrub: true
