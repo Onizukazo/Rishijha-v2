@@ -145,11 +145,13 @@
       this.splitter = window.Splitting({ target: target, whitespace: true });
     }
     if (typeof window.gsap !== "undefined") {
-      window.gsap.set(target, { opacity: 1 });
-      window.gsap.set(target.querySelectorAll(".splitting, .word, .char"), { opacity: 1 });
+      window.gsap.set(target, { opacity: 1, visibility: "visible" });
+      window.gsap.set(target.querySelectorAll(".splitting, .word, .char"), { opacity: 1, visibility: "visible" });
     }
     this.originalChars = (this.splitter && this.splitter[0] && this.splitter[0].chars)
-      ? this.splitter[0].chars.map(function (r) { return r.innerHTML; })
+      ? this.splitter[0].chars.map(function (r) {
+          return r.getAttribute("data-char") || r.textContent;
+        })
       : [];
   };
 
@@ -171,21 +173,22 @@
     this.isAnimating = true;
 
     chars.forEach(function (charEl, idx) {
-      var orig = (self.originalChars[idx] !== undefined)
-        ? self.originalChars[idx]
-        : (charEl.dataset.char || charEl.textContent);
+      var orig = charEl.getAttribute("data-char")
+        || (self.originalChars && self.originalChars[idx] !== undefined ? self.originalChars[idx] : charEl.textContent);
 
       if (!orig || orig.trim() === "") return;
 
-      var flips = 5;
-      var flipInterval = 65;
-      var startDelay = Math.min(idx * 30, 180);
+      var flips = 3;
+      var flipInterval = 90;
+      var startDelay = Math.min(idx * 35, 220);
 
       for (var f = 0; f < flips; f++) {
         (function (step) {
           var timerId = setTimeout(function () {
             if (!self.isAnimating) return;
             charEl.textContent = RANDOM_CIPHER_CHARS[Math.floor(Math.random() * RANDOM_CIPHER_CHARS.length)];
+            charEl.style.opacity = "1";
+            charEl.style.visibility = "visible";
           }, startDelay + (step * flipInterval));
           self.timers.push(timerId);
         })(f);
@@ -193,7 +196,9 @@
 
       var finalTimer = setTimeout(function () {
         if (!self.isAnimating) return;
-        charEl.innerHTML = orig;
+        charEl.textContent = orig;
+        charEl.style.opacity = "1";
+        charEl.style.visibility = "visible";
       }, startDelay + (flips * flipInterval));
       self.timers.push(finalTimer);
     });
@@ -216,11 +221,11 @@
         if (typeof window.gsap !== "undefined") {
           window.gsap.killTweensOf(charEl);
         }
-        charEl.style.opacity = "";
-        var orig = (self.originalChars[idx] !== undefined)
-          ? self.originalChars[idx]
-          : (charEl.dataset.char || charEl.textContent);
-        charEl.innerHTML = orig;
+        var orig = charEl.getAttribute("data-char")
+          || (self.originalChars && self.originalChars[idx] !== undefined ? self.originalChars[idx] : charEl.textContent);
+        charEl.textContent = orig;
+        charEl.style.opacity = "1";
+        charEl.style.visibility = "visible";
       });
       if (typeof window.gsap !== "undefined") {
         window.gsap.killTweensOf(this.textElement);
@@ -303,13 +308,14 @@
       var endPos = "top -80%";
 
       let shouldPin = false;
-      if (parentSection && !parentSection.classList.contains("section--hero")) {
+      if (parentSection && parentSection.classList.contains("section--experience")) {
+        triggerEl = parentSection;
+        startPos = "bottom 35%";
+        endPos = "bottom -35%";
+      } else if (parentSection && !parentSection.classList.contains("section--hero")) {
         triggerEl = parentSection;
         startPos = "bottom bottom";
         endPos = "+=70%"; // 70vh scroll duration for the wipe
-        if (parentSection.id === 'services') {
-            shouldPin = true;
-        }
       }
 
       gsap.fromTo(strips, {
@@ -2793,8 +2799,51 @@
         }, 1000);
       }
 
+// Authentic Crisp Sliced Footer Text Effect (matches SUPERSOLID reference)
+function initFooterTextTrail() {
+  const heroStack = document.getElementById('footer-hero-stack');
+  const footer = document.querySelector('.section--footer');
+  if (!heroStack) return;
+
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.set(heroStack, { '--trail-progress': 0 });
+    
+    // Animate slice fan-out as user scrolls towards the footer
+    gsap.to(heroStack, {
+      '--trail-progress': 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: footer || heroStack,
+        start: 'top bottom',
+        end: 'bottom bottom',
+        scrub: true
+      }
+    });
+
+    // Micro-interaction on hover over the text
+    heroStack.addEventListener('mouseenter', () => {
+      gsap.to(heroStack, {
+        '--trail-progress': 1.25,
+        duration: 0.35,
+        ease: 'power2.out',
+        overwrite: 'auto'
+      });
+    });
+
+    heroStack.addEventListener('mouseleave', () => {
+      gsap.to(heroStack, {
+        '--trail-progress': 1,
+        duration: 0.5,
+        ease: 'power2.out',
+        overwrite: 'auto'
+      });
+    });
+  }
+}
+
 // Footer TV Color Bars ScrollTrigger Animation
 document.addEventListener('DOMContentLoaded', function() {
+  initFooterTextTrail();
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
     
@@ -2854,4 +2903,226 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
+
+  // Initialize Experience hover reveal popup (pxpush journal interaction)
+  initExperienceHoverReveal();
 });
+
+// ============================================================
+// EXPERIENCE HOVER REVEAL INTERACTION (PXPUSH JOURNAL STYLE)
+// ============================================================
+function initExperienceHoverReveal() {
+  if (window.matchMedia && window.matchMedia('(hover: none) or (pointer: coarse)').matches) {
+    return;
+  }
+
+  const items = document.querySelectorAll('.experience__item[data-img], .journal__list--item[data-img]');
+  if (!items.length) return;
+
+  let globalMouse = { x: 0, y: 0 };
+  let prevMouse = { x: 0, y: 0 };
+  let hasMoved = false;
+
+  window.addEventListener('mousemove', function(e) {
+    if (!hasMoved) {
+      prevMouse.x = e.clientX;
+      prevMouse.y = e.clientY;
+      hasMoved = true;
+    } else {
+      prevMouse.x = globalMouse.x;
+      prevMouse.y = globalMouse.y;
+    }
+    globalMouse.x = e.clientX;
+    globalMouse.y = e.clientY;
+  }, { passive: true });
+
+  const lerp = function(a, b, n) {
+    return a + (b - a) * n;
+  };
+
+  class ExperienceHoverItem {
+    constructor(el) {
+      this.el = el;
+      this.imgSrc = el.getAttribute('data-img');
+      if (!this.imgSrc) return;
+
+      this.props = {
+        tx: { prev: 0, curr: 0, amt: 0.08 },
+        ty: { prev: 0, curr: 0, amt: 0.08 },
+        rot: { prev: 0, curr: 0, amt: 0.08 },
+        bright: { prev: 1, curr: 1, amt: 0.08 }
+      };
+
+      this.firstRAF = true;
+      this.isHovered = false;
+      this.rafId = null;
+
+      this.buildDOM();
+      this.bindEvents();
+    }
+
+    buildDOM() {
+      this.reveal = document.createElement('div');
+      this.reveal.className = 'hover-reveal';
+
+      this.revealInner = document.createElement('div');
+      this.revealInner.className = 'hover-reveal__inner';
+
+      this.revealImg = document.createElement('div');
+      this.revealImg.className = 'hover-reveal__img';
+      this.revealImg.style.backgroundImage = 'url("' + this.imgSrc + '")';
+
+      this.revealInner.appendChild(this.revealImg);
+      this.reveal.appendChild(this.revealInner);
+      this.el.appendChild(this.reveal);
+    }
+
+    bindEvents() {
+      this.onEnter = this.show.bind(this);
+      this.onLeave = this.hide.bind(this);
+
+      this.el.addEventListener('mouseenter', this.onEnter);
+      this.el.addEventListener('mouseleave', this.onLeave);
+      this.el.addEventListener('click', this.onLeave);
+    }
+
+    show() {
+      this.isHovered = true;
+      this.firstRAF = true;
+
+      if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(this.revealInner);
+        gsap.killTweensOf(this.revealImg);
+        gsap.timeline({
+          onStart: () => {
+            this.reveal.style.opacity = '1';
+            this.revealInner.style.opacity = '1';
+            this.el.style.zIndex = '12';
+          }
+        })
+        .to(this.revealInner, {
+          ease: 'expo.out',
+          startAt: { scale: 0.6 },
+          scale: 1,
+          duration: 0.6
+        })
+        .to(this.revealImg, {
+          ease: 'expo.out',
+          startAt: { scale: 1.4 },
+          scale: 1,
+          duration: 0.6
+        }, 0);
+      } else {
+        this.reveal.style.opacity = '1';
+        this.revealInner.style.opacity = '1';
+        this.el.style.zIndex = '12';
+      }
+
+      this.startRAF();
+    }
+
+    hide() {
+      this.isHovered = false;
+      this.stopRAF();
+
+      if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(this.revealInner);
+        gsap.killTweensOf(this.revealImg);
+        gsap.timeline({
+          onStart: () => {
+            this.el.style.zIndex = '1';
+          },
+          onComplete: () => {
+            gsap.set(this.reveal, { opacity: 0 });
+          }
+        })
+        .to(this.revealInner, {
+          ease: 'expo.out',
+          scale: 0.6,
+          opacity: 0,
+          duration: 0.4
+        })
+        .to(this.revealImg, {
+          ease: 'expo.out',
+          scale: 1.4,
+          duration: 0.4
+        }, 0);
+      } else {
+        this.reveal.style.opacity = '0';
+        this.el.style.zIndex = '1';
+      }
+    }
+
+    startRAF() {
+      if (!this.rafId) {
+        this.rafId = requestAnimationFrame(this.render.bind(this));
+      }
+    }
+
+    stopRAF() {
+      if (this.rafId) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+      }
+    }
+
+    render() {
+      this.rafId = null;
+      if (!this.isHovered) return;
+
+      const rect = this.el.getBoundingClientRect();
+      const cardHeight = this.reveal.offsetHeight || 320;
+
+      // Leftmost shift as explicitly requested by user:
+      // Base X anchors at the leftmost content margin (3vw or min 24px)
+      // with a gentle organic float (+-14px) based on mouse X
+      const baseLeft = Math.max(24, window.innerWidth * 0.03);
+      const mouseProgressX = Math.max(0, Math.min(1, (globalMouse.x - rect.left) / (rect.width || 1)));
+      const subtleX = (mouseProgressX - 0.5) * 28;
+      this.props.tx.curr = baseLeft + subtleX;
+
+      // Y position tracks mouse cursor relative to the row, smoothly clamped
+      const relY = globalMouse.y - rect.top;
+      const targetY = relY - cardHeight / 2;
+      const minY = -cardHeight * 0.2;
+      const maxY = rect.height - cardHeight * 0.8;
+      this.props.ty.curr = Math.max(minY, Math.min(maxY, targetY));
+
+      // Dynamic tilt based on horizontal velocity
+      const deltaX = globalMouse.x - prevMouse.x;
+      const targetRot = Math.max(-7, Math.min(7, deltaX * 0.22));
+      this.props.rot.curr = this.firstRAF ? 0 : targetRot;
+
+      // Brightness modulation based on speed
+      const speed = Math.min(Math.abs(deltaX), 100);
+      const targetBrightness = this.firstRAF ? 1 : 1 + (speed / 100) * 0.12;
+      this.props.bright.curr = targetBrightness;
+
+      // Lerp smoothing
+      const amt = this.props.tx.amt;
+      this.props.tx.prev = this.firstRAF ? this.props.tx.curr : lerp(this.props.tx.prev, this.props.tx.curr, amt);
+      this.props.ty.prev = this.firstRAF ? this.props.ty.curr : lerp(this.props.ty.prev, this.props.ty.curr, amt);
+      this.props.rot.prev = this.firstRAF ? this.props.rot.curr : lerp(this.props.rot.prev, this.props.rot.curr, amt);
+      this.props.bright.prev = this.firstRAF ? this.props.bright.curr : lerp(this.props.bright.prev, this.props.bright.curr, amt);
+
+      if (typeof gsap !== 'undefined') {
+        gsap.set(this.reveal, {
+          x: this.props.tx.prev,
+          y: this.props.ty.prev,
+          rotation: this.props.rot.prev,
+          filter: 'brightness(' + this.props.bright.prev.toFixed(3) + ')'
+        });
+      } else {
+        this.reveal.style.transform = 'translate(' + this.props.tx.prev + 'px, ' + this.props.ty.prev + 'px) rotate(' + this.props.rot.prev + 'deg)';
+        this.reveal.style.filter = 'brightness(' + this.props.bright.prev + ')';
+      }
+
+      this.firstRAF = false;
+      this.startRAF();
+    }
+  }
+
+  items.forEach(function(item) {
+    new ExperienceHoverItem(item);
+  });
+}

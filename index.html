@@ -98,7 +98,7 @@
     <!-- ===== HEADER ===== -->
     <header id="top">
       <div class="header__inner">
-        <a href="#top" class="logo">rishi jha<sup>v.02</sup></a>
+        <a href="#top" class="logo"><span>rishi jha</span></a>
         <nav class="nav" aria-label="Main navigation">
           <a href="#top"><span>Home</span></a>
           <a href="#about"><span>About</span></a>
@@ -327,9 +327,9 @@
           </div>
         </div>
 
-        <div class="journal__list experience__list">
+        <div class="journal__list experience__list menu__hover">
           <!-- Item 01: Mail Minks -->
-          <div class="journal__list--item experience__item">
+          <div class="journal__list--item experience__item" data-img="assets/experience/mail-minks.png">
             <div class="layout experience__layout">
               <div class="layout__third monospace opacity__50">
                 <span class="experience__bullet">●</span> <span>Nº001</span>
@@ -347,7 +347,7 @@
           </div>
 
           <!-- Item 02: Leaf Design -->
-          <div class="journal__list--item experience__item">
+          <div class="journal__list--item experience__item" data-img="assets/experience/leaf-design.png">
             <div class="layout experience__layout">
               <div class="layout__third monospace opacity__50">
                 <span class="experience__bullet">●</span> <span>Nº002</span>
@@ -365,7 +365,7 @@
           </div>
 
           <!-- Item 03: Wargstech -->
-          <div class="journal__list--item experience__item">
+          <div class="journal__list--item experience__item" data-img="assets/experience/wargstech.png">
             <div class="layout experience__layout">
               <div class="layout__third monospace opacity__50">
                 <span class="experience__bullet">●</span> <span>Nº003</span>
@@ -383,7 +383,7 @@
           </div>
 
           <!-- Item 04: Freelance Webflow Designer -->
-          <div class="journal__list--item experience__item">
+          <div class="journal__list--item experience__item" data-img="assets/works/work14.webp">
             <div class="layout experience__layout">
               <div class="layout__third monospace opacity__50">
                 <span class="experience__bullet">●</span> <span>Nº004</span>
@@ -510,7 +510,25 @@
           
           <!-- Giant Headline & CTAs -->
           <div class="footer-hero">
-            <h2 class="footer-hero-text">Let's build<br>something great<br>together.</h2>
+            <div class="footer-hero-stack" id="footer-hero-stack">
+              <h2 class="footer-hero-text">
+                <span class="footer-line-stack">
+                  <span class="footer-line-slice footer-slice-top" aria-hidden="true">Let's build</span>
+                  <span class="footer-line-slice footer-slice-mid" aria-hidden="true">Let's build</span>
+                  <span class="footer-line-front">Let's build</span>
+                </span>
+                <span class="footer-line-stack">
+                  <span class="footer-line-slice footer-slice-top" aria-hidden="true">something great</span>
+                  <span class="footer-line-slice footer-slice-mid" aria-hidden="true">something great</span>
+                  <span class="footer-line-front">something great</span>
+                </span>
+                <span class="footer-line-stack">
+                  <span class="footer-line-slice footer-slice-top" aria-hidden="true">together.</span>
+                  <span class="footer-line-slice footer-slice-mid" aria-hidden="true">together.</span>
+                  <span class="footer-line-front">together.</span>
+                </span>
+              </h2>
+            </div>
             <div class="footer-cta monospace">
               <a href="mailto:tarunjha.rishi@gmail.com" class="footer-link">START A PROJECT &rarr;</a>
               <a href="mailto:tarunjha.rishi@gmail.com" class="footer-link">SAY HELLO &rarr;</a>
