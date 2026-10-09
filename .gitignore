@@ -7,12 +7,21 @@ desktop.ini
 .vscode/
 .idea/
 
+# Node dependencies
+node_modules/
+package-lock.json
+package.json
+
 # Logs & temp files
 *.log
 scratch/
+*_original.*
+original_*.*
+
 # Root model duplicates
 /old_walkman.glb
 /walkman_music_player.glb
 /sony_tps-l2_walkman.glb
 /sony-tps-l2-walkman/
 assets/model/textures/orig_4k/
+

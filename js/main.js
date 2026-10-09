@@ -131,6 +131,11 @@
       if (!strips.length) return;
       var parentSection = d.closest(".section");
 
+      // Skip works section overlay - it is orchestrated in Section 5 with horizontal scroll
+      if (parentSection && parentSection.classList.contains("section--works")) {
+        return;
+      }
+
       var triggerEl = d;
       var startPos = "top 0%";
       var endPos = "top -80%";
@@ -196,7 +201,7 @@
           trigger: el,
           scroller: window,
           start: "top 90%",
-          end: isSmall ? "top 50%" : "top 0%",
+          end: isSmall ? "top 50%" : "top 25%",
           scrub: true
         }
       });
@@ -434,7 +439,7 @@
   window.addEventListener("resize", measureMarquees);
 
     /* ------------------------------------------------------------
-       5. SHOWCASE: HORIZONTAL SCROLL
+       5. SHOWCASE: HORIZONTAL SCROLL + BLUE BLINDS TRANSITION
        ------------------------------------------------------------ */
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
       gsap.registerPlugin(ScrollTrigger);
@@ -444,27 +449,53 @@
       var showcaseCont = document.querySelector(".showcase");
 
       if (showcaseSection && showcaseLoop && showcaseCont) {
-        function getScrollAmount() {
-          var loopWidth = showcaseLoop.scrollWidth;
-          var containerWidth = showcaseCont.clientWidth;
-          return -(loopWidth - containerWidth + (window.innerWidth * 0.05));
+        var isMobileWidth = function () {
+          return window.innerWidth <= 820;
+        };
+
+        if (!isMobileWidth()) {
+          function getScrollAmount() {
+            var loopWidth = showcaseLoop.scrollWidth;
+            var containerWidth = window.innerWidth;
+            var maxScroll = loopWidth - containerWidth;
+            if (maxScroll <= 0) return 0;
+            return maxScroll + (window.innerWidth * 0.06);
+          }
+
+          var worksTimeline = gsap.timeline({
+            defaults: { ease: "none" }
+          });
+
+          // Phase 1: Horizontal scroll smoothly through all work cards
+          worksTimeline.to(showcaseLoop, {
+            x: () => -getScrollAmount(),
+            ease: "none",
+            duration: () => Math.max(getScrollAmount(), 1000)
+          });
+
+          // Phase 2: Rest dwell on the final card so user sees it clearly
+          worksTimeline.to({}, {
+            duration: 120
+          });
+
+          var worksST = ScrollTrigger.create({
+            trigger: showcaseSection,
+            start: "top top",
+            end: () => "+=" + (getScrollAmount() + 120),
+            pin: true,
+            animation: worksTimeline,
+            scrub: 1,
+            invalidateOnRefresh: true,
+            anticipatePin: 1
+          });
+
+          // Note: Works unpins seamlessly directly into Experience with NO transition in between,
+          // preserving the continuous dark section background color.
+
+          // Recalculate and sort all downstream ScrollTriggers with the Works pin spacer offset
+          ScrollTrigger.sort();
+          ScrollTrigger.refresh();
         }
-
-        var showcaseTween = gsap.to(showcaseLoop, {
-          x: getScrollAmount,
-          ease: "none"
-        });
-
-        ScrollTrigger.create({
-          trigger: showcaseSection,
-          start: "top top",
-          end: () => "+=" + (showcaseLoop.scrollWidth), 
-          pin: true,
-          animation: showcaseTween,
-          scrub: 1,
-          invalidateOnRefresh: true,
-          anticipatePin: 1
-        });
       }
     }
 
@@ -1199,25 +1230,12 @@
 
     var buttonCap = null;
     var buttonCapMat = null;
-    // Authentic Spotify Playlist for Sony TPS-L2 Walkman
+    // Local Playlist for Sony TPS-L2 Walkman
     var WALKMAN_PLAYLIST = [
       {
-        title: "Aria Math",
-        artist: "C418",
-        spotifyId: "6VK8OMA2FhX4KoS3QCH7rL",
-        previewUrl: "https://p.scdn.co/mp3-preview/a2c123cece7486badba9b00e8ced81b68b63f779"
-      },
-      {
-        title: "Moog City 2",
-        artist: "C418",
-        spotifyId: "4ZN7u9FmQa7Lp1TCafAgsn",
-        previewUrl: "https://p.scdn.co/mp3-preview/52641e02d3b27b3c2b3483a4151fefcd7ae424ae"
-      },
-      {
-        title: "MEGALOVANIA",
-        artist: "Toby Fox",
-        spotifyId: "0WrwF6MWqUTdjWAr1uIZHO",
-        previewUrl: "https://p.scdn.co/mp3-preview/929f178f45d3e58a7c9811a5752e939455e74914"
+        title: "Stayin' Alive",
+        artist: "Bee Gees",
+        url: "Bee Gees Stayin Alive (Extended Remaster).mp3"
       }
     ];
 
@@ -1241,15 +1259,19 @@
     var screenCtx = null;
     var screenTexture = null;
 
-    // HTML5 Audio Player for Spotify direct preview stream
+    // HTML5 Audio Player for Walkman local cassette playback
     var walkmanAudio = new Audio();
     walkmanAudio.preload = "auto";
-    walkmanAudio.crossOrigin = "anonymous";
 
-    // Loop current song on finish
+    // Loop current song or advance playlist on finish
     walkmanAudio.addEventListener("ended", function () {
-      walkmanAudio.currentTime = 0;
-      walkmanAudio.play().catch(function(e){});
+      if (WALKMAN_PLAYLIST.length > 1) {
+        currentTrackIndex = (currentTrackIndex + 1) % WALKMAN_PLAYLIST.length;
+        playCurrentTrack();
+      } else {
+        walkmanAudio.currentTime = 0;
+        walkmanAudio.play().catch(function(e){});
+      }
     });
 
     // Web Audio Synthesizer for tactile mechanical cassette switch clicks
@@ -1469,8 +1491,10 @@
     function playCurrentTrack() {
       var track = WALKMAN_PLAYLIST[currentTrackIndex];
       if (!track) return;
-      if (walkmanAudio.src !== track.previewUrl) {
-        walkmanAudio.src = track.previewUrl;
+      var trackUrl = track.url || track.previewUrl || "";
+      if (walkmanAudio.dataset.currentSrc !== trackUrl) {
+        walkmanAudio.src = encodeURI(trackUrl);
+        walkmanAudio.dataset.currentSrc = trackUrl;
         // Reset marquee on track change
         marqueeOffset = 0;
         marqueeState = "PAUSE_START";
@@ -2095,23 +2119,7 @@
       m.track.style.transform = "translate3d(" + m.x.toFixed(2) + "px,0,0)";
     });
 
-    /* Showcase ticker (only update if visible in viewport) */
-    if (isShowcaseVisible) {
-      showcases.forEach(function (s) {
-        var targetSpeed = s.isHolding ? 15.0 : 0.95;
-        var lerpFactor = s.isHolding ? 0.12 : 0.05;
-        s.speed += (targetSpeed - s.speed) * lerpFactor;
-        s.vel *= 0.92;
-
-        s.x -= (s.speed + s.vel);
-
-        if (s.half > 0) {
-          if (s.x <= -s.half) s.x += s.half;
-          if (s.x > 0) s.x -= s.half;
-        }
-        s.loop.style.transform = "translate3d(" + s.x.toFixed(2) + "px,0,0)";
-      });
-    }
+    /* Showcase ticker logic removed as horizontal scroll is now handled by GSAP ScrollTrigger */
 
     requestAnimationFrame(tick);
   })();
@@ -2333,7 +2341,7 @@
       var g = Math.max(-1, Math.min(1 - (1 - winH / k), 1));
 
       var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
-      var sectionTop = cachedSectionTop || section.offsetTop;
+      var sectionTop = section.getBoundingClientRect().top + currentScroll;
 
       if (!inView) {
         if (targetRect.top > 0) {
@@ -2562,10 +2570,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
     
-    const wrapper = document.querySelector('.wrapper');
+    const footer = document.querySelector('.section--footer');
     const colorBars = document.getElementById('tv-color-bars');
     
-    if (wrapper && colorBars) {
+    if (footer && colorBars) {
       const tl = gsap.timeline();
       
       // Add a small empty duration (delay) so the user has to scroll a bit before it starts moving
@@ -2583,8 +2591,8 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
       ScrollTrigger.create({
-        trigger: wrapper,
-        start: 'bottom-=1 bottom', // Trigger 1px before absolute bottom to guarantee pin-spacer generation
+        trigger: footer,
+        start: 'bottom bottom',
         end: '+=1500', // Heavily increased scroll distance to require roughly 3 mouse wheel scrolls
         pin: true,
         animation: tl,
