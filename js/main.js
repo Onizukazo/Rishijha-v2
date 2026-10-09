@@ -433,179 +433,40 @@
   };
   window.addEventListener("resize", measureMarquees);
 
-  /* ------------------------------------------------------------
-     5. SHOWCASE: HOLD-TO-SKIM & VELOCITY LOOP
-     ------------------------------------------------------------ */
-  var showcases = [];
-  var skimCursor = document.getElementById("skimCursor") || document.querySelector(".homeworks__skimCursor");
+    /* ------------------------------------------------------------
+       5. SHOWCASE: HORIZONTAL SCROLL
+       ------------------------------------------------------------ */
+    if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+      gsap.registerPlugin(ScrollTrigger);
 
-  document.querySelectorAll("[data-showcase]").forEach(function (sc) {
-    var loop = sc.querySelector(".showcase__loop");
-    if (!loop) return;
+      var showcaseSection = document.querySelector(".section--works");
+      var showcaseLoop = document.querySelector(".showcase__loop");
+      var showcaseCont = document.querySelector(".showcase");
 
-    var state = {
-      sc: sc,
-      loop: loop,
-      x: 0,
-      half: 1,
-      speed: 0.95,
-      vel: 0,
-      isHolding: false,
-      holdStartTime: 0,
-      startX: 0,
-      startY: 0,
-      lastX: 0,
-      lastY: 0,
-      dragDist: 0,
-      isTouch: false
-    };
+      if (showcaseSection && showcaseLoop && showcaseCont) {
+        function getScrollAmount() {
+          var loopWidth = showcaseLoop.scrollWidth;
+          var containerWidth = showcaseCont.clientWidth;
+          return -(loopWidth - containerWidth + (window.innerWidth * 0.05));
+        }
 
-    var originals = Array.prototype.slice.call(loop.children);
-    var build = function () {
-      var unitW = loop.scrollWidth;
-      if (!unitW) return;
-      var need = Math.ceil((window.innerWidth * 3) / unitW) + 1;
-      for (var r = 1; r < Math.max(2, need); r++) {
-        originals.forEach(function (child) {
-          loop.appendChild(child.cloneNode(true));
+        var showcaseTween = gsap.to(showcaseLoop, {
+          x: getScrollAmount,
+          ease: "none"
+        });
+
+        ScrollTrigger.create({
+          trigger: showcaseSection,
+          start: "top top",
+          end: () => "+=" + (showcaseLoop.scrollWidth), 
+          pin: true,
+          animation: showcaseTween,
+          scrub: 1,
+          invalidateOnRefresh: true,
+          anticipatePin: 1
         });
       }
-      state.half = loop.scrollWidth / 2;
-    };
-    build();
-    window.addEventListener("resize", build);
-    showcases.push(state);
-
-    var updateSkimText = function (text) {
-      if (!skimCursor) return;
-      var textEl = skimCursor.querySelector(".skimCursor__text");
-      if (textEl) textEl.textContent = text;
-      else skimCursor.textContent = text;
-    };
-
-    var updateCursorPos = function (cx, cy) {
-      if (!skimCursor) return;
-      var scale = state.isHolding ? " scale(1.12)" : " scale(1)";
-      skimCursor.style.transform = "translate3d(" + cx + "px," + cy + "px,0) translate(-50%,-50%)" + scale;
-    };
-
-    var isPointerInside = false;
-
-    sc.addEventListener("pointerenter", function (e) {
-      if (e.pointerType === "touch") return;
-      isPointerInside = true;
-      if (skimCursor) {
-        updateCursorPos(e.clientX, e.clientY);
-        updateSkimText(state.isHolding ? "Skimming >>" : "Hold to skim");
-        skimCursor.style.opacity = "1";
-      }
-    });
-
-    sc.addEventListener("pointerleave", function (e) {
-      if (e.pointerType === "touch") return;
-      isPointerInside = false;
-      if (!state.isHolding && skimCursor) {
-        skimCursor.style.opacity = "0";
-      }
-    });
-
-    var onPointerMove = function (e) {
-      if (e.pointerType !== "touch" && (isPointerInside || state.isHolding)) {
-        updateCursorPos(e.clientX, e.clientY);
-      }
-      if (!state.isHolding) return;
-
-      var dx = e.clientX - state.lastX;
-      var dy = e.clientY - state.lastY;
-      state.dragDist += Math.abs(dx) + Math.abs(dy);
-
-      // Direct tactile scrub with finger or mouse drag
-      state.x += dx * 1.5;
-      state.vel = -dx * 0.35;
-      state.lastX = e.clientX;
-      state.lastY = e.clientY;
-    };
-
-    var onPointerUp = function (e) {
-      if (!state.isHolding) return;
-
-      var duration = Date.now() - state.holdStartTime;
-      var wasDragOrHold = duration > 240 || state.dragDist > 14;
-
-      state.isHolding = false;
-      sc.classList.remove("is-holding");
-
-      if (skimCursor) {
-        skimCursor.classList.remove("is-holding");
-        updateSkimText("Hold to skim");
-        if (!isPointerInside || state.isTouch) {
-          skimCursor.style.opacity = "0";
-        } else {
-          updateCursorPos(e.clientX, e.clientY);
-        }
-      }
-
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-      window.removeEventListener("pointercancel", onPointerUp);
-
-      // If user tapped/clicked quickly without dragging, navigate to the case study!
-      if (!wasDragOrHold && e.clientX && e.clientY) {
-        var hit = document.elementFromPoint(e.clientX, e.clientY);
-        var card = hit ? hit.closest(".showcase__item") : null;
-        if (card) {
-          var link = card.getAttribute("data-link") || (card.querySelector("a") ? card.querySelector("a").href : null);
-          if (link) {
-            window.open(link, "_blank", "noopener,noreferrer");
-          }
-        }
-      }
-    };
-
-    sc.addEventListener("pointerdown", function (e) {
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-
-      state.isHolding = true;
-      state.isTouch = e.pointerType === "touch";
-      state.holdStartTime = Date.now();
-      state.startX = e.clientX;
-      state.startY = e.clientY;
-      state.lastX = e.clientX;
-      state.lastY = e.clientY;
-      state.dragDist = 0;
-
-      sc.classList.add("is-holding");
-
-      if (skimCursor && !state.isTouch) {
-        skimCursor.classList.add("is-holding");
-        updateSkimText("Skimming >>");
-        skimCursor.style.opacity = "1";
-        updateCursorPos(e.clientX, e.clientY);
-      }
-
-      window.addEventListener("pointermove", onPointerMove, { passive: true });
-      window.addEventListener("pointerup", onPointerUp);
-      window.addEventListener("pointercancel", onPointerUp);
-    });
-
-    // Also track pointermove when simply hovering without holding
-    sc.addEventListener("pointermove", function (e) {
-      if (!state.isHolding && e.pointerType !== "touch") {
-        updateCursorPos(e.clientX, e.clientY);
-      }
-    }, { passive: true });
-
-    // Prevent default browser drag on card images and link navigation when holding
-    sc.querySelectorAll("img, a").forEach(function (el) {
-      el.addEventListener("dragstart", function (e) { e.preventDefault(); });
-      el.addEventListener("click", function (e) {
-        var duration = Date.now() - state.holdStartTime;
-        if (state.dragDist > 14 || duration > 240) {
-          e.preventDefault();
-        }
-      });
-    });
-  });
+    }
 
   /* ------------------------------------------------------------
      6. SERVICES ACCORDION
