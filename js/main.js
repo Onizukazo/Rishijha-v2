@@ -615,32 +615,37 @@
             var containerWidth = window.innerWidth;
             var maxScroll = loopWidth - containerWidth;
             if (maxScroll <= 0) return 0;
-            return maxScroll + (window.innerWidth * 0.06);
+            return maxScroll + (window.innerWidth * 0.08);
           }
 
           var worksTimeline = gsap.timeline({
             defaults: { ease: "none" }
           });
 
-          // Phase 1: Horizontal scroll smoothly through all work cards
+          // Phase 1: Rest dwell on Card 1 (Moneycontrol) so user absorbs the project before movement begins
+          worksTimeline.to({}, {
+            duration: 0.35
+          });
+
+          // Phase 2: Smooth, deliberate horizontal scroll through all cards
           worksTimeline.to(showcaseLoop, {
             x: () => -getScrollAmount(),
             ease: "none",
-            duration: () => Math.max(getScrollAmount(), 1000)
+            duration: 1.0
           });
 
-          // Phase 2: Rest dwell on the final card so user sees it clearly
+          // Phase 3: Rest dwell on final Card 4 (Avasa) so user clearly sees the final project before unpinning
           worksTimeline.to({}, {
-            duration: 120
+            duration: 0.25
           });
 
           var worksST = ScrollTrigger.create({
             trigger: showcaseSection,
             start: "top top",
-            end: () => "+=" + (getScrollAmount() + 120),
+            end: () => "+=" + Math.max(getScrollAmount() * 2.2, window.innerHeight * 2.8),
             pin: true,
             animation: worksTimeline,
-            scrub: 1,
+            scrub: 1.2,
             invalidateOnRefresh: true,
             anticipatePin: 1
           });
