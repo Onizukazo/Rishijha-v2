@@ -494,8 +494,8 @@
         ScrollTrigger.create({
           trigger: f,
           scroller: window,
-          start: "top 5%",
-          end: "bottom 20%",
+          start: "top 15%",
+          end: "bottom top",
           onEnter: function () { d.classList.add("is-visible"); },
           onLeave: function () { d.classList.remove("is-visible"); },
           onEnterBack: function () { d.classList.add("is-visible"); },
@@ -544,19 +544,7 @@
       });
     });
 
-    /* TopOverlay section sticky header transitions */
-    document.querySelectorAll(".topOverlay__section").forEach(function (el) {
-      ScrollTrigger.create({
-        trigger: el.parentElement,
-        scroller: window,
-        start: "top 25%",
-        end: "bottom 25%",
-        onEnter: function () { el.classList.add("is-visible"); },
-        onLeave: function () { el.classList.remove("is-visible"); },
-        onEnterBack: function () { el.classList.add("is-visible"); },
-        onLeaveBack: function () { el.classList.remove("is-visible"); }
-      });
-    });
+
   }
 
   /* ------------------------------------------------------------
