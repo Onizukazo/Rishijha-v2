@@ -1,0 +1,284 @@
+/* ============================================================
+   ABOUT PAGE STYLES (AUTHENTIC PXPUSH SYSTEM)
+   ============================================================ */
+
+/* Digicam 3D Hero */
+.about-hero {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--bgcolor, #1a1a1a);
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.about-hero .marqueeText {
+  position: absolute;
+  top: clamp(56px, 4.8vw, 76px);
+  height: clamp(85px, 12vw, 155px);
+  width: 100%;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@media screen and (max-width: 600px) {
+  .about-hero .marqueeText {
+    top: 58px;
+    height: 105px;
+  }
+}
+
+.about-hero__stage {
+  position: absolute;
+  top: clamp(145px, 17vw, 235px);
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - clamp(145px, 17vw, 235px));
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (max-width: 600px) {
+  .about-hero__stage {
+    top: 165px;
+    height: calc(100vh - 165px);
+  }
+}
+
+.about-hero__canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  cursor: grab;
+}
+
+.about-hero__canvas:active {
+  cursor: grabbing;
+}
+
+/* Subtext / Intro Section */
+.about__intro {
+  padding: clamp(50px, 8vw, 120px) 0 clamp(60px, 10vw, 140px);
+  position: relative;
+  background-color: var(--bgcolor, #1a1a1a);
+  color: var(--primarycolor, #bababa);
+}
+
+.about__intro .lead {
+  font-family: var(--font-display, "Graphik", sans-serif);
+  font-size: clamp(26px, 2.8vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--primarycolor, #bababa);
+  max-width: 1100px;
+}
+
+/* FAQ Marquee Section */
+.section--faq-marquee {
+  position: relative;
+  padding: clamp(40px, 6vw, 90px) 0 clamp(20px, 3vw, 40px);
+  overflow: hidden;
+  background-color: var(--bgcolor, #1a1a1a);
+}
+
+.section--faq-marquee .marqueeText {
+  position: static;
+  height: auto;
+}
+
+/* FAQ Category & Accordion Styling */
+.section--faq-category {
+  position: relative;
+  background-color: var(--bgcolor, #1a1a1a);
+  padding: clamp(20px, 3vw, 40px) 0 clamp(30px, 4vw, 60px);
+}
+
+.faq__category-header {
+  padding: 1vw 3vw 1.5vw;
+  align-items: baseline;
+}
+
+.faq__category-title {
+  font-family: var(--font-mono, "PPNeueMontrealMono-Book", "GeistMono", monospace);
+  font-size: clamp(11px, 0.75vw, 13px);
+  letter-spacing: -0.02vw;
+  text-transform: uppercase;
+  color: var(--primarycolor, #bababa);
+  opacity: 0.6;
+  margin: 0;
+}
+
+.accordion {
+  line-height: 1.2;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.faqs__list {
+  --anim: 0;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: color 0.15s ease;
+  border-bottom: none;
+}
+
+.faqs__list:after {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  bottom: 0;
+  content: "";
+  left: 3vw;
+  position: absolute;
+  width: 94vw;
+}
+
+.faqs__list:last-child:after {
+  display: block;
+}
+
+/* Inverted difference highlight bar on hover (exact pxpush) */
+.faqs__list:before {
+  background-color: var(--primarycolor, #bababa);
+  content: "";
+  height: calc(100% + 3px);
+  left: 0;
+  mix-blend-mode: difference;
+  position: absolute;
+  top: 0;
+  transform: scaleY(var(--anim));
+  transform-origin: 50% var(--accordion-origin, 100%);
+  width: 100%;
+  z-index: 2;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+
+.faqs__list > * {
+  position: relative;
+  z-index: 1;
+}
+
+.faqs__list .layout {
+  padding: clamp(14px, 1.4vw, 24px) 3vw;
+  align-items: baseline;
+  position: relative;
+}
+
+.faqs__list .layout__third {
+  font-family: var(--font-mono, "PPNeueMontrealMono-Book", "GeistMono", monospace);
+  font-size: clamp(11px, 0.72vw, 13px);
+  letter-spacing: -0.02em;
+  opacity: 0.5;
+}
+
+.faqs__list .layout__second {
+  position: relative;
+  padding-right: clamp(40px, 4vw, 60px);
+}
+
+.faqs__q {
+  font-family: var(--font-display, "Graphik", sans-serif);
+  font-size: clamp(18px, 1.6vw, 28px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--primarycolor, #bababa);
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.faqs__list:hover .faqs__q {
+  color: #fff;
+}
+
+.faqs__list .more {
+  font-family: var(--font-display, "Graphik", sans-serif);
+  font-size: clamp(24px, 2.5vw, 38px);
+  font-weight: 300;
+  line-height: 1;
+  opacity: 0.35;
+  position: absolute;
+  right: 3vw;
+  top: clamp(14px, 1.4vw, 24px);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.faqs__list.is-open .more {
+  transform: rotate(45deg);
+  opacity: 0.9;
+}
+
+.accordion__content {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.accordion__content p.faqs__a {
+  font-family: var(--font-mono, "PPNeueMontrealMono-Book", "GeistMono", monospace);
+  font-size: clamp(12px, 0.8vw, 14px);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  max-width: 85%;
+  padding-top: clamp(12px, 1.2vw, 20px);
+  padding-bottom: clamp(12px, 1.2vw, 20px);
+  margin: 0;
+  opacity: 0.7;
+  color: var(--primarycolor, #bababa);
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 820px) {
+  .about-hero__stage {
+    height: 60vh;
+  }
+
+  .about-hero__hud {
+    bottom: 16px;
+    padding: 6px 14px;
+    gap: 8px;
+  }
+
+  .about-hero__hud-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .about-hero__hint {
+    bottom: 60px;
+    font-size: 9px;
+  }
+
+  .faqs__list .layout__third {
+    display: none;
+  }
+
+  .faqs__list .layout__second {
+    width: 100%;
+    padding-right: 30px;
+  }
+
+  .accordion__content p.faqs__a {
+    max-width: 100%;
+    padding-top: 10px;
+    padding-bottom: 20px;
+  }
+
+  .faqs__list .more {
+    font-size: 26px;
+    right: 20px;
+    top: 14px;
+  }
+}
