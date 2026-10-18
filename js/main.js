@@ -2792,31 +2792,15 @@
         }, 1000);
       }
 
-// Authentic Crisp Sliced Footer Text Effect (matches SUPERSOLID reference)
-function initFooterTextTrail() {
+// CRT Phosphor Glow Interactive Footer Text
+function initFooterCrtGlow() {
   const heroStack = document.getElementById('footer-hero-stack');
-  const footer = document.querySelector('.section--footer');
   if (!heroStack) return;
 
-  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-    gsap.set(heroStack, { '--trail-progress': 0 });
-    
-    // Animate slice fan-out as user scrolls towards the footer
-    gsap.to(heroStack, {
-      '--trail-progress': 1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: footer || heroStack,
-        start: 'top bottom',
-        end: 'bottom bottom',
-        scrub: true
-      }
-    });
-
-    // Micro-interaction on hover over the text
+  if (typeof gsap !== 'undefined') {
     heroStack.addEventListener('mouseenter', () => {
       gsap.to(heroStack, {
-        '--trail-progress': 1.25,
+        scale: 1.015,
         duration: 0.35,
         ease: 'power2.out',
         overwrite: 'auto'
@@ -2825,8 +2809,8 @@ function initFooterTextTrail() {
 
     heroStack.addEventListener('mouseleave', () => {
       gsap.to(heroStack, {
-        '--trail-progress': 1,
-        duration: 0.5,
+        scale: 1.0,
+        duration: 0.45,
         ease: 'power2.out',
         overwrite: 'auto'
       });
@@ -2836,7 +2820,7 @@ function initFooterTextTrail() {
 
 // Footer TV Color Bars ScrollTrigger Animation
 document.addEventListener('DOMContentLoaded', function() {
-  initFooterTextTrail();
+  initFooterCrtGlow();
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
     
