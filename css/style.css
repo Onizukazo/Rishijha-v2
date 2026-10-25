@@ -2751,98 +2751,49 @@ section .marqueeText {
 
 .showcase:active { cursor: grabbing; }
 
-@media screen and (max-width: 820px) {
-
-  .showcase { height: 68vw; max-height: 330px; min-height: 230px; margin: 24px 0 14px; }
-
-}
-
 .showcase:before {
-
   background: linear-gradient(90deg, var(--background, var(--bgcolor)) 0, transparent 100%);
-
   content: "";
-
   height: 100%;
-
   left: 0;
-
   opacity: .5;
-
   pointer-events: none;
-
   position: absolute;
-
   top: 0;
-
   width: 6vw;
-
   z-index: 2;
-
 }
 
 .showcase:after {
-
   background: linear-gradient(270deg, var(--background, var(--bgcolor)) 0, transparent 100%);
-
   content: "";
-
   height: 100%;
-
   right: 0;
-
   opacity: .5;
-
   pointer-events: none;
-
   position: absolute;
-
   top: 0;
-
   width: 6vw;
-
   z-index: 2;
-
 }
 
 .showcase__loop {
-
   align-items: stretch;
-
   display: flex;
-
   gap: 1.8vw;
-
   height: 100%;
-
   padding-left: 3vw;
-
   position: relative;
-
   width: auto;
-
   will-change: transform;
-
-}
-
-@media screen and (max-width: 820px) {
-
-  .showcase__loop { gap: 14px; padding-left: 20px; }
-
 }
 
 .showcase__item {
-
   border-radius: 14px;
-
   flex: 0 0 auto;
-
   height: 100%;
-
   aspect-ratio: 1.42 / 1;
-
   width: auto;
-
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -2853,36 +2804,124 @@ section .marqueeText {
   border: none;
 }
 
+/* ==================== MOBILE VERTICAL WORKS SHOWCASE ==================== */
 @media screen and (max-width: 820px) {
+  .section--works {
+    padding-top: 36px !important;
+    padding-bottom: 50px !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .showcase {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    margin: 28px 0 0 !important;
+    overflow: visible !important;
+    cursor: default !important;
+    user-select: auto !important;
+    touch-action: auto !important;
+  }
+
+  .showcase:before,
+  .showcase:after {
+    display: none !important;
+  }
+
+  .showcase__loop {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 38px !important;
+    height: auto !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+
   .showcase__item {
-    border-radius: 0;
-    width: 82vw;
-    max-width: 360px;
-    height: auto;
-    flex-shrink: 0;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  .showcase__item.is-inview {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
   }
 
   .showcase__item .project__card-link {
-    width: 100%;
-    aspect-ratio: 1.45 / 1;
-    border-radius: 12px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, .03);
-    border: 1px solid rgba(255, 255, 255, .08);
+    display: block !important;
+    width: 100% !important;
+    aspect-ratio: 1.48 / 1 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    background: #141416 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+    transition: transform 0.25s ease, border-color 0.25s ease !important;
   }
 
-  .showcase__item:hover { transform: none; }
+  .showcase__item .project__card-link:active {
+    transform: scale(0.985) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .showcase__item img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 14px !important;
+  }
+
+  .showcase__item:hover {
+    transform: none !important;
+  }
 
   .showcase__item figcaption {
-    padding: 10px 2px 0;
+    padding: 12px 2px 0 !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .showcase__item figcaption a {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    width: 100% !important;
+    gap: 12px !important;
   }
 
   .showcase__item figcaption .project__title {
-    font-size: 15px;
+    font-size: 18px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    letter-spacing: -0.01em !important;
   }
 
   .showcase__item figcaption .project__tag {
-    font-size: 11px;
+    font-size: 11px !important;
+    letter-spacing: -0.01em !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    white-space: nowrap !important;
+  }
+
+  .showcase__mobileHint {
+    display: none !important;
   }
 }
 
@@ -4223,11 +4262,67 @@ section .benefits__items--image img {
 }
 
 .cursor__dot.is-hovering {
-
   width: 24px;
-
   height: 24px;
+}
 
+/* Rotating 'Keep Scrolling' Cursor Badge for Works Section */
+.cursor__badge {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 104px;
+  height: 104px;
+  pointer-events: none;
+  z-index: 100000;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+.cursor__badge-inner {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.cursor__badge.is-visible .cursor__badge-inner {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cursor__badge-svg {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  animation: cursorBadgeSpin 9s linear infinite;
+}
+
+@keyframes cursorBadgeSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cursor__badge-text {
+  font-family: var(--font-mono, "PPNeueMontrealMono-Book", "GeistMono", monospace);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  fill: #ffffff;
+  text-transform: uppercase;
+}
+
+@media screen and (max-width: 800px) {
+  .cursor__badge {
+    display: none !important;
+  }
 }
 
 
@@ -6692,6 +6787,8 @@ body.is-loading .cursor {
     border-radius: 0 !important;
     position: relative !important;
     overflow: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .section--works .showcase__item .project__card-link {

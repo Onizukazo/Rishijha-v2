@@ -639,6 +639,13 @@
             duration: 0.25
           });
 
+          function updateCursorBadgeState(active) {
+            var badge = document.getElementById("cursorBadge");
+            if (badge) {
+              badge.classList.toggle("is-visible", !!active);
+            }
+          }
+
           var worksST = ScrollTrigger.create({
             trigger: showcaseSection,
             start: "top top",
@@ -647,7 +654,20 @@
             animation: worksTimeline,
             scrub: 1.2,
             invalidateOnRefresh: true,
-            anticipatePin: 1
+            anticipatePin: 1,
+            onToggle: function (self) {
+              updateCursorBadgeState(self.isActive);
+            }
+          });
+
+          // Pre-activate badge as works scrolls into view
+          ScrollTrigger.create({
+            trigger: showcaseSection,
+            start: "top 30%",
+            end: () => worksST ? worksST.end : "bottom top",
+            onToggle: function (self) {
+              updateCursorBadgeState(self.isActive);
+            }
           });
 
           // Note: Works unpins seamlessly directly into Experience with NO transition in between,
@@ -656,6 +676,29 @@
           // Recalculate and sort all downstream ScrollTriggers with the Works pin spacer offset
           ScrollTrigger.sort();
           ScrollTrigger.refresh();
+        } else {
+          // Mobile Vertical Showcase: cards appear one by one as user scrolls
+          var mobileCards = showcaseSection.querySelectorAll(".showcase__item");
+          mobileCards.forEach(function (card) {
+            ScrollTrigger.create({
+              trigger: card,
+              start: "top 88%",
+              onEnter: function () {
+                card.classList.add("is-inview");
+              },
+              onEnterBack: function () {
+                card.classList.add("is-inview");
+              },
+              onLeaveBack: function () {
+                card.classList.remove("is-inview");
+              }
+            });
+            // Initial in-view check for cards already in viewport
+            var r = card.getBoundingClientRect();
+            if (r.top < window.innerHeight * 0.88) {
+              card.classList.add("is-inview");
+            }
+          });
         }
       }
     }
@@ -845,11 +888,18 @@
     }, { passive: true });
 
     // Smooth cursor dot RAF follower
+    var cursorBadge = document.getElementById("cursorBadge");
     (function updateDot() {
-      if (cursorDot && targetDotX > -1000) {
+      if (targetDotX > -1000) {
         dotX += (targetDotX - dotX) * 0.45;
         dotY += (targetDotY - dotY) * 0.45;
-        cursorDot.style.transform = "translate3d(" + dotX.toFixed(1) + "px," + dotY.toFixed(1) + "px,0) translate(-50%,-50%)";
+        var tr = "translate3d(" + dotX.toFixed(1) + "px," + dotY.toFixed(1) + "px,0) translate(-50%,-50%)";
+        if (cursorDot) {
+          cursorDot.style.transform = tr;
+        }
+        if (cursorBadge) {
+          cursorBadge.style.transform = tr;
+        }
       }
       requestAnimationFrame(updateDot);
     })();
