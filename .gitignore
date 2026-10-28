@@ -33,3 +33,8 @@ assets/model/textures/orig_4k/
 # Raw source model archive
 /nikon-camera/
 
+# Heavy raw design files & unpack caches
+*.fig
+*.pdf
+assets/moneycontrol/*.*
+assets/moneycontrol/slides/*.png

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>Moneycontrol Case Study | Rishi Jha — Product &amp; Experience Designer</title>
+  <meta name="description" content="Original presentation slides for Moneycontrol redesign by Rishi Jha — Product &amp; Experience Designer.">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png?v=5">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png?v=5">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=5">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=5">
+  <link rel="shortcut icon" href="favicon.ico?v=5">
+
+  <!-- Core brand fonts & Google fonts -->
+  <link rel="preload" href="assets/fonts/SemiSqueezedMedium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/PPNeueMontrealMono-Book.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Graphik-Regular-Web.woff2" as="font" type="font/woff2" crossorigin>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/splitting.css">
+  <link rel="stylesheet" href="css/style.css?v=58.0">
+  <link rel="stylesheet" href="css/case-study.css?v=4.0">
+</head>
+<body class="case-study-page">
+
+  <div class="wrapper">
+
+    <!-- ===== TOP HEADER ===== -->
+    <header id="top">
+      <div class="header__inner">
+        <a href="index.html" class="logo"><span>rishi jha</span></a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="index.html"><span>Home</span></a>
+          <a href="about.html"><span>About</span></a>
+          <a href="index.html#works" class="active"><span>Works</span></a>
+          <a href="play.html"><span>Play</span></a>
+          <a href="assets/Rishi_Jha_Resume.pdf" target="_blank" rel="noopener"><span>Resume ↗</span></a>
+          <span class="nav__sep" aria-hidden="true"></span>
+          <a class="start" href="index.html#contact"><span>Get started</span></a>
+          <span class="dot" aria-hidden="true"></span>
+        </nav>
+      </div>
+      <button class="menu" aria-label="Open menu" type="button">Menu</button>
+
+      <div class="mobilenav__backdrop"></div>
+      <div class="mobilenav" id="mobile-navigation">
+        <div class="mobilenav__main">
+          <a href="index.html"><span>Home</span></a>
+          <a href="about.html"><span>About</span></a>
+          <a href="index.html#works" class="active"><span>Works</span></a>
+          <a href="play.html"><span>Play</span></a>
+          <a href="assets/Rishi_Jha_Resume.pdf" target="_blank" rel="noopener"><span>Resume ↗</span></a>
+          <a class="start" href="index.html#contact"><span>Get Started</span></a>
+        </div>
+        <div class="mobilenav__social monospace">
+          <a href="https://www.linkedin.com/in/rishi5462/?isSelfProfile=true" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href="https://www.instagram.com/rishisensei/" target="_blank" rel="noopener">Instagram ↗</a>
+          <a href="https://steamcommunity.com/profiles/76561199521917102/" target="_blank" rel="noopener">Steam ↗</a>
+          <a href="https://open.spotify.com/user/31ans3iqchkb4em5i2uerrwbnddq?si=1602d6281ff54f5c" target="_blank" rel="noopener">Spotify ↗</a>
+          <a href="https://rishijha.designfolio.me/" target="_blank" rel="noopener">Designfolio ↗</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+
+      <!-- ================= HERO ================= -->
+      <section class="cs-top-hero">
+        <div class="cs-container">
+          <div class="cs-top-bar">
+            <a href="index.html#works" class="cs-back-btn">← Back to Works</a>
+            <div class="cs-tag">Case Study · FinTech &amp; Markets</div>
+          </div>
+
+          <h1 class="cs-main-title">Moneycontrol</h1>
+          <p class="cs-sub-title">
+            Redefining India's premier financial and business news platform into an intelligent, personalised ecosystem. Full presentation slides from the original design file.
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= MAIN LAYOUT (STICKY SIDEBAR + VERTICAL SLIDES) ================= -->
+      <div class="cs-container">
+
+        <!-- Mobile Horizontal Sticky Navigation -->
+        <nav class="cs-mobile-quicknav" aria-label="Quick section navigation">
+          <a href="#introduction" class="cs-mobile-pill active">01 Introduction</a>
+          <a href="#product-strategy" class="cs-mobile-pill">02 Product Strategy</a>
+          <a href="#free-tier" class="cs-mobile-pill">03 Free Tier</a>
+          <a href="#pro-tier" class="cs-mobile-pill">04 Pro Tier</a>
+        </nav>
+
+        <div class="cs-grid">
+
+          <!-- Sticky Sidebar Navigation (Desktop) -->
+          <aside class="cs-sidebar-sticky" aria-label="Sections index">
+            <div class="cs-sidebar-title">Index</div>
+            <nav>
+              <ul class="cs-sidebar-nav">
+                <li>
+                  <a href="#introduction" class="active">
+                    <span class="slide-num">01</span>
+                    <span>Introduction</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#product-strategy">
+                    <span class="slide-num">02</span>
+                    <span>Product Strategy</span>
+                  </a>
+                </li>
+                <li class="cs-sidebar-group-label">Product Experience</li>
+                <li>
+                  <a href="#free-tier" class="cs-sidebar-sub">
+                    <span class="slide-num">03</span>
+                    <span>Free Tier</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#pro-tier" class="cs-sidebar-sub">
+                    <span class="slide-num">04</span>
+                    <span>Pro Tier</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </aside>
+
+          <!-- Main Vertical Slides Column -->
+          <div class="cs-slides-content">
+
+            <!-- ================= SECTION 01: INTRODUCTION ================= -->
+            <section class="cs-slide-section" id="introduction">
+              <div class="cs-section-tag">01 / Introduction</div>
+
+              <!-- Slide 01 -->
+              <article class="cs-slide-card" id="slide-01">
+                <img src="assets/moneycontrol/slides/slide_01.webp" alt="Slide 01: MoneyControl Cover" loading="eager" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">01 / Cover</span>
+                  <span>Redefining India's financial intelligence platform</span>
+                </div>
+              </article>
+
+              <!-- Slide 02 -->
+              <article class="cs-slide-card" id="slide-02">
+                <img src="assets/moneycontrol/slides/slide_02.webp" alt="Slide 02: Introduction & Scope" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">02 / Platform Scope</span>
+                  <span>Comprehensive market data, insights, and tools</span>
+                </div>
+              </article>
+
+              <!-- Slide 03 -->
+              <article class="cs-slide-card" id="slide-03">
+                <img src="assets/moneycontrol/slides/slide_03.webp" alt="Slide 03: Brief & Key Objectives" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">03 / Brief &amp; Key Objectives</span>
+                  <span>To elevate Moneycontrol into a premium platform</span>
+                </div>
+              </article>
+
+              <!-- Slide 04 -->
+              <article class="cs-slide-card" id="slide-04">
+                <img src="assets/moneycontrol/slides/slide_04.webp" alt="Slide 04: Strategic Approach" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">04 / Approach</span>
+                  <span>User trust &amp; business traction together</span>
+                </div>
+              </article>
+            </section>
+
+            <!-- ================= SECTION 02: PRODUCT STRATEGY ================= -->
+            <section class="cs-slide-section" id="product-strategy">
+              <div class="cs-section-tag">02 / Product Strategy</div>
+
+              <!-- Slide 05 -->
+              <article class="cs-slide-card" id="slide-05">
+                <img src="assets/moneycontrol/slides/slide_05.webp" alt="Slide 05: Product Strategy" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">05 / Strategy Overview</span>
+                  <span>Subscription value framework &amp; user cohorts</span>
+                </div>
+              </article>
+
+              <!-- Slide 06 -->
+              <article class="cs-slide-card" id="slide-06">
+                <img src="assets/moneycontrol/slides/slide_06.webp" alt="Slide 06: The Subscription Value Framework" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">06 / Subscription Value Framework</span>
+                  <span>From exploration to subscription</span>
+                </div>
+              </article>
+
+              <!-- Slide 07 -->
+              <article class="cs-slide-card" id="slide-07">
+                <img src="assets/moneycontrol/slides/slide_07.webp" alt="Slide 07: Market Cohort Mapping" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">07 / Market Cohort Mapping</span>
+                  <span>Personalisation according to user cohort</span>
+                </div>
+              </article>
+
+              <!-- Slide 08 -->
+              <article class="cs-slide-card" id="slide-08">
+                <img src="assets/moneycontrol/slides/slide_08.webp" alt="Slide 08: Information Architecture" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">08 / Information Architecture</span>
+                  <span>Turning complexity into clarity</span>
+                </div>
+              </article>
+
+              <!-- Slide 09 -->
+              <article class="cs-slide-card" id="slide-09">
+                <img src="assets/moneycontrol/slides/slide_09.webp" alt="Slide 09: A Modular, Scalable Grid System" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">09 / Grid System</span>
+                  <span>A modular, highly scalable spatial structure</span>
+                </div>
+              </article>
+
+              <!-- Slide 10 -->
+              <article class="cs-slide-card" id="slide-10">
+                <img src="assets/moneycontrol/slides/slide_10.webp" alt="Slide 10: Monetisation Strategy" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">10 / Ad Strategy</span>
+                  <span>Maximise monetisation without compromising UX</span>
+                </div>
+              </article>
+
+              <!-- Slide 11 -->
+              <article class="cs-slide-card" id="slide-11">
+                <img src="assets/moneycontrol/slides/slide_11.webp" alt="Slide 11: Digital Accessibility" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">11 / Accessibility</span>
+                  <span>Built on inclusive and sustainable standards</span>
+                </div>
+              </article>
+            </section>
+
+            <!-- ================= SECTION 03: PRODUCT EXPERIENCE — FREE TIER ================= -->
+            <section class="cs-slide-section" id="free-tier">
+              <div class="cs-section-tag">03 / Product Experience — Free Tier</div>
+
+              <!-- Slide 12 -->
+              <article class="cs-slide-card" id="slide-12">
+                <img src="assets/moneycontrol/slides/slide_12.webp" alt="Slide 12: Product Experience" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">12 / Product Experience</span>
+                  <span>Free Tier &amp; Pro Tier Ecosystem</span>
+                </div>
+              </article>
+
+              <!-- Slide 13 -->
+              <article class="cs-slide-card" id="slide-13">
+                <img src="assets/moneycontrol/slides/slide_13.webp" alt="Slide 13: Free Tier Desktop Experience" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">13 / Free Tier (Web)</span>
+                  <span>Elevating signal in a high-density information experience</span>
+                </div>
+              </article>
+
+              <!-- Slide 14 -->
+              <article class="cs-slide-card" id="slide-14">
+                <img src="assets/moneycontrol/slides/slide_14.webp" alt="Slide 14: Mobile Free Tier Experience" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">14 / Free Tier (Mobile)</span>
+                  <span>Structuring mobile experience around decision speed</span>
+                </div>
+              </article>
+            </section>
+
+            <!-- ================= SECTION 04: PRODUCT EXPERIENCE — PRO TIER ================= -->
+            <section class="cs-slide-section" id="pro-tier">
+              <div class="cs-section-tag">04 / Product Experience — Pro Tier</div>
+
+              <!-- Slide 15 -->
+              <article class="cs-slide-card" id="slide-15">
+                <img src="assets/moneycontrol/slides/slide_15.webp" alt="Slide 15: Pro Tier Guide" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">15 / Pro Tier Guide</span>
+                  <span>Your trusted, intelligent guide to markets and money</span>
+                </div>
+              </article>
+
+              <!-- Slide 16 -->
+              <article class="cs-slide-card" id="slide-16">
+                <img src="assets/moneycontrol/slides/slide_16.webp" alt="Slide 16: Adaptive News Feed" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">16 / Adaptive Feed</span>
+                  <span>News feed that moves with the market</span>
+                </div>
+              </article>
+
+              <!-- Slide 17 -->
+              <article class="cs-slide-card" id="slide-17">
+                <img src="assets/moneycontrol/slides/slide_17.webp" alt="Slide 17: From Passive Reading to Discovery" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">17 / Reading to Discovery</span>
+                  <span>Explainers, context, and intelligent Q&amp;A</span>
+                </div>
+              </article>
+
+              <!-- Slide 18 -->
+              <article class="cs-slide-card" id="slide-18">
+                <img src="assets/moneycontrol/slides/slide_18.webp" alt="Slide 18: Desktop Pro Companion" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">18 / Desktop Pro</span>
+                  <span>A premium market companion for daily decisions</span>
+                </div>
+              </article>
+
+              <!-- Slide 19 -->
+              <article class="cs-slide-card" id="slide-19">
+                <img src="assets/moneycontrol/slides/slide_19.webp" alt="Slide 19: Real-Time Search" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">19 / Real-Time Search</span>
+                  <span>Search that builds market context in real time</span>
+                </div>
+              </article>
+
+              <!-- Slide 20: Final Deliverable -->
+              <article class="cs-slide-card" id="slide-20">
+                <img src="assets/moneycontrol/slides/slide_22.webp" alt="Slide 20: Market Companion & Final Deliverable" loading="lazy" width="1920" height="1080">
+                <div class="cs-slide-bar">
+                  <span class="slide-label">20 / Market Companion</span>
+                  <span>A trusted companion in every market moment</span>
+                </div>
+              </article>
+            </section>
+
+            <!-- Bottom Navigation -->
+            <div class="cs-bottom-footer">
+              <div>
+                <span style="font-family: 'Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--cs-text-muted); display: block; margin-bottom: 6px;">Next Selected Work</span>
+                <a href="mch.html" class="cs-next-work-link">
+                  <span>Maharashtra Council of Homoeopathy</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+              <a href="#top" class="cs-top-btn">Back to Top ↑</a>
+            </div>
+
+          </div><!-- /.cs-slides-content -->
+
+        </div><!-- /.cs-grid -->
+
+      </div><!-- /.cs-container -->
+
+    </main>
+
+    <!-- Custom pixel cursor -->
+    <div class="cursor" aria-hidden="true" data-ttl="0.22">
+      <div class="cursor__inner"></div>
+      <div class="cursor__dot" id="cursorDot" aria-hidden="true"></div>
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="position:absolute;width:0;height:0;pointer-events:none;" aria-hidden="true">
+        <defs>
+          <filter id="gooey">
+            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="3.2"></feGaussianBlur>
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"></feColorMatrix>
+            <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+          </filter>
+        </defs>
+      </svg>
+    </div>
+
+  </div><!-- /.wrapper -->
+
+  <!-- Scripts -->
+  <script src="js/libs/gsap.min.js"></script>
+  <script src="js/case-study.js?v=4.0"></script>
+</body>
+</html>
