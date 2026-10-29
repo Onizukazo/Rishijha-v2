@@ -43,7 +43,6 @@
         <nav class="nav" aria-label="Main navigation">
           <a href="index.html"><span>Home</span></a>
           <a href="about.html" class="active"><span>About</span></a>
-          <a href="index.html#works"><span>Works</span></a>
           <a href="play.html"><span>Play</span></a>
           <a href="assets/Rishi_Jha_Resume.pdf" target="_blank" rel="noopener"><span>Resume ↗</span></a>
           <span class="nav__sep" aria-hidden="true"></span>
@@ -58,7 +57,6 @@
         <div class="mobilenav__main">
           <a href="index.html" data-splitting="lines"><span>Home</span></a>
           <a href="about.html" class="active" data-splitting="lines"><span>About</span></a>
-          <a href="index.html#works" data-splitting="lines"><span>Works</span></a>
           <a href="play.html" data-splitting="lines"><span>Play</span></a>
           <a href="assets/Rishi_Jha_Resume.pdf" target="_blank" rel="noopener" data-splitting="lines"><span>Resume ↗</span></a>
           <a class="start" href="index.html#contact" data-splitting="lines"><span>Get Started</span></a>
@@ -97,6 +95,7 @@
             <div class="about-hero__stage" id="cameraStage">
               <canvas class="about-hero__canvas" id="cameraCanvas" aria-label="Interactive 3D Nikon Coolpix digital camera"></canvas>
             </div>
+
           </div>
           <div class="about-hero__col-text">
             <div class="about-hero__text-wrapper">
@@ -435,6 +434,28 @@
     </div>
 
   </div><!-- /.wrapper -->
+
+  <!-- Camera Xenon Flash Effect -->
+  <div class="camera-flash" id="cameraFlash" aria-hidden="true"></div>
+
+  <!-- Cat Photo Modal -->
+  <div class="cat-modal" id="catModal" role="dialog" aria-modal="true" aria-label="Captured Cat Photo" hidden>
+    <div class="cat-modal__backdrop" id="catModalBackdrop"></div>
+    <div class="cat-modal__container">
+      <button class="cat-modal__close" id="catModalClose" type="button" aria-label="Close photo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="cat-modal__card">
+        <div class="cat-modal__frame">
+          <img src="" alt="Captured cat photo" class="cat-modal__img" id="catModalImg">
+
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="js/libs/three.min.js"></script>

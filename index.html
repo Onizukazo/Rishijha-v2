@@ -27,6 +27,73 @@
   <script>
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
+
+    (function () {
+      var isReload = false;
+      try {
+        var nav = performance.getEntriesByType("navigation");
+        if (nav && nav.length > 0) {
+          isReload = nav[0].type === "reload";
+        } else if (performance.navigation) {
+          isReload = performance.navigation.type === 1;
+        }
+      } catch (e) {}
+
+      // If user is refreshing or reloading the website, ALWAYS show the loader
+      if (isReload) {
+        try {
+          sessionStorage.removeItem("from_internal_nav");
+          sessionStorage.removeItem("last_subpage");
+        } catch (e) {}
+        return;
+      }
+
+      var isFromOtherPage = false;
+
+      // 1. Check if user clicked an internal link to home from another page
+      try {
+        if (sessionStorage.getItem("from_internal_nav") === "true") {
+          isFromOtherPage = true;
+          sessionStorage.removeItem("from_internal_nav");
+        }
+      } catch (e) {}
+
+      // 2. Check if referrer is an internal subpage
+      var ref = document.referrer;
+      if (ref) {
+        try {
+          var refUrl = new URL(ref);
+          if (refUrl.origin === window.location.origin) {
+            var path = refUrl.pathname.toLowerCase();
+            if (path.includes("about") || path.includes("moneycontrol") || path.includes("mch") || path.includes("play")) {
+              isFromOtherPage = true;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 3. Check if previous page recorded in session was a subpage
+      try {
+        var lastSub = sessionStorage.getItem("last_subpage");
+        if (lastSub) {
+          isFromOtherPage = true;
+          sessionStorage.removeItem("last_subpage");
+        }
+      } catch (e) {}
+
+      // 4. Check back/forward navigation from another page
+      try {
+        var nav = performance.getEntriesByType("navigation");
+        if (nav && nav.length > 0 && nav[0].type === "back_forward") {
+          isFromOtherPage = true;
+        }
+      } catch (e) {}
+
+      if (isFromOtherPage) {
+        document.documentElement.classList.add("skip-crt-loader");
+        window.__SKIP_CRT_LOADER__ = true;
+      }
+    })();
   </script>
 </head>
 <body class="home is-loading">
@@ -105,7 +172,6 @@
         <nav class="nav" aria-label="Main navigation">
           <a href="#top"><span>Home</span></a>
           <a href="about.html"><span>About</span></a>
-          <a href="#works"><span>Works</span></a>
           <a href="play.html"><span>Play</span></a>
           <a href="assets/Rishi_Jha_Resume.pdf" target="_blank" rel="noopener"><span>Resume ↗</span></a>
           <span class="nav__sep" aria-hidden="true"></span>
@@ -120,7 +186,6 @@
         <div class="mobilenav__main">
           <a href="#top" data-splitting="lines"><span>Home</span></a>
           <a href="about.html" data-splitting="lines"><span>About</span></a>
-          <a href="#works" data-splitting="lines"><span>Works</span></a>
           <a href="play.html" data-splitting="lines"><span>Play</span></a>
           <a href="assets/Rishi_Jha_Resume.pdf" target="_blank" rel="noopener" data-splitting="lines"><span>Resume ↗</span></a>
           <a class="start" href="#contact" data-splitting="lines"><span>Get Started</span></a>
@@ -213,7 +278,7 @@
           </div>
           <div class="layout__second" effect__textFade>
             <p class="lead lead__indent" data-splitting>Hi, I'm Rishi Jha, a Product &amp; Experience Designer passionate about crafting meaningful digital experiences, scalable design systems, and thoughtful interaction design. Great products happen when rigorous research, system architecture, and visual craft work seamlessly together.</p>
-            <p class="lead last" data-splitting>Outside of design, I enjoy fitness, travelling, cinema, architecture, and hanging out with cats. I'm deeply inspired by how cinema, industrial design, and spatial architecture create clarity, emotion, and connection. These are principles I channel into every interface I build.</p>
+            <p class="lead last" data-splitting>Outside of design, I enjoy gaming, working out, travelling, watching films, and hanging out with cats. I’m deeply inspired by how games and cinema create immersion, emotion, and connection :)</p>
 
             <div class="about__brands">
               <span class="about__brands-label monospace">Brands &amp; Organizations I've Worked With</span>
@@ -583,18 +648,6 @@
     <div class="cursor" aria-hidden="true" data-ttl="0.22">
       <div class="cursor__inner"></div>
       <div class="cursor__dot" id="cursorDot" aria-hidden="true"></div>
-      <div class="cursor__badge" id="cursorBadge" aria-hidden="true">
-        <div class="cursor__badge-inner">
-          <svg viewBox="0 0 100 100" class="cursor__badge-svg">
-            <path id="cursorPath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
-            <text class="cursor__badge-text">
-              <textPath href="#cursorPath" startOffset="0%" textLength="232" lengthAdjust="spacing">
-                Keep Scrolling · Keep Scrolling ·
-              </textPath>
-            </text>
-          </svg>
-        </div>
-      </div>
       <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="position:absolute;width:0;height:0;pointer-events:none;" aria-hidden="true">
         <defs>
           <filter id="gooey">
@@ -604,6 +657,13 @@
           </filter>
         </defs>
       </svg>
+    </div>
+
+    <!-- 'Keep Scrolling' Cursor Pill for Works Section -->
+    <div class="cursor__badge" id="cursorBadge" aria-hidden="true">
+      <div class="cursor__badge-inner">
+        <span class="cursor__badge-text">Keep Scrolling</span>
+      </div>
     </div>
 
   </div><!-- /.wrapper -->

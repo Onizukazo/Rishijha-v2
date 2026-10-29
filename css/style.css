@@ -3191,7 +3191,13 @@ section .marqueeText {
 
 section.section__blue {
 
+  position: relative;
+
+  z-index: 25;
+
   background-color: var(--blue) !important;
+
+  color: #ffffff !important;
 
 }
 
@@ -3241,7 +3247,13 @@ section .benefits h4 {
 
   line-height: .92;
 
-  color: var(--primarycolor);
+  color: #ffffff !important;
+
+}
+
+section .benefits__title .layout__third {
+
+  color: rgba(255, 255, 255, 0.75);
 
 }
 
@@ -4266,26 +4278,31 @@ section .benefits__items--image img {
   height: 24px;
 }
 
-/* Rotating 'Keep Scrolling' Cursor Badge for Works Section */
+/* 'Keep Scrolling' Pill Cursor for Works Section */
 .cursor__badge {
   position: fixed;
   top: 0;
   left: 0;
-  width: 104px;
-  height: 104px;
   pointer-events: none;
-  z-index: 100000;
-  mix-blend-mode: difference;
-  transform: translate(-50%, -50%);
+  z-index: 100001;
+  mix-blend-mode: normal;
   will-change: transform;
 }
 
 .cursor__badge-inner {
-  width: 100%;
-  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  background-color: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 9999px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   opacity: 0;
-  transform: scale(0.4);
-  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(0.85);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
@@ -4294,29 +4311,24 @@ section .benefits__items--image img {
   transform: scale(1);
 }
 
-.cursor__badge-svg {
-  width: 100%;
-  height: 100%;
-  transform-origin: 50% 50%;
-  animation: cursorBadgeSpin 9s linear infinite;
-}
-
-@keyframes cursorBadgeSpin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .cursor__badge-text {
   font-family: var(--font-mono, "PPNeueMontrealMono-Book", "GeistMono", monospace);
-  font-size: 8.5px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 1.5px;
-  fill: #ffffff;
+  letter-spacing: 0.08em;
+  color: #111111;
   text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Disable negative difference cursor effect in works section and over work cards */
+body.in-works-section .cursor,
+.section--works:hover ~ .cursor,
+.showcase__item:hover ~ .cursor {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 @media screen and (max-width: 800px) {
@@ -4448,6 +4460,17 @@ p.lead.lead__indent .line:first-child > .line__inner {
 
 
 /* ==================== CRT TV PRELOADER ==================== */
+
+/* Skip CRT loader when navigating to home from another page */
+html.skip-crt-loader body.is-loading {
+  overflow: auto !important;
+  height: auto !important;
+}
+
+html.skip-crt-loader #crtLoader,
+html.skip-crt-loader .crt-loader {
+  display: none !important;
+}
 
 body.is-loading {
 
@@ -6856,7 +6879,7 @@ body.is-loading .cursor {
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  padding: clamp(60px, 8vh, 110px) 0 clamp(80px, 10vh, 130px);
+  padding: clamp(60px, 8vh, 110px) 0 clamp(180px, 28vh, 300px);
   overflow: visible;
   z-index: 2;
 }
@@ -7075,7 +7098,7 @@ body.is-loading .cursor {
   left: 0;
   width: 100%;
   height: 100vh;
-  z-index: 4;
+  z-index: 40;
   pointer-events: none;
   overflow: hidden;
 }

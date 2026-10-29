@@ -308,14 +308,10 @@
       var endPos = "top -80%";
 
       let shouldPin = false;
-      if (parentSection && parentSection.classList.contains("section--experience")) {
-        triggerEl = parentSection;
-        startPos = "bottom 35%";
-        endPos = "bottom -35%";
-      } else if (parentSection && !parentSection.classList.contains("section--hero")) {
+      if (parentSection && !parentSection.classList.contains("section--hero")) {
         triggerEl = parentSection;
         startPos = "bottom bottom";
-        endPos = "+=70%"; // 70vh scroll duration for the wipe
+        endPos = "+=75%"; // 75vh scroll duration for the wipe
       }
 
       gsap.fromTo(strips, {
@@ -644,6 +640,11 @@
             if (badge) {
               badge.classList.toggle("is-visible", !!active);
             }
+            document.body.classList.toggle("in-works-section", !!active);
+            var cursorEl = document.querySelector(".cursor");
+            if (cursorEl) {
+              cursorEl.style.display = active ? "none" : "";
+            }
           }
 
           var worksST = ScrollTrigger.create({
@@ -880,6 +881,17 @@
     // Interactive element hover scale for cursor dot
     document.addEventListener("mouseover", function (e) {
       if (!cursorDot) return;
+      var inWorkCard = e.target && e.target.closest && e.target.closest(".section--works, .showcase, .showcase__item, .project__card-link");
+      if (inWorkCard || document.body.classList.contains("in-works-section")) {
+        cursorDot.classList.remove("is-hovering");
+        var cursorEl = document.querySelector(".cursor");
+        if (cursorEl) cursorEl.style.display = "none";
+        return;
+      }
+      var cursorEl = document.querySelector(".cursor");
+      if (cursorEl && !document.body.classList.contains("in-works-section")) {
+        cursorEl.style.display = "";
+      }
       if (e.target && e.target.closest && e.target.closest("a, button, .button, [role='button'], input, textarea, .speed")) {
         cursorDot.classList.add("is-hovering");
       } else {
@@ -2356,7 +2368,16 @@
       document.body.classList.remove("is-loading");
       if (lenis) {
         lenis.start();
-        lenis.scrollTo(0, { immediate: true });
+        if (window.location.hash) {
+          var targetEl = document.querySelector(window.location.hash);
+          if (targetEl) {
+            setTimeout(function () {
+              lenis.scrollTo(targetEl, { immediate: true });
+            }, 60);
+          }
+        } else {
+          lenis.scrollTo(0, { immediate: true });
+        }
       }
       if (typeof window.ScrollTrigger !== "undefined") {
         window.ScrollTrigger.refresh();
@@ -2367,6 +2388,11 @@
       if (typeof onComplete === "function") {
         onComplete();
       }
+    }
+
+    if (window.__SKIP_CRT_LOADER__) {
+      finish();
+      return;
     }
 
     if (!loader || !tv || !counter) {

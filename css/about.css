@@ -782,3 +782,158 @@
     gap: 4px;
   }
 }
+
+/* ============================================================
+   CAMERA XENON FLASH & CAT PHOTO MODAL
+   ============================================================ */
+
+/* Fullscreen Camera Xenon Flash Effect */
+.camera-flash {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1000000;
+}
+
+.camera-flash.is-flashing {
+  animation: cameraFlashAnim 0.7s cubic-bezier(0.08, 0.92, 0.18, 1) forwards;
+}
+
+@keyframes cameraFlashAnim {
+  0% {
+    opacity: 0.98;
+  }
+  15% {
+    opacity: 0.92;
+  }
+  40% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Cat Photo Modal Overlay */
+.cat-modal {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s;
+}
+
+.cat-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.cat-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 12, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+}
+
+.cat-modal__container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: min(88vw, 540px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: scale(0.9) translateY(12px);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 36px;
+}
+
+.cat-modal.is-open .cat-modal__container {
+  transform: scale(1) translateY(0);
+}
+
+/* Cross icon placed OUTSIDE the image (top right) */
+.cat-modal__close {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  padding: 0;
+  outline: none;
+}
+
+.cat-modal__close:hover,
+.cat-modal__close:focus-visible {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.08);
+}
+
+.cat-modal__card {
+  width: 100%;
+  background: #141418;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  line-height: 0;
+}
+
+.cat-modal__frame {
+  display: flex;
+  background: #000000;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.cat-modal__img {
+  width: 100%;
+  max-height: min(72vh, 620px);
+  object-fit: contain;
+  display: block;
+  background: #000000;
+  border-radius: 20px;
+}
+
+@media screen and (max-width: 600px) {
+  .cat-modal__container {
+    max-width: 92vw;
+    margin-top: 44px;
+  }
+
+  .cat-modal__close {
+    top: -46px;
+    right: 2px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .cat-modal__img {
+    max-height: 60vh;
+  }
+}

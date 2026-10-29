@@ -5,6 +5,21 @@
 (function () {
   'use strict';
 
+  // Record subpage visit for smart preloader skip
+  try {
+    sessionStorage.setItem("last_subpage", window.location.pathname);
+  } catch (e) {}
+
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest && e.target.closest("a");
+    if (a && a.getAttribute("href") && a.getAttribute("href").indexOf("index.html") !== -1) {
+      try {
+        sessionStorage.setItem("from_internal_nav", "true");
+      } catch (err) {}
+    }
+  });
+
+
   // 1. ================= SMOOTH SCROLL (LENIS) =================
   var lenis;
   if (typeof Lenis !== 'undefined') {
@@ -90,6 +105,30 @@
     ];
     var currentPhotoIdx = 0;
     var loadedImages = [];
+
+    // Cat Photos for Shutter Interaction
+    var catPhotos = [
+      'cats/045c09d6c01169600fadced36a3f6330.jpg',
+      'cats/0880a3651c435867a70f284dea6240d3.jpg',
+      'cats/1f2082364e3e6ad032732f77ee97fe2f.jpg',
+      'cats/23937e7fc26829698376a78ca1004e3d.jpg',
+      'cats/4dfa1ab97d02fe589dd66267122fe075.jpg',
+      'cats/76e80ffc89df749a3a2db8f523ab41b8.jpg',
+      'cats/8360282ae81036702ab96222936a7c87.jpg',
+      'cats/8603241b02de3239d5eddc62ed2a317f.jpg',
+      'cats/961d58bb03c0cfb106e6f5e04c591748.jpg',
+      'cats/a5e64e8496de2413340054d1855026a7.jpg',
+      'cats/bef1265dfde318f7cb90cbbc7b61fe5c.jpg',
+      'cats/cf65438d3cdb96934a16c56bb174ee02.jpg'
+    ];
+    var loadedCatImages = [];
+    catPhotos.forEach(function (src, idx) {
+      var img = new Image();
+      img.src = src;
+      img.onload = function () {
+        loadedCatImages[idx] = img;
+      };
+    });
 
     // Preload photos
     photos.forEach(function (src, idx) {
@@ -202,27 +241,22 @@
 
     updateScreenCanvas();
 
-    // Web Audio Shutter Sound
-    var audioCtx = null;
-    function playShutterSound() {
+    // User-provided Camera Click Sound
+    var shutterAudio = new Audio('camera%20click.mp3');
+    shutterAudio.preload = 'auto';
+
+    function playRealisticShutterSound() {
       try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-
-        var osc = audioCtx.createOscillator();
-        var gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.08);
-
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
+        shutterAudio.currentTime = 0;
+        var p = shutterAudio.play();
+        if (p !== undefined) {
+          p.catch(function () {});
+        }
       } catch (e) {}
+    }
+
+    function playShutterSound() {
+      playRealisticShutterSound();
     }
 
     // Three.js Scene
@@ -285,6 +319,14 @@
     btnBackward.position.set(-0.0455, -0.007, -0.033);
     btnBackward.name = 'btnBackward';
     cameraGroup.add(btnBackward);
+
+    // 3. Shutter Button Hitbox (Top plate of camera at x = -0.0438, y = 0.0485, z = -0.005)
+    var shutterHitboxGeom = new THREE.SphereGeometry(0.024, 16, 16);
+    var shutterHitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+    var btnShutter = new THREE.Mesh(shutterHitboxGeom, shutterHitboxMat);
+    btnShutter.position.set(-0.0438, 0.0485, -0.005);
+    btnShutter.name = 'btnShutter';
+    cameraGroup.add(btnShutter);
 
     function runIntroAnimation() {
       if (typeof gsap === 'undefined') {
@@ -363,14 +405,71 @@
     // Photo switching logic (triggered ONLY by forward/backward buttons on camera)
     function setPhoto(idx) {
       currentPhotoIdx = (idx + photos.length) % photos.length;
-      playShutterSound();
       updateScreenCanvas();
     }
 
     // Raycaster for camera button interaction
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
-    var interactiveButtons = [btnForward, btnBackward];
+    var interactiveButtons = [btnForward, btnBackward, btnShutter];
+
+    // Shutter Snap & Cat Photo Modal Interaction
+    var lastCatIdx = -1;
+    function triggerShutterSnap() {
+      // 1. Play camera shutter sound (ONLY on shutter snap)
+      playRealisticShutterSound();
+
+      // 2. Trigger screen flash
+      var flashEl = document.getElementById('cameraFlash');
+      if (flashEl) {
+        flashEl.classList.remove('is-flashing');
+        void flashEl.offsetWidth; // force reflow
+        flashEl.classList.add('is-flashing');
+      }
+
+      // 3. Select random cat photo
+      var pickIdx = Math.floor(Math.random() * catPhotos.length);
+      if (pickIdx === lastCatIdx && catPhotos.length > 1) {
+        pickIdx = (pickIdx + 1) % catPhotos.length;
+      }
+      lastCatIdx = pickIdx;
+      var chosenSrc = catPhotos[pickIdx];
+
+      // 4. Open Cat Photo Modal after flash peaks (~80ms)
+      // (Camera LCD screen remains strictly on portfolio photos)
+      setTimeout(function () {
+        var modal = document.getElementById('catModal');
+        var modalImg = document.getElementById('catModalImg');
+        if (modal && modalImg) {
+          modalImg.src = chosenSrc;
+          modal.removeAttribute('hidden');
+          requestAnimationFrame(function () {
+            modal.classList.add('is-open');
+          });
+        }
+      }, 80);
+    }
+
+    function closeCatModal() {
+      var modal = document.getElementById('catModal');
+      if (modal) {
+        modal.classList.remove('is-open');
+        setTimeout(function () {
+          modal.setAttribute('hidden', '');
+        }, 300);
+      }
+    }
+
+    // Modal UI listeners
+    var modalCloseBtn = document.getElementById('catModalClose');
+    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeCatModal);
+
+    var modalBackdrop = document.getElementById('catModalBackdrop');
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeCatModal);
+
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeCatModal();
+    });
 
     var isDragging = false;
     var startX = 0, startY = 0;
@@ -407,6 +506,8 @@
             setPhoto(currentPhotoIdx + 1);
           } else if (hitName === 'btnBackward') {
             setPhoto(currentPhotoIdx - 1);
+          } else if (hitName === 'btnShutter') {
+            triggerShutterSnap();
           }
         }
       }
@@ -544,6 +645,7 @@
       };
     };
     window.__setCameraPhoto = setPhoto;
+    window.__triggerShutter = triggerShutterSnap;
     window.__photos = photos;
   }
 

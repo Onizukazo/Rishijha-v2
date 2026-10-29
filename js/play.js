@@ -4,6 +4,20 @@
  */
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Record subpage visit for smart preloader skip
+  try {
+    sessionStorage.setItem("last_subpage", window.location.pathname);
+  } catch (e) {}
+
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest && e.target.closest("a");
+    if (a && a.getAttribute("href") && a.getAttribute("href").indexOf("index.html") !== -1) {
+      try {
+        sessionStorage.setItem("from_internal_nav", "true");
+      } catch (err) {}
+    }
+  });
+
   // 1. Mobile Menu Drawer Toggle
   const menuBtn = document.querySelector(".menu");
   const mobileNav = document.getElementById("mobile-navigation");
