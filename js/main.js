@@ -279,66 +279,70 @@
 
     /* ── Authentic PX PUSH Staggered Blinds Overlay Transitions ── */
     var isMob = isMobile();
-    var rowsCount = isMob ? 15 : 10;
 
-    // Dynamically populate strip divs inside each overlay (matching pxpush vP)
-    document.querySelectorAll(".overlay").forEach(function (overlayEl) {
-      if (overlayEl.dataset.overlayReady === "true") return;
-      overlayEl.innerHTML = "";
-      overlayEl.style.setProperty("--columns", 1);
-      for (var i = 0; i < rowsCount; i++) {
-        var div = document.createElement("div");
-        overlayEl.appendChild(div);
-      }
-      overlayEl.dataset.overlayReady = "true";
-    });
+    // On mobile touch screens, skip staggered blinds overlay to eliminate horizontal stripes and hazardous transitions
+    if (!isMob) {
+      var rowsCount = 10;
 
-    document.querySelectorAll("[effect__overlayIn]").forEach(function (d) {
-      var strips = d.querySelectorAll("div");
-      if (!strips.length) return;
-      var parentSection = d.closest(".section");
-
-      // Skip works section overlay - it is orchestrated in Section 5 with horizontal scroll
-      if (parentSection && parentSection.classList.contains("section--works")) {
-        return;
-      }
-
-      var triggerEl = d;
-      var startPos = "top 0%";
-      var endPos = "top -80%";
-
-      let shouldPin = false;
-      if (parentSection && !parentSection.classList.contains("section--hero")) {
-        triggerEl = parentSection;
-        startPos = "bottom bottom";
-        endPos = "+=75%"; // 75vh scroll duration for the wipe
-      }
-
-      gsap.fromTo(strips, {
-        willChange: "opacity, transform",
-        transformOrigin: "50% 100%",
-        opacity: 1,
-        scaleY: 0
-      }, {
-        ease: "power4",
-        scaleY: 1.01,
-        opacity: 1,
-        stagger: {
-          grid: [rowsCount, 1],
-          from: "end",
-          each: 0.04
-        },
-        scrollTrigger: {
-          trigger: triggerEl,
-          scroller: window,
-          start: startPos,
-          end: endPos,
-          scrub: true,
-          pin: shouldPin,
-          pinSpacing: false
+      // Dynamically populate strip divs inside each overlay (matching pxpush vP)
+      document.querySelectorAll(".overlay").forEach(function (overlayEl) {
+        if (overlayEl.dataset.overlayReady === "true") return;
+        overlayEl.innerHTML = "";
+        overlayEl.style.setProperty("--columns", 1);
+        for (var i = 0; i < rowsCount; i++) {
+          var div = document.createElement("div");
+          overlayEl.appendChild(div);
         }
+        overlayEl.dataset.overlayReady = "true";
       });
-    });
+
+      document.querySelectorAll("[effect__overlayIn]").forEach(function (d) {
+        var strips = d.querySelectorAll("div");
+        if (!strips.length) return;
+        var parentSection = d.closest(".section");
+
+        // Skip works section overlay - it is orchestrated in Section 5 with horizontal scroll
+        if (parentSection && parentSection.classList.contains("section--works")) {
+          return;
+        }
+
+        var triggerEl = d;
+        var startPos = "top 0%";
+        var endPos = "top -80%";
+
+        let shouldPin = false;
+        if (parentSection && !parentSection.classList.contains("section--hero")) {
+          triggerEl = parentSection;
+          startPos = "bottom bottom";
+          endPos = "+=75%"; // 75vh scroll duration for the wipe
+        }
+
+        gsap.fromTo(strips, {
+          willChange: "opacity, transform",
+          transformOrigin: "50% 100%",
+          opacity: 1,
+          scaleY: 0
+        }, {
+          ease: "power4",
+          scaleY: 1.01,
+          opacity: 1,
+          stagger: {
+            grid: [rowsCount, 1],
+            from: "end",
+            each: 0.04
+          },
+          scrollTrigger: {
+            trigger: triggerEl,
+            scroller: window,
+            start: startPos,
+            end: endPos,
+            scrub: true,
+            pin: shouldPin,
+            pinSpacing: false
+          }
+        });
+      });
+    }
 
     /* effect__titleRandom (3D perspective rotation + random scramble into view) */
     document.querySelectorAll("[effect__titleRandom]").forEach(function (el) {
@@ -483,40 +487,46 @@
       });
     });
 
-    /* topOverlay__section (soft gradient vignette when scrolling through sections) */
-    document.querySelectorAll(".topOverlay__section").forEach(function (d) {
-      var f = d.closest("section") || d.parentElement;
-      if (f) {
-        ScrollTrigger.create({
-          trigger: f,
-          scroller: window,
-          start: "top 15%",
-          end: "bottom top",
-          onEnter: function () { d.classList.add("is-visible"); },
-          onLeave: function () { d.classList.remove("is-visible"); },
-          onEnterBack: function () { d.classList.add("is-visible"); },
-          onLeaveBack: function () { d.classList.remove("is-visible"); }
-        });
-      }
-    });
-
-    /* effect__separatorIn (sticky horizontal rule clip-path reveal) */
-    document.querySelectorAll("[effect__separatorIn]").forEach(function (el) {
-      gsap.fromTo(el, {
-        willChange: "clip-path",
-        clipPath: "inset(0 100vw 0 0)"
-      }, {
-        ease: "none",
-        clipPath: "inset(0 0vw 0 0)",
-        scrollTrigger: {
-          trigger: el,
-          scroller: window,
-          start: "top 95%",
-          end: "top 65%",
-          scrub: true
+    if (!isMob) {
+      /* topOverlay__section (soft gradient vignette when scrolling through sections) */
+      document.querySelectorAll(".topOverlay__section").forEach(function (d) {
+        var f = d.closest("section") || d.parentElement;
+        if (f) {
+          ScrollTrigger.create({
+            trigger: f,
+            scroller: window,
+            start: "top 15%",
+            end: "bottom top",
+            onEnter: function () { d.classList.add("is-visible"); },
+            onLeave: function () { d.classList.remove("is-visible"); },
+            onEnterBack: function () { d.classList.add("is-visible"); },
+            onLeaveBack: function () { d.classList.remove("is-visible"); }
+          });
         }
       });
-    });
+
+      /* effect__separatorIn (sticky horizontal rule clip-path reveal) */
+      document.querySelectorAll("[effect__separatorIn]").forEach(function (el) {
+        gsap.fromTo(el, {
+          willChange: "clip-path",
+          clipPath: "inset(0 100vw 0 0)"
+        }, {
+          ease: "none",
+          clipPath: "inset(0 0vw 0 0)",
+          scrollTrigger: {
+            trigger: el,
+            scroller: window,
+            start: "top 95%",
+            end: "top 65%",
+            scrub: true
+          }
+        });
+      });
+    } else {
+      document.querySelectorAll("[effect__separatorIn]").forEach(function (el) {
+        gsap.set(el, { clipPath: "none" });
+      });
+    }
 
     /* effect__parallax (footer parallax scrub) */
     document.querySelectorAll("[effect__parallax]").forEach(function (el) {
@@ -955,23 +965,34 @@
 
     PixelCursor.prototype.initEvents = function () {
       var self = this;
+      var resizeTimer = null;
       window.addEventListener("resize", function () {
-        self.layout();
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          self.layout();
+        }, 150);
       });
 
+      var ticking = false;
       var triggerCell = function (e) {
-        var cell = self.getCellAtCursor(e ? e.clientX : undefined, e ? e.clientY : undefined);
-        if (!cell || self.cachedCell === cell) return;
-        self.cachedCell = cell;
-        if (window.gsap) {
-          window.gsap.killTweensOf(cell);
-          window.gsap.set(cell, { opacity: 1 });
-          window.gsap.to(cell, { opacity: 0, duration: 0.38, delay: self.ttl, ease: "power1.out" });
-        }
+        if (ticking) return;
+        ticking = true;
+        var clientX = e ? e.clientX : undefined;
+        var clientY = e ? e.clientY : undefined;
+        requestAnimationFrame(function () {
+          ticking = false;
+          var cell = self.getCellAtCursor(clientX, clientY);
+          if (!cell || self.cachedCell === cell) return;
+          self.cachedCell = cell;
+          if (window.gsap) {
+            window.gsap.killTweensOf(cell);
+            window.gsap.set(cell, { opacity: 1 });
+            window.gsap.to(cell, { opacity: 0, duration: 0.38, delay: self.ttl, ease: "power1.out" });
+          }
+        });
       };
 
       window.addEventListener("mousemove", triggerCell, { passive: true });
-      window.addEventListener("pointermove", triggerCell, { passive: true });
     };
 
     new PixelCursor(cursorEl);
@@ -1413,12 +1434,20 @@
     camera.lookAt(0, 0.005, 0);
 
     // Renderer
-    var renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance"
-    });
+    var renderer = null;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance"
+      });
+    } catch (e) {
+      console.warn("WebGL not supported or context creation failed:", e);
+      window.__walkmanLoaded = true;
+      if (typeof window.__onWalkmanReady === "function") window.__onWalkmanReady();
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height, false);
     renderer.outputEncoding = THREE.sRGBEncoding;
@@ -2126,16 +2155,31 @@
       return null;
     }
 
-    // Pointer events on stage
+    // Intelligent Pointer events on stage (smooth mobile touch scrolling vs deliberate rotation)
+    var touchStartClientX = 0;
+    var touchStartClientY = 0;
+    var touchMode = null; // null | "scroll" | "rotate"
+
     stage.addEventListener("pointerdown", function (e) {
-      isDragging = true;
+      var isTouch = e.pointerType === "touch";
       var c = getNormalizedCoords(e);
       dragStartX = c.rawX;
       dragStartY = c.rawY;
+      touchStartClientX = e.clientX;
+      touchStartClientY = e.clientY;
       dragDist = 0;
-      stage.setPointerCapture(e.pointerId);
+      touchMode = null;
 
       var hitAction = checkButtonIntersection(c);
+
+      if (!isTouch) {
+        isDragging = true;
+        try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+      } else {
+        // On touch: do not capture pointer immediately so native vertical page scroll works freely!
+        isDragging = false;
+      }
+
       if (hitAction && window.gsap) {
         var node = null;
         if (hitAction === "yellow") { node = buttonNode || buttonCap; }
@@ -2167,6 +2211,33 @@
 
     stage.addEventListener("pointermove", function (e) {
       var c = getNormalizedCoords(e);
+      var isTouch = e.pointerType === "touch";
+
+      if (isTouch) {
+        var deltaX = e.clientX - touchStartClientX;
+        var deltaY = e.clientY - touchStartClientY;
+        var absX = Math.abs(deltaX);
+        var absY = Math.abs(deltaY);
+
+        // Determine touch intent if not already decided
+        if (!touchMode && (absX > 6 || absY > 6)) {
+          if (absX > absY * 1.25) {
+            // Horizontal swipe detected: rotate the 3D model
+            touchMode = "rotate";
+            isDragging = true;
+            try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+          } else {
+            // Vertical swipe detected: user is scrolling the page!
+            touchMode = "scroll";
+            isDragging = false;
+            return;
+          }
+        }
+
+        if (touchMode === "scroll") {
+          return; // Let native browser touch scrolling scroll the page smoothly
+        }
+      }
 
       if (isDragging) {
         var dx = c.rawX - dragStartX;
@@ -2176,9 +2247,14 @@
         dragStartY = c.rawY;
 
         targetRotY += dx * 0.012;
-        targetRotX = THREE.MathUtils.clamp(targetRotX + dy * 0.010, -0.6, 0.8);
-      } else {
-        // Hover raycasting
+        if (!isTouch) {
+          targetRotX = THREE.MathUtils.clamp(targetRotX + dy * 0.010, -0.6, 0.8);
+        } else {
+          // Limit vertical pitch tilt on mobile touch
+          targetRotX = THREE.MathUtils.clamp(targetRotX + dy * 0.005, -0.35, 0.45);
+        }
+      } else if (!isTouch) {
+        // Hover raycasting on desktop
         var hitAction = checkButtonIntersection(c);
         var isHit = !!hitAction;
         if (isHit !== isHoveringButton) {
@@ -2192,8 +2268,7 @@
     });
 
     function onPointerUp(e) {
-      if (!isDragging) return;
-      isDragging = false;
+      var isTouch = e.pointerType === "touch";
       try { stage.releasePointerCapture(e.pointerId); } catch (err) {}
 
       if (stage.userData && stage.userData.pressedNode) {
@@ -2210,8 +2285,9 @@
         stage.userData.pressedNode = null;
       }
 
-      // If clicked (little to no drag), trigger button press
-      if (dragDist < 6) {
+      // If clicked/tapped with little to no drag, trigger button press
+      var totalMove = Math.hypot(e.clientX - touchStartClientX, e.clientY - touchStartClientY);
+      if (totalMove < 14 && touchMode !== "scroll") {
         var c = getNormalizedCoords(e);
         var hitAction = checkButtonIntersection(c);
         if (hitAction === "yellow") {
@@ -2222,6 +2298,9 @@
           triggerSeekButton(button3Node, false);
         }
       }
+
+      isDragging = false;
+      touchMode = null;
 
       // Smoothly release back towards beauty angle
       releaseEaseTimer = performance.now();
@@ -2701,7 +2780,7 @@
     if (!items.length) return;
 
     var isMobile = function () {
-      return window.innerWidth <= 600;
+      return window.innerWidth <= 820;
     };
 
     var cachedSectionTop = 0;
@@ -2807,11 +2886,16 @@
     const canvas = document.getElementById('makeb-canvas');
     if (!canvas || !window.THREE) return;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-    camera.position.z = 1;
-
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    let scene, camera, renderer;
+    try {
+      scene = new THREE.Scene();
+      camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+      camera.position.z = 1;
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "low-power" });
+    } catch (e) {
+      console.warn("Footer MakeB WebGL initialization skipped:", e);
+      return;
+    }
     
     function resize() {
       const parent = canvas.parentElement;
@@ -2977,8 +3061,14 @@
 
     resize();
     const clock = new THREE.Clock();
+    let isFooterVisible = false;
+    let isLoopRunning = false;
 
     function animate() {
+      if (!isFooterVisible) {
+        isLoopRunning = false;
+        return;
+      }
       requestAnimationFrame(animate);
       uniforms.u_time.value = clock.getElapsedTime();
       
@@ -2995,7 +3085,23 @@
       
       renderer.render(scene, camera);
     }
-    animate();
+
+    if ("IntersectionObserver" in window) {
+      const footerObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          isFooterVisible = entry.isIntersecting;
+          if (isFooterVisible && !isLoopRunning) {
+            isLoopRunning = true;
+            requestAnimationFrame(animate);
+          }
+        });
+      }, { rootMargin: "100px" });
+      footerObserver.observe(canvas);
+    } else {
+      isFooterVisible = true;
+      isLoopRunning = true;
+      requestAnimationFrame(animate);
+    }
   }
 
   // Trigger initialization
