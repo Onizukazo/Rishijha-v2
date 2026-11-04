@@ -1901,6 +1901,11 @@
         renderer.compile(scene, camera);
         renderer.render(scene, camera);
       } catch (e) {}
+
+      window.__walkmanLoaded = true;
+      if (typeof window.__onWalkmanReady === "function") {
+        window.__onWalkmanReady();
+      }
     }
 
     // FBX Walkman Loader (Direct FBX format with custom PBR textures)
@@ -2011,6 +2016,11 @@
           renderer.compile(scene, camera);
           renderer.render(scene, camera);
         } catch (e) {}
+
+        window.__walkmanLoaded = true;
+        if (typeof window.__onWalkmanReady === "function") {
+          window.__onWalkmanReady();
+        }
 
         if (onSuccess) onSuccess();
       }
@@ -2412,22 +2422,165 @@
     function startCounter() {
       var progressObj = { val: 1 };
       var lastNum = 1;
+      var assetsReady = false;
 
-      // Animate progress bar in sync
-      if (progressBar && typeof window.gsap !== "undefined") {
-        window.gsap.to(progressBar, {
-          width: "100%",
-          duration: 1.85,
-          ease: "power1.inOut"
-        });
+      // Animate progress bar toward 85% initially; when all assets & 3D models load, tween smoothly to 100%
+      var counterTween = null;
+      var barTween = null;
+
+      function onAllLoaded() {
+        if (assetsReady) return;
+        assetsReady = true;
+
+        if (statusText) statusText.textContent = "READY";
+
+        if (counterTween && barTween) {
+          // Finish counter to 100
+          counterTween.kill();
+          barTween.kill();
+
+          var currentVal = progressObj.val;
+          var remainingDuration = Math.max(0.35, (100 - currentVal) / 100 * 0.7);
+
+          window.gsap.to(progressBar, {
+            width: "100%",
+            duration: remainingDuration,
+            ease: "power2.out"
+          });
+
+          window.gsap.to(progressObj, {
+            val: 100,
+            duration: remainingDuration,
+            ease: "power2.out",
+            onUpdate: function () {
+              var n = Math.floor(progressObj.val);
+              if (n !== lastNum) {
+                lastNum = n;
+                counter.textContent = n < 10 ? "0" + n : "" + n;
+              }
+            },
+            onComplete: function () {
+              counter.textContent = "100";
+              if (statusText) statusText.textContent = "READY";
+
+              // Quick CRT phosphor power flash
+              if (flash) {
+                window.gsap.timeline()
+                  .to(flash, { opacity: 0.95, duration: 0.08, ease: "power2.out" })
+                  .to(flash, { opacity: 0, duration: 0.12, ease: "power2.in", onComplete: runScreenZoom });
+              } else {
+                runScreenZoom();
+              }
+            }
+          });
+        }
       }
 
-      // Count 01 to 100 with retro pixel typography
+      // Check all essential assets: fonts, hero video, images, audio, and Walkman 3D model
+      var checks = [];
+
+      // 1. Walkman 3D Model Promise
+      var walkmanPromise = new Promise(function (resolve) {
+        if (window.__walkmanLoaded) {
+          resolve();
+          return;
+        }
+        var resolved = false;
+        var timeout = setTimeout(function () {
+          if (!resolved) {
+            resolved = true;
+            resolve();
+          }
+        }, 12000); // 12s safety timeout
+
+        window.__onWalkmanReady = function () {
+          if (!resolved) {
+            resolved = true;
+            clearTimeout(timeout);
+            resolve();
+          }
+        };
+      });
+      checks.push(walkmanPromise);
+
+      // 2. Document Fonts Promise
+      if (document.fonts && document.fonts.ready) {
+        checks.push(document.fonts.ready.catch(function () {}));
+      }
+
+      // 3. Window Load Event (DOM, all static images, stylesheets)
+      var windowLoadPromise = new Promise(function (resolve) {
+        if (document.readyState === "complete") {
+          resolve();
+        } else {
+          window.addEventListener("load", resolve, { once: true });
+          setTimeout(resolve, 10000);
+        }
+      });
+      checks.push(windowLoadPromise);
+
+      // 4. Hero Background Video
+      var heroVid = document.getElementById("heroVideo");
+      if (heroVid) {
+        var heroVidPromise = new Promise(function (resolve) {
+          if (heroVid.readyState >= 2) { // HAVE_CURRENT_DATA
+            resolve();
+          } else {
+            heroVid.addEventListener("canplay", resolve, { once: true });
+            heroVid.addEventListener("loadeddata", resolve, { once: true });
+            setTimeout(resolve, 8000);
+          }
+        });
+        checks.push(heroVidPromise);
+      }
+
+      // 5. Essential Images in DOM (Walkman instructions, DVD Rishi logo, brand logos)
+      var essentialImages = [
+        "assets/crt-tv.png",
+        "assets/walkman_instructions.png?v=2",
+        "rishi.png"
+      ];
+      essentialImages.forEach(function (src) {
+        var imgPromise = new Promise(function (resolve) {
+          var img = new Image();
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = src;
+          if (img.complete) resolve();
+        });
+        checks.push(imgPromise);
+      });
+
+      // 6. Walkman Audio Track Buffer
+      var audioPromise = new Promise(function (resolve) {
+        var audio = new Audio();
+        audio.preload = "auto";
+        audio.oncanplaythrough = resolve;
+        audio.onerror = resolve;
+        audio.src = "Bee Gees Stayin Alive (Extended Remaster).mp3";
+        setTimeout(resolve, 6000);
+      });
+      checks.push(audioPromise);
+
+      // When ALL checks resolve, trigger completion
+      Promise.all(checks).then(function () {
+        onAllLoaded();
+      });
+
+      // Start initial counter animation toward 85% with retro pixel typography
       if (typeof window.gsap !== "undefined") {
-        window.gsap.to(progressObj, {
-          val: 100,
-          duration: 1.85,
-          ease: "power1.inOut",
+        if (progressBar) {
+          barTween = window.gsap.to(progressBar, {
+            width: "85%",
+            duration: 1.5,
+            ease: "power1.out"
+          });
+        }
+
+        counterTween = window.gsap.to(progressObj, {
+          val: 85,
+          duration: 1.5,
+          ease: "power1.out",
           onUpdate: function () {
             var n = Math.floor(progressObj.val);
             if (n !== lastNum) {
@@ -2436,16 +2589,11 @@
             }
           },
           onComplete: function () {
-            counter.textContent = "100";
-            if (statusText) statusText.textContent = "READY";
-
-            // Quick CRT phosphor power flash
-            if (flash) {
-              window.gsap.timeline()
-                .to(flash, { opacity: 0.95, duration: 0.08, ease: "power2.out" })
-                .to(flash, { opacity: 0, duration: 0.12, ease: "power2.in", onComplete: runScreenZoom });
+            // If assets are already ready by the time we hit 85, finish immediately
+            if (assetsReady) {
+              onAllLoaded();
             } else {
-              runScreenZoom();
+              if (statusText) statusText.textContent = "SYNCHRONIZING";
             }
           }
         });
