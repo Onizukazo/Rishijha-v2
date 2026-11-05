@@ -7501,3 +7501,334 @@ header .nav a.hover_effect {
 .experience__thumb-mobile {
   display: none;
 }
+
+/* ============================================================
+   WALKMAN MINI AUDIO PLAYER (Peeks from bottom right on scroll)
+   ============================================================ */
+.walkman-miniplayer {
+  position: fixed;
+  bottom: 0;
+  right: clamp(20px, 2.5vw, 40px);
+  width: clamp(290px, 22.5vw, 350px);
+  aspect-ratio: 1219 / 602;
+  z-index: 999;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(120%);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, filter 0.35s ease;
+  will-change: transform, opacity;
+}
+
+/* Active & Visible: peeks from bottom right edge showing LCD screen */
+.walkman-miniplayer.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(35%);
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
+}
+
+/* Hovered: slides up smoothly into full view */
+.walkman-miniplayer.is-visible:hover,
+.walkman-miniplayer.is-visible.is-hovered {
+  transform: translateY(-16px);
+  filter: drop-shadow(0 22px 48px rgba(0, 0, 0, 0.8));
+}
+
+/* Hidden on mobile view as requested */
+@media screen and (max-width: 820px) {
+  .walkman-miniplayer {
+    display: none !important;
+  }
+}
+
+.walkman-miniplayer__body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.walkman-miniplayer__device {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+/* Dynamic LCD Screen Overlay */
+.walkman-miniplayer__screen {
+  position: absolute;
+  top: 9.3%;
+  left: 4.26%;
+  width: 91.48%;
+  height: 49.17%;
+  border-radius: clamp(10px, 1.2vw, 15px);
+  background: #b5d1de;
+  box-shadow: inset 0 2px 5px rgba(0, 30, 45, 0.25), inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3.5% 4.5% 3%;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Mono", Monaco, "Courier New", monospace;
+  color: #0d1e26;
+  pointer-events: auto;
+}
+
+.walkman-miniplayer__screen-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  height: 62%;
+}
+
+/* Mini cassette album thumbnail */
+.walkman-miniplayer__album-wrapper {
+  flex-shrink: 0;
+  width: 17%;
+  aspect-ratio: 1;
+}
+
+.walkman-miniplayer__album-art {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  background: #0d161a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.miniplayer-cassette-icon {
+  width: 82%;
+  height: 52%;
+  background: #1e2d35;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 3px;
+  box-sizing: border-box;
+}
+
+.miniplayer-cassette-reel {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px dashed #b5d1de;
+  display: block;
+}
+
+.walkman-miniplayer:not(.is-paused) .miniplayer-cassette-reel {
+  animation: miniReelSpin 2s linear infinite;
+}
+
+@keyframes miniReelSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Track title & artist */
+.walkman-miniplayer__meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding-left: 2px;
+}
+
+.walkman-miniplayer__title-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.walkman-miniplayer__title {
+  display: inline-block;
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(11.5px, 0.92vw, 14px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #07151c;
+  line-height: 1.15;
+}
+
+.walkman-miniplayer__artist {
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(9px, 0.72vw, 10.5px);
+  font-weight: 700;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dynamic Equalizer Visualizer */
+.walkman-miniplayer__eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 28px;
+  width: 48px;
+  flex-shrink: 0;
+  padding-bottom: 2px;
+}
+
+.walkman-miniplayer__eq .eq-bar {
+  flex: 1;
+  width: 2.5px;
+  min-height: 3px;
+  height: var(--bar-h, 50%);
+  background: #0d1e26;
+  border-radius: 1px;
+  transform-origin: bottom;
+  transition: height 0.25s ease;
+}
+
+.walkman-miniplayer:not(.is-paused) .walkman-miniplayer__eq .eq-bar {
+  animation: miniEqJump 0.8s ease-in-out infinite alternate;
+  animation-delay: var(--bar-delay, 0s);
+}
+
+.walkman-miniplayer.is-paused .walkman-miniplayer__eq .eq-bar {
+  animation: none !important;
+  height: 3px !important;
+  opacity: 0.45;
+}
+
+@keyframes miniEqJump {
+  0% { height: 18%; }
+  35% { height: 85%; }
+  65% { height: 40%; }
+  100% { height: 95%; }
+}
+
+/* Scrub Bar & Time */
+.walkman-miniplayer__scrub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 32%;
+}
+
+.walkman-miniplayer__time {
+  font-size: clamp(8px, 0.62vw, 9.5px);
+  font-weight: 700;
+  opacity: 0.85;
+  min-width: 24px;
+  line-height: 1;
+}
+
+.walkman-miniplayer__bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(13, 30, 38, 0.22);
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+  padding: 4px 0;
+  background-clip: content-box;
+}
+
+.walkman-miniplayer__progress {
+  height: 100%;
+  width: 0%;
+  background: #0d1e26;
+  border-radius: 2px;
+  position: relative;
+  pointer-events: none;
+}
+
+.walkman-miniplayer__handle {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 9px;
+  background: #0d1e26;
+  border-radius: 1px;
+}
+
+/* Interactive Control Hitboxes */
+.walkman-miniplayer__controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.walkman-miniplayer__btn {
+  position: absolute;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease, background-color 0.2s ease;
+  pointer-events: auto;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.walkman-miniplayer__btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.walkman-miniplayer__btn:active {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+.walkman-miniplayer__btn--prev {
+  left: 39.38%;
+  top: 83.4%;
+  width: 12.8%;
+  aspect-ratio: 1;
+}
+
+.walkman-miniplayer__btn--play {
+  left: 50.08%;
+  top: 83.4%;
+  width: 15.6%;
+  aspect-ratio: 1;
+}
+
+.walkman-miniplayer__btn--next {
+  left: 61.03%;
+  top: 83.4%;
+  width: 12.8%;
+  aspect-ratio: 1;
+}
+
+/* Play glyph overlay when music is paused */
+.walkman-miniplayer__play-glyph {
+  display: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #e2e0e0;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  align-items: center;
+  justify-content: center;
+}
+
+.walkman-miniplayer.is-paused .walkman-miniplayer__play-glyph {
+  display: flex;
+}
+
+.walkman-miniplayer__play-glyph svg {
+  margin-left: 2px;
+}

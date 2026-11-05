@@ -1785,6 +1785,9 @@
     }
     function updateWalkmanDisplay() {
       renderScreenTexture();
+      if (typeof window.__syncMiniPlayerTrack === "function") {
+        window.__syncMiniPlayerTrack();
+      }
     }
 
     function playCurrentTrack() {
@@ -2449,12 +2452,172 @@
       getPlaylist: function () { return WALKMAN_PLAYLIST; },
       getCurrentTrack: function () { return WALKMAN_PLAYLIST[currentTrackIndex]; }
     };
+    window.__walkman = window.__aboutWalkman;
 
     window.addEventListener("resize", onResize, { passive: true });
   }
 
   // Initialize About Walkman 3D Model
   initAboutWalkman();
+
+  /* ------------------------------------------------------------
+     12b. WALKMAN MINI AUDIO PLAYER
+     Peeks from bottom right after Walkman song starts & user scrolls past Walkman section.
+     ------------------------------------------------------------ */
+  function initWalkmanMiniPlayer() {
+    var miniPlayer = document.getElementById("walkmanMiniPlayer");
+    if (!miniPlayer) return;
+
+    var titleEl = document.getElementById("miniPlayerTitle");
+    var artistEl = document.getElementById("miniPlayerArtist");
+    var timeEl = document.getElementById("miniPlayerCurrentTime");
+    var durEl = document.getElementById("miniPlayerDuration");
+    var progressEl = document.getElementById("miniPlayerProgress");
+    var progressBar = document.getElementById("miniPlayerProgressBar");
+    var playBtn = document.getElementById("miniPlayerPlayBtn");
+    var prevBtn = document.getElementById("miniPlayerPrevBtn");
+    var nextBtn = document.getElementById("miniPlayerNextBtn");
+    var walkmanSection = document.getElementById("aboutWalkman") || document.getElementById("about");
+
+    var audio = window.__walkmanAudio;
+    var hasEverPlayed = false;
+
+    function formatTime(sec) {
+      if (!sec || isNaN(sec)) return "0:00";
+      var m = Math.floor(sec / 60);
+      var s = Math.floor(sec % 60);
+      return m + ":" + (s < 10 ? "0" : "") + s;
+    }
+
+    function syncTrackInfo() {
+      if (window.__walkman && typeof window.__walkman.getCurrentTrack === "function") {
+        var track = window.__walkman.getCurrentTrack();
+        if (track) {
+          if (titleEl) titleEl.textContent = (track.title || "SONY WALKMAN").toUpperCase();
+          if (artistEl) artistEl.textContent = (track.artist || "NOW PLAYING").toUpperCase();
+        }
+      }
+    }
+    window.__syncMiniPlayerTrack = syncTrackInfo;
+
+    function updatePlayState(isPlaying) {
+      if (isPlaying) {
+        miniPlayer.classList.remove("is-paused");
+      } else {
+        miniPlayer.classList.add("is-paused");
+      }
+    }
+
+    function checkVisibility() {
+      // Must not display on mobile
+      if (window.innerWidth <= 820) {
+        miniPlayer.classList.remove("is-visible");
+        return;
+      }
+
+      if (!hasEverPlayed) {
+        miniPlayer.classList.remove("is-visible");
+        return;
+      }
+
+      if (walkmanSection) {
+        var rect = walkmanSection.getBoundingClientRect();
+        // Visible when scrolled past Walkman section (when bottom of walkman section is above top threshold)
+        var isPast = rect.bottom < 120;
+        miniPlayer.classList.toggle("is-visible", isPast);
+      }
+    }
+
+    // Audio events
+    if (audio) {
+      audio.addEventListener("play", function () {
+        hasEverPlayed = true;
+        updatePlayState(true);
+        syncTrackInfo();
+        checkVisibility();
+      });
+
+      audio.addEventListener("pause", function () {
+        updatePlayState(false);
+      });
+
+      audio.addEventListener("timeupdate", function () {
+        if (!audio.duration) return;
+        var pct = (audio.currentTime / audio.duration) * 100;
+        if (progressEl) progressEl.style.width = pct + "%";
+        if (timeEl) timeEl.textContent = formatTime(audio.currentTime);
+      });
+
+      audio.addEventListener("durationchange", function () {
+        if (durEl && audio.duration) {
+          durEl.textContent = formatTime(audio.duration);
+        }
+      });
+
+      audio.addEventListener("loadedmetadata", function () {
+        if (durEl && audio.duration) {
+          durEl.textContent = formatTime(audio.duration);
+        }
+      });
+    }
+
+    // Controls
+    if (playBtn) {
+      playBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (window.__walkman && typeof window.__walkman.pressYellowButton === "function") {
+          window.__walkman.pressYellowButton();
+          syncTrackInfo();
+        }
+      });
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (window.__walkman && typeof window.__walkman.playPrev === "function") {
+          window.__walkman.playPrev();
+          syncTrackInfo();
+        }
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (window.__walkman && typeof window.__walkman.playNext === "function") {
+          window.__walkman.playNext();
+          syncTrackInfo();
+        }
+      });
+    }
+
+    if (progressBar && audio) {
+      progressBar.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var rect = progressBar.getBoundingClientRect();
+        var clickX = e.clientX - rect.left;
+        var pct = Math.max(0, Math.min(1, clickX / rect.width));
+        if (audio.duration) {
+          audio.currentTime = pct * audio.duration;
+        }
+      });
+    }
+
+    // Scroll listener for visibility check
+    window.addEventListener("scroll", checkVisibility, { passive: true });
+    window.addEventListener("resize", checkVisibility, { passive: true });
+    if (window.lenis && typeof window.lenis.on === "function") {
+      window.lenis.on("scroll", checkVisibility);
+    }
+
+    // Initial state
+    syncTrackInfo();
+    updatePlayState(false);
+  }
+
+  // Initialize Walkman Mini Player
+  initWalkmanMiniPlayer();
 
 
 

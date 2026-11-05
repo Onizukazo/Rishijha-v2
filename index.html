@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Silkscreen:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/splitting.css">
-  <link rel="stylesheet" href="css/style.css?v=63.0">
+  <link rel="stylesheet" href="css/style.css?v=64.0">
   <link rel="preload" href="Bee%20Gees%20Stayin%20Alive%20(Extended%20Remaster).mp3" as="audio" type="audio/mpeg">
   <script>
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -163,6 +163,66 @@
         </video>
       </button>
     </div>
+
+    <!-- ===== WALKMAN MINI AUDIO PLAYER (Peeks from bottom right when scrolled past Walkman) ===== -->
+    <aside class="walkman-miniplayer is-paused" id="walkmanMiniPlayer" aria-label="Walkman Mini Player">
+      <div class="walkman-miniplayer__body">
+        <img src="assets/player_mini_device.png" alt="" class="walkman-miniplayer__device" draggable="false">
+
+        <!-- Dynamic LCD Screen -->
+        <div class="walkman-miniplayer__screen">
+          <div class="walkman-miniplayer__screen-top">
+            <div class="walkman-miniplayer__album-wrapper">
+              <div class="walkman-miniplayer__album-art" id="miniPlayerAlbumArt">
+                <span class="miniplayer-cassette-icon">
+                  <span class="miniplayer-cassette-reel reel--left"></span>
+                  <span class="miniplayer-cassette-reel reel--right"></span>
+                </span>
+              </div>
+            </div>
+            <div class="walkman-miniplayer__meta">
+              <div class="walkman-miniplayer__title-wrap">
+                <span class="walkman-miniplayer__title" id="miniPlayerTitle">STAYIN' ALIVE</span>
+              </div>
+              <div class="walkman-miniplayer__artist" id="miniPlayerArtist">BEE GEES</div>
+            </div>
+            <div class="walkman-miniplayer__eq" id="miniPlayerEq" aria-label="Audio Visualizer">
+              <span class="eq-bar" style="--bar-h: 65%; --bar-delay: 0.1s;"></span>
+              <span class="eq-bar" style="--bar-h: 90%; --bar-delay: 0.3s;"></span>
+              <span class="eq-bar" style="--bar-h: 45%; --bar-delay: 0.05s;"></span>
+              <span class="eq-bar" style="--bar-h: 95%; --bar-delay: 0.25s;"></span>
+              <span class="eq-bar" style="--bar-h: 70%; --bar-delay: 0.18s;"></span>
+              <span class="eq-bar" style="--bar-h: 50%; --bar-delay: 0.4s;"></span>
+              <span class="eq-bar" style="--bar-h: 88%; --bar-delay: 0.12s;"></span>
+              <span class="eq-bar" style="--bar-h: 60%; --bar-delay: 0.28s;"></span>
+              <span class="eq-bar" style="--bar-h: 40%; --bar-delay: 0.08s;"></span>
+              <span class="eq-bar" style="--bar-h: 82%; --bar-delay: 0.35s;"></span>
+            </div>
+          </div>
+
+          <div class="walkman-miniplayer__scrub">
+            <span class="walkman-miniplayer__time" id="miniPlayerCurrentTime">0:00</span>
+            <div class="walkman-miniplayer__bar" id="miniPlayerProgressBar" role="slider" aria-label="Track Progress" tabindex="0">
+              <div class="walkman-miniplayer__progress" id="miniPlayerProgress">
+                <span class="walkman-miniplayer__handle"></span>
+              </div>
+            </div>
+            <span class="walkman-miniplayer__time" id="miniPlayerDuration">4:45</span>
+          </div>
+        </div>
+
+        <!-- Interactive Controls -->
+        <div class="walkman-miniplayer__controls">
+          <button type="button" class="walkman-miniplayer__btn walkman-miniplayer__btn--prev" id="miniPlayerPrevBtn" aria-label="Previous Track" title="Previous Track"></button>
+          <button type="button" class="walkman-miniplayer__btn walkman-miniplayer__btn--play" id="miniPlayerPlayBtn" aria-label="Play / Pause" title="Play / Pause">
+            <span class="walkman-miniplayer__play-glyph" id="miniPlayerPlayGlyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="icon-play" width="14" height="14"><polygon points="7,4 20,12 7,20" fill="#0d1418"/></svg>
+            </span>
+          </button>
+          <button type="button" class="walkman-miniplayer__btn walkman-miniplayer__btn--next" id="miniPlayerNextBtn" aria-label="Next Track" title="Next Track"></button>
+        </div>
+      </div>
+    </aside>
 
   <div class="wrapper">
 
@@ -701,7 +761,7 @@
   <script src="js/libs/gsap.min.js"></script>
   <script src="js/libs/ScrollTrigger.min.js"></script>
   <script src="js/libs/splitting.min.js"></script>
-  <script src="js/main.js?v=63.0"></script>
+  <script src="js/main.js?v=64.0"></script>
 
 
 </body>
