@@ -1504,6 +1504,21 @@
         title: "Stayin' Alive",
         artist: "Bee Gees",
         url: "Bee Gees Stayin Alive (Extended Remaster).mp3"
+      },
+      {
+        title: "Come and Get Your Love",
+        artist: "Redbone",
+        url: "come and get yo love.mp4"
+      },
+      {
+        title: "Lady (Hear Me Tonight)",
+        artist: "Modjo",
+        url: "lady.mp4"
+      },
+      {
+        title: "Smooth Operator",
+        artist: "Sade",
+        url: "smooth operator.mp4"
       }
     ];
 
@@ -1530,6 +1545,22 @@
     // HTML5 Audio Player for Walkman local cassette playback
     var walkmanAudio = new Audio();
     walkmanAudio.preload = "auto";
+
+    // Immediate preload of initial track for instant zero-latency playback on button press
+    if (WALKMAN_PLAYLIST.length > 0) {
+      walkmanAudio.src = encodeURI(WALKMAN_PLAYLIST[0].url);
+      walkmanAudio.dataset.currentSrc = WALKMAN_PLAYLIST[0].url;
+      walkmanAudio.load();
+    }
+    window.__walkmanAudio = walkmanAudio;
+
+    // Background pre-buffer all subsequent tracks so skip/seek is instantaneous
+    var walkmanPreloaders = WALKMAN_PLAYLIST.slice(1).map(function (t) {
+      var p = new Audio();
+      p.preload = "auto";
+      p.src = encodeURI(t.url);
+      return p;
+    });
 
     // Loop current song or advance playlist on finish
     walkmanAudio.addEventListener("ended", function () {
@@ -1763,14 +1794,18 @@
       if (walkmanAudio.dataset.currentSrc !== trackUrl) {
         walkmanAudio.src = encodeURI(trackUrl);
         walkmanAudio.dataset.currentSrc = trackUrl;
+        walkmanAudio.load();
         // Reset marquee on track change
         marqueeOffset = 0;
         marqueeState = "PAUSE_START";
         marqueePauseTimer = 0;
       }
-      walkmanAudio.play().catch(function (err) {
-        console.log("Audio playback notice:", err);
-      });
+      var playPromise = walkmanAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(function (err) {
+          console.log("Audio playback notice:", err);
+        });
+      }
       lastAnimationTime = performance.now();
       updateWalkmanDisplay();
     }
@@ -2646,14 +2681,30 @@
         checks.push(imgPromise);
       });
 
-      // 6. Walkman Audio Track Buffer
+      // 6. Walkman Audio Track Buffer (ensures zero-latency instant play on user click)
       var audioPromise = new Promise(function (resolve) {
-        var audio = new Audio();
-        audio.preload = "auto";
-        audio.oncanplaythrough = resolve;
-        audio.onerror = resolve;
-        audio.src = "Bee Gees Stayin Alive (Extended Remaster).mp3";
-        setTimeout(resolve, 6000);
+        var audio = window.__walkmanAudio;
+        if (!audio) {
+          resolve();
+          return;
+        }
+        if (audio.readyState >= 3) { // HAVE_FUTURE_DATA or HAVE_ENOUGH_DATA
+          resolve();
+          return;
+        }
+        var onReady = function () {
+          audio.removeEventListener("canplaythrough", onReady);
+          audio.removeEventListener("canplay", onReady);
+          resolve();
+        };
+        audio.addEventListener("canplaythrough", onReady, { once: true });
+        audio.addEventListener("canplay", onReady, { once: true });
+        audio.addEventListener("error", function () { resolve(); }, { once: true });
+        if (!audio.src) {
+          audio.src = encodeURI("Bee Gees Stayin Alive (Extended Remaster).mp3");
+          audio.load();
+        }
+        setTimeout(resolve, 5000); // 5s safety timeout
       });
       checks.push(audioPromise);
 
