@@ -1947,7 +1947,9 @@ section .marqueeText {
 
   height: 100vh !important;
 
-  width: 100vw !important;
+  width: 100% !important;
+
+  max-width: 100% !important;
 
   padding: 0 !important;
 
@@ -2968,28 +2970,35 @@ section .marqueeText {
     padding: 12px 2px 0 !important;
     display: block !important;
     width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
   }
 
   .showcase__item figcaption a {
     display: flex !important;
-    justify-content: space-between !important;
-    align-items: baseline !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
     width: 100% !important;
-    gap: 12px !important;
+    max-width: 100% !important;
+    gap: 4px !important;
   }
 
   .showcase__item figcaption .project__title {
-    font-size: 18px !important;
+    font-size: clamp(16px, 4.4vw, 18px) !important;
     font-weight: 500 !important;
     color: #ffffff !important;
     letter-spacing: -0.01em !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
   }
 
   .showcase__item figcaption .project__tag {
     font-size: 11px !important;
     letter-spacing: -0.01em !important;
     color: rgba(255, 255, 255, 0.6) !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+    word-break: break-word !important;
   }
 
   .showcase__mobileHint {
@@ -7187,7 +7196,9 @@ body.is-loading .cursor {
   .journal__list--item:before,
   .journal__list--item:last-child:after {
     left: 20px !important;
-    width: calc(100vw - 40px) !important;
+    right: 20px !important;
+    width: auto !important;
+    max-width: calc(100% - 40px) !important;
   }
 
   .journal__list--item .layout {
@@ -7351,9 +7362,31 @@ header .nav a.hover_effect {
     margin-top: 6px !important;
   }
   .journal__list--desc .monospace__p {
-    font-size: 12.5px !important;
+    font-size: 11.5px !important;
     line-height: 1.55 !important;
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+  }
+
+  /* Experience mobile thumbnail image & subtext refinement */
+  .experience__thumb-mobile {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    margin: 8px 0 10px 0 !important;
+    background-color: #141416 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  .experience__thumb-mobile img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 9px !important;
   }
 
   /* Methodology (Services) mobile polish & readability */
@@ -7390,7 +7423,7 @@ header .nav a.hover_effect {
     color: #ffffff !important;
   }
   section .benefits__items--text p.monospace__p {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
     line-height: 1.55 !important;
     color: rgba(255, 255, 255, 0.9) !important;
   }
@@ -7400,4 +7433,43 @@ header .nav a.hover_effect {
     border-radius: 8px !important;
     max-height: 180px !important;
   }
+
+  /* Total eradication of blinds overlays, topOverlay gradients, and horizontal overflow on mobile */
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    width: 100% !important;
+  }
+
+  .wrapper, main, .section {
+    overflow-x: clip !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .overlay,
+  .overlay div,
+  [effect__overlayIn],
+  .topOverlay,
+  .topOverlay__section,
+  .section--experience .overlay,
+  .section--works .overlay {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+    position: static !important;
+    background: transparent !important;
+    border: none !important;
+  }
+}
+
+.experience__thumb-mobile {
+  display: none;
 }

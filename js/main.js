@@ -274,14 +274,30 @@
     gsap.registerPlugin(ScrollTrigger);
 
     var isMobile = function () {
-      return window.innerWidth <= 600 || !!(navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i));
+      return (window.innerWidth <= 820) ||
+        (window.matchMedia && window.matchMedia("(max-width: 820px)").matches) ||
+        ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        !!(navigator.userAgent && navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i));
     };
 
     /* ── Authentic PX PUSH Staggered Blinds Overlay Transitions ── */
     var isMob = isMobile();
 
     // On mobile touch screens, skip staggered blinds overlay to eliminate horizontal stripes and hazardous transitions
-    if (!isMob) {
+    if (isMob) {
+      document.querySelectorAll(".overlay").forEach(function (overlayEl) {
+        overlayEl.innerHTML = "";
+        overlayEl.style.display = "none";
+        overlayEl.style.visibility = "hidden";
+        overlayEl.style.pointerEvents = "none";
+      });
+      document.querySelectorAll(".topOverlay, .topOverlay__section").forEach(function (toEl) {
+        toEl.style.display = "none";
+        toEl.style.visibility = "hidden";
+        toEl.style.pointerEvents = "none";
+      });
+    } else {
       var rowsCount = 10;
 
       // Dynamically populate strip divs inside each overlay (matching pxpush vP)
@@ -380,7 +396,7 @@
       var words = el.querySelectorAll(".word, .line__inner");
       var targets = words.length ? words : [el];
       gsap.fromTo(targets, {
-        opacity: 0.12
+        opacity: isMob ? 0.35 : 0.12
       }, {
         ease: "none",
         opacity: 1,
@@ -456,7 +472,7 @@
       }, {
         ease: "none",
         opacity: 0,
-        yPercent: 50,
+        yPercent: isMob ? 0 : 50,
         scrollTrigger: {
           trigger: el,
           scroller: window,
