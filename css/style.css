@@ -792,7 +792,11 @@ p.lead.lead__indent.splitting > .word:first-child {
 
 
 
-.section--about    { --background: var(--lightgrey); --color: var(--black); }
+.section--about    {
+  --background: var(--lightgrey);
+  --color: var(--black);
+  padding-bottom: clamp(320px, 42vh, 480px) !important;
+}
 
 .section--works      { --background: var(--bgcolor); }
 
@@ -1352,15 +1356,14 @@ body.menu_open .mobilenav__backdrop { opacity: 1; pointer-events: all; }
 /* ==================== BUTTONS ==================== */
 
 .buttons {
-
   display: flex;
-
   flex-wrap: wrap;
-
   justify-content: space-between;
-
   margin-top: 4vw;
+}
 
+.section--about .buttons {
+  margin-bottom: clamp(32px, 4vh, 60px);
 }
 
 .button {
@@ -7277,7 +7280,7 @@ header .nav a.hover_effect {
 
   /* About section mobile polish & contrast */
   .section--about {
-    padding: 36px 0 44px !important;
+    padding: 36px 0 clamp(100px, 16vh, 160px) !important;
   }
   .section--about .layout {
     padding: 10px 20px !important;
