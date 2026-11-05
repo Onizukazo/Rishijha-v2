@@ -613,7 +613,7 @@
       var h = cameraStage.clientHeight;
       camera3d.aspect = w / h;
       if (w < 600) {
-        camera3d.position.z = 0.44 * (640 / w);
+        camera3d.position.z = 0.44 * (490 / w);
       } else {
         camera3d.position.z = 0.44;
       }
