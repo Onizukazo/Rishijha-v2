@@ -117,4 +117,23 @@ document.addEventListener("DOMContentLoaded", function () {
       line.style.textShadow = "";
     });
   });
+
+  // 5. Coming Soon Reveal after 3D Game Console Loads
+  const bgTitle = document.querySelector(".play-hero__bg-title");
+  let hasRevealedComingSoon = false;
+
+  function revealComingSoon() {
+    if (hasRevealedComingSoon || !bgTitle) return;
+    hasRevealedComingSoon = true;
+    bgTitle.classList.add("is-visible");
+  }
+
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.type === "CONSOLE_LOADED") {
+      revealComingSoon();
+    }
+  });
+
+  // Fallback safety timeout (4s) in case postMessage is delayed
+  setTimeout(revealComingSoon, 4000);
 });
