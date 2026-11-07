@@ -82,10 +82,31 @@
   cursor: grab;
   position: relative;
   z-index: 5;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.about-hero__canvas.is-loaded {
+  opacity: 1;
 }
 
 .about-hero__canvas:active {
   cursor: grabbing;
+}
+
+.camera-instructions {
+  position: absolute;
+  bottom: 0;
+  left: 6%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.camera-instructions-img {
+  width: clamp(200px, 18vw, 280px);
+  height: auto;
+  display: block;
+  opacity: 0.85;
 }
 
 .about-hero__col-text {
@@ -163,7 +184,6 @@
   .about-hero__col-camera {
     width: 100%;
     flex: 0 0 auto;
-    height: 380px;
   }
 
   .about-hero__col-text {
@@ -463,7 +483,33 @@
   .about-hero__col-camera {
     flex: 0 0 auto;
     width: 100%;
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .about-hero__stage {
+    width: 100%;
     height: clamp(450px, 60vh, 520px) !important;
+  }
+
+  .camera-instructions {
+    position: static;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    left: auto;
+    bottom: auto;
+    text-align: center;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .camera-instructions-img {
+    width: 180px;
+    max-width: 85%;
+    opacity: 0.85;
   }
 
   .about-hero__col-text {

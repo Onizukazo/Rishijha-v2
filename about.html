@@ -15,6 +15,9 @@
   <link rel="preload" href="assets/fonts/SemiSqueezedMedium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/PPNeueMontrealMono-Book.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/Graphik-Regular-Web.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/camera/ASSET.gltf" as="fetch" crossorigin>
+  <link rel="preload" href="assets/camera/ASSET.bin" as="fetch" crossorigin>
+  <link rel="preload" href="assets/camera_instructions.png?v=2" as="image">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +25,7 @@
 
   <link rel="stylesheet" href="css/splitting.css">
   <link rel="stylesheet" href="css/style.css?v=65.0">
-  <link rel="stylesheet" href="css/about.css?v=20.0">
+  <link rel="stylesheet" href="css/about.css?v=21.0">
 
   <!-- Vercel Web Analytics & Speed Insights -->
   <script>
@@ -103,7 +106,9 @@
             <div class="about-hero__stage" id="cameraStage">
               <canvas class="about-hero__canvas" id="cameraCanvas" aria-label="Interactive 3D Nikon Coolpix digital camera"></canvas>
             </div>
-
+            <div class="camera-instructions" id="cameraInstructions">
+              <img src="assets/camera_instructions.png?v=2" alt="Play around with the camera!" class="camera-instructions-img" draggable="false">
+            </div>
           </div>
           <div class="about-hero__col-text">
             <div class="about-hero__text-wrapper">
@@ -471,6 +476,6 @@
   <script src="js/libs/gsap.min.js"></script>
   <script src="js/libs/ScrollTrigger.min.js"></script>
   <script src="js/libs/lenis.min.js"></script>
-  <script src="js/about.js?v=23.0"></script>
+  <script src="js/about.js?v=24.0"></script>
 </body>
 </html>

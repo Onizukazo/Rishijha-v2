@@ -287,15 +287,15 @@
       return (window.innerWidth <= 820) ? 1.84 : 1.58;
     }
     var TARGET_SCALE = getTargetScale();
-    var isIntroAnimating = false;
+    var isIntroAnimating = true;
+    var isModelLoaded = false;
 
     var cameraGroup = new THREE.Group();
-    // Start with smaller scale and facing the front (lens side) at an attractive dynamic angle
+    // Keep cameraGroup invisible until 3D GLTF model is fully loaded to prevent naked LCD screen showing
+    cameraGroup.visible = false;
     cameraGroup.scale.setScalar(TARGET_SCALE * 0.65);
-    cameraGroup.rotation.y = -Math.PI * 0.25; // Front side facing user, tilted slightly
-    cameraGroup.rotation.x = -0.15;
-    cameraGroup.rotation.z = 0.06;
-    cameraGroup.position.y = -0.018;
+    cameraGroup.rotation.set(-0.15, -Math.PI * 0.25, 0.06);
+    cameraGroup.position.set(0, -0.018, 0);
     scene.add(cameraGroup);
 
     // Screen Mesh - perfectly sized and positioned for LCD frame recess
@@ -332,16 +332,24 @@
     cameraGroup.add(btnShutter);
 
     function runIntroAnimation() {
+      TARGET_SCALE = getTargetScale();
+      targetRotY = Math.PI;
+      targetRotX = 0;
+
       if (typeof gsap === 'undefined') {
         cameraGroup.scale.setScalar(TARGET_SCALE);
         cameraGroup.rotation.set(0, Math.PI, 0);
         cameraGroup.position.set(0, 0, 0);
-        targetRotY = Math.PI;
-        targetRotX = 0;
+        isIntroAnimating = false;
         return;
       }
 
       isIntroAnimating = true;
+
+      // Ensure explicit initial values: 3/4 front view tilted slightly
+      cameraGroup.scale.setScalar(TARGET_SCALE * 0.65);
+      cameraGroup.rotation.set(-0.15, -Math.PI * 0.25, 0.06);
+      cameraGroup.position.set(0, -0.018, 0);
 
       var introTl = gsap.timeline({
         onComplete: function () {
@@ -351,13 +359,13 @@
         }
       });
 
-      // Camera rotates smoothly and slowly from front/side to reveal the back LCD screen
+      // Camera rotates smoothly from front angle (-Math.PI * 0.25) around to reveal the back LCD screen (Math.PI)
       introTl.to(cameraGroup.rotation, {
         y: Math.PI,
         x: 0,
         z: 0,
-        duration: 3.0,
-        ease: 'power2.inOut'
+        duration: 2.2,
+        ease: 'power2.out'
       }, 0);
 
       // Camera scales up to hero size
@@ -365,15 +373,15 @@
         x: TARGET_SCALE,
         y: TARGET_SCALE,
         z: TARGET_SCALE,
-        duration: 3.0,
-        ease: 'power2.inOut'
+        duration: 2.2,
+        ease: 'power2.out'
       }, 0);
 
       // Camera glides up into center position
       introTl.to(cameraGroup.position, {
         y: 0,
-        duration: 3.0,
-        ease: 'power2.inOut'
+        duration: 2.2,
+        ease: 'power2.out'
       }, 0);
     }
 
@@ -399,6 +407,13 @@
         model.position.set(-center.x, -center.y, -center.z);
         cameraGroup.add(model);
         window.__cameraReady = true;
+
+        isModelLoaded = true;
+        TARGET_SCALE = getTargetScale();
+
+        // Reveal the complete camera assembly together
+        cameraGroup.visible = true;
+        cameraCanvas.classList.add('is-loaded');
 
         // Trigger entrance rotation onto screen side
         runIntroAnimation();
@@ -482,6 +497,7 @@
 
     // Mouse Interaction
     cameraCanvas.addEventListener('mousedown', function (e) {
+      if (!isModelLoaded) return;
       interruptIntro();
       isDragging = true;
       startX = e.clientX;
@@ -546,6 +562,7 @@
     // Touch support
     var touchStartX = 0, touchStartY = 0;
     cameraCanvas.addEventListener('touchstart', function (e) {
+      if (!isModelLoaded) return;
       interruptIntro();
       if (e.touches.length === 1) {
         isDragging = true;
@@ -600,7 +617,7 @@
       requestAnimationFrame(animate);
       time += 0.02;
 
-      if (!isIntroAnimating) {
+      if (isModelLoaded && !isIntroAnimating) {
         cameraGroup.rotation.y += (targetRotY - cameraGroup.rotation.y) * 0.08;
         cameraGroup.rotation.x += (targetRotX - cameraGroup.rotation.x) * 0.08;
         cameraGroup.position.y = Math.sin(time) * 0.003;
@@ -621,7 +638,7 @@
       } else {
         camera3d.position.z = 0.44;
       }
-      if (!isIntroAnimating && cameraGroup) {
+      if (isModelLoaded && !isIntroAnimating && cameraGroup) {
         cameraGroup.scale.setScalar(TARGET_SCALE);
       }
       camera3d.updateProjectionMatrix();
