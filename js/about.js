@@ -283,7 +283,10 @@
     backRim.position.set(0, 3, -4);
     scene.add(backRim);
 
-    var TARGET_SCALE = 1.58;
+    function getTargetScale() {
+      return (window.innerWidth <= 820) ? 1.84 : 1.58;
+    }
+    var TARGET_SCALE = getTargetScale();
     var isIntroAnimating = false;
 
     var cameraGroup = new THREE.Group();
@@ -612,10 +615,14 @@
       var w = cameraStage.clientWidth;
       var h = cameraStage.clientHeight;
       camera3d.aspect = w / h;
+      TARGET_SCALE = getTargetScale();
       if (w < 600) {
-        camera3d.position.z = 0.44 * (490 / w);
+        camera3d.position.z = 0.44 * (410 / w);
       } else {
         camera3d.position.z = 0.44;
+      }
+      if (!isIntroAnimating && cameraGroup) {
+        cameraGroup.scale.setScalar(TARGET_SCALE);
       }
       camera3d.updateProjectionMatrix();
       renderer.setSize(w, h);

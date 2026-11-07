@@ -65,20 +65,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setActive(id) {
     sidebarLinks.forEach((link) => {
-      if (link.getAttribute("href") === `#${id}`) {
-        link.classList.add("active");
-        link.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      } else {
-        link.classList.remove("active");
-      }
+      const isMatch = link.getAttribute("href") === `#${id}`;
+      link.classList.toggle("active", isMatch);
     });
 
     mobilePills.forEach((pill) => {
-      if (pill.getAttribute("href") === `#${id}`) {
-        pill.classList.add("active");
-        pill.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      } else {
-        pill.classList.remove("active");
+      const isMatch = pill.getAttribute("href") === `#${id}`;
+      pill.classList.toggle("active", isMatch);
+      if (isMatch) {
+        // Horizontally center the active pill inside the quicknav bar without hijacking window scroll
+        const quickNav = pill.closest(".cs-mobile-quicknav");
+        if (quickNav) {
+          const targetLeft = pill.offsetLeft - (quickNav.clientWidth / 2) + (pill.clientWidth / 2);
+          quickNav.scrollTo({ left: targetLeft, behavior: "smooth" });
+        }
       }
     });
   }

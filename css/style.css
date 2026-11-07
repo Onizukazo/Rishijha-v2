@@ -1720,9 +1720,9 @@ body.menu_open .mobilenav__backdrop { opacity: 1; pointer-events: all; }
 
     width: 100%;
 
-    max-width: clamp(290px, 80vw, 330px) !important;
+    max-width: clamp(335px, 90vw, 385px) !important;
 
-    height: clamp(290px, 80vw, 330px) !important;
+    height: clamp(335px, 90vw, 385px) !important;
 
     margin: 0 auto;
 

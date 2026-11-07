@@ -14,12 +14,25 @@
   --cs-sidebar-w: 260px;
 }
 
+html.case-study-page-html,
 body.case-study-page {
   background-color: var(--cs-bg);
   color: var(--cs-text);
   font-family: "Graphik", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  height: auto !important;
+  min-height: 100% !important;
   -webkit-font-smoothing: antialiased;
+}
+
+body.case-study-page .wrapper,
+body.case-study-page main {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 100% !important;
 }
 
 .case-study-page header {
@@ -341,6 +354,9 @@ body.case-study-page {
   aspect-ratio: 16 / 9;
   object-fit: contain;
   background: #000000;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 /* Slide Header Bar */

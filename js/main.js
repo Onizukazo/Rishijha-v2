@@ -1485,10 +1485,21 @@
 
     // Root group for multi-axis rotation and tilt
     var walkmanGroup = new THREE.Group();
-    // Balance size against taller canvas aspect ratio (~80% of previous 1.15 scale)
-    walkmanGroup.scale.set(0.92, 0.92, 0.92);
     walkmanGroup.position.set(0, 0.02, 0);
     scene.add(walkmanGroup);
+
+    function updateWalkmanScale() {
+      var isMob = window.innerWidth <= 820;
+      if (isMob) {
+        // Enlarge Walkman 3D model on mobile (closer camera + larger group scale)
+        camera.position.set(0.08, 0.05, 0.64);
+        walkmanGroup.scale.set(1.08, 1.08, 1.08);
+      } else {
+        camera.position.set(0.10, 0.07, 0.78);
+        walkmanGroup.scale.set(0.92, 0.92, 0.92);
+      }
+    }
+    updateWalkmanScale();
 
     // Base rotation: classic 3/4 isometric perspective
     var defaultRotX = 0.20;
@@ -2433,6 +2444,7 @@
       var w = stage.clientWidth || 400;
       var h = stage.clientHeight || 560;
       camera.aspect = w / h;
+      updateWalkmanScale();
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
