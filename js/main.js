@@ -1491,9 +1491,9 @@
     function updateWalkmanScale() {
       var isMob = window.innerWidth <= 820;
       if (isMob) {
-        // Enlarge Walkman 3D model on mobile (closer camera + larger group scale)
-        camera.position.set(0.08, 0.05, 0.64);
-        walkmanGroup.scale.set(1.08, 1.08, 1.08);
+        // Decrease Walkman mobile size ~10% and pull camera back slightly so it never clips top/bottom
+        camera.position.set(0.06, 0.04, 0.78);
+        walkmanGroup.scale.set(0.97, 0.97, 0.97);
       } else {
         camera.position.set(0.10, 0.07, 0.78);
         walkmanGroup.scale.set(0.92, 0.92, 0.92);

@@ -284,7 +284,7 @@
     scene.add(backRim);
 
     function getTargetScale() {
-      return (window.innerWidth <= 820) ? 1.84 : 1.58;
+      return (window.innerWidth <= 820) ? 1.65 : 1.58;
     }
     var TARGET_SCALE = getTargetScale();
     var isIntroAnimating = true;
@@ -634,7 +634,7 @@
       camera3d.aspect = w / h;
       TARGET_SCALE = getTargetScale();
       if (w < 600) {
-        camera3d.position.z = 0.44 * (410 / w);
+        camera3d.position.z = 0.48 * (410 / w);
       } else {
         camera3d.position.z = 0.44;
       }
