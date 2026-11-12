@@ -6653,15 +6653,27 @@ body.is-loading .cursor {
 
   gap: 40px;
 
-  font-size: 11px;
+  font-size: 13px;
 
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 
-  opacity: 0.6;
+  color: #ffffff;
+
+  opacity: 0.94;
 
   margin-bottom: 40px;
 
   text-transform: uppercase;
+
+}
+
+.footer-info svg {
+
+  width: 14px;
+
+  height: 14px;
+
+  flex-shrink: 0;
 
 }
 
@@ -6677,7 +6689,9 @@ body.is-loading .cursor {
 
 .footer-col-title {
 
-  opacity: 0.5;
+  opacity: 0.78;
+
+  font-weight: 600;
 
   margin-bottom: 20px !important;
 
