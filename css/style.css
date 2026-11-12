@@ -7574,10 +7574,10 @@ header .nav a.hover_effect {
 /* Dynamic LCD Screen Overlay */
 .walkman-miniplayer__screen {
   position: absolute;
-  top: 9.3%;
-  left: 4.26%;
-  width: 91.48%;
-  height: 49.17%;
+  top: 8.31%;
+  left: 4.02%;
+  width: 92.04%;
+  height: 56.15%;
   border-radius: clamp(10px, 1.2vw, 15px);
   background: #b5d1de;
   box-shadow: inset 0 2px 5px rgba(0, 30, 45, 0.25), inset 0 0 0 1px rgba(0, 0, 0, 0.08);
