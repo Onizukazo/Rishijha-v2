@@ -4939,36 +4939,6 @@ body.is-loading .cursor {
 
 }
 
-.crt-loader__nostalgia {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 30;
-  pointer-events: none;
-  font-family: "Silkscreen", var(--font-mono), monospace;
-  font-size: clamp(16px, 2.8vw, 36px);
-  font-weight: 400;
-  color: #ffffff;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  text-shadow: 0 0 14px rgba(255, 255, 255, 0.9), 0 0 28px rgba(0, 140, 255, 0.65);
-  opacity: 0;
-  text-align: center;
-}
-
-.crt-loader__cursor {
-  display: inline-block;
-  margin-left: 3px;
-  animation: crtCursorBlink 0.55s steps(2, start) infinite;
-}
-
-@keyframes crtCursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
 
 
 .crt-tv__bottom-bar {
