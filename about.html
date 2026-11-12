@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Silkscreen:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/splitting.css">
-  <link rel="stylesheet" href="css/style.css?v=69.0">
+  <link rel="stylesheet" href="css/style.css?v=70.0">
   <link rel="stylesheet" href="css/about.css?v=21.0">
 
   <!-- Vercel Web Analytics & Speed Insights -->
@@ -374,7 +374,7 @@
             <div class="right" id="footer-time">IST &rarr; 01:10</div>
           </div>
           
-          <!-- Giant Headline & CTAs -->
+          <!-- Giant Headline -->
           <div class="footer-hero">
             <div class="footer-hero-stack" id="footer-hero-stack">
               <h2 class="footer-hero-text">
@@ -383,57 +383,55 @@
                 <span class="footer-glow-line" data-text="together.">together.</span>
               </h2>
             </div>
-            <div class="footer-cta monospace">
-              <a href="mailto:tarunjha.rishi@gmail.com" class="footer-link">START A PROJECT &rarr;</a>
-              <a href="mailto:tarunjha.rishi@gmail.com" class="footer-link">SAY HELLO &rarr;</a>
-            </div>
           </div>
           
-          <!-- Info Columns -->
+          <!-- Bottom Split: Left (Contact + Brand) & Right (PX Push Links) -->
           <div class="footer-info monospace">
-            <div class="footer-col">
-              <p>@RISHI JHA 2026</p>
-              <p style="color: rgba(255,255,255,0.85); margin-top: 12px; font-size: 0.92em;">PRODUCT &amp; EXPERIENCE DESIGNER</p>
+            <div class="footer-left-col">
+              <div class="footer-col">
+                <p class="footer-col-title">CONTACT</p>
+                <p style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  <a href="mailto:tarunjha.rishi@gmail.com" style="color: inherit; text-decoration: none;">tarunjha.rishi@gmail.com</a>
+                </p>
+                <p style="display: flex; align-items: center; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Pune, Maharashtra, India
+                </p>
+              </div>
+              <div class="footer-col footer-brand">
+                <p>RISHI JHA 2026</p>
+                <p style="color: rgba(255,255,255,0.85); margin-top: 10px; font-size: 0.92em;">PRODUCT &amp; EXPERIENCE DESIGNER</p>
+              </div>
             </div>
-            <div class="footer-col">
-              <p class="footer-col-title">CONTACT</p>
-              <p style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                <a href="mailto:tarunjha.rishi@gmail.com" style="color: inherit; text-decoration: none;">tarunjha.rishi@gmail.com</a>
-              </p>
-              <p style="display: flex; align-items: center; gap: 8px;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                Pune, Maharashtra, India
-              </p>
-            </div>
-          </div>
 
-          <!-- PX Push style Footer Links -->
-          <div class="footer__links">
-            <a class="linkrow" href="https://www.linkedin.com/in/rishi5462/?isSelfProfile=true" target="_blank" rel="noopener">
-              <span>LinkedIn</span>
-              <span class="arrow">↗</span>
-            </a>
-            <a class="linkrow" href="https://www.instagram.com/rishisensei/" target="_blank" rel="noopener">
-              <span>Instagram</span>
-              <span class="arrow">↗</span>
-            </a>
-            <a class="linkrow" href="https://steamcommunity.com/profiles/76561199521917102/" target="_blank" rel="noopener">
-              <span>Steam</span>
-              <span class="arrow">↗</span>
-            </a>
-            <a class="linkrow" href="https://open.spotify.com/user/31ans3iqchkb4em5i2uerrwbnddq?si=1602d6281ff54f5c" target="_blank" rel="noopener">
-              <span>Spotify</span>
-              <span class="arrow">↗</span>
-            </a>
-            <a class="linkrow" href="https://www.behance.net/rishijha5462" target="_blank" rel="noopener">
-              <span>Behance</span>
-              <span class="arrow">↗</span>
-            </a>
-            <a class="linkrow" href="mailto:tarunjha.rishi@gmail.com">
-              <span>Get in Touch</span>
-              <span class="arrow">↗</span>
-            </a>
+            <!-- PX Push style Footer Links -->
+            <div class="footer__links">
+              <a class="linkrow" href="https://www.linkedin.com/in/rishi5462/?isSelfProfile=true" target="_blank" rel="noopener">
+                <span>LinkedIn</span>
+                <span class="arrow">↗</span>
+              </a>
+              <a class="linkrow" href="https://www.instagram.com/rishisensei/" target="_blank" rel="noopener">
+                <span>Instagram</span>
+                <span class="arrow">↗</span>
+              </a>
+              <a class="linkrow" href="https://steamcommunity.com/profiles/76561199521917102/" target="_blank" rel="noopener">
+                <span>Steam</span>
+                <span class="arrow">↗</span>
+              </a>
+              <a class="linkrow" href="https://open.spotify.com/user/31ans3iqchkb4em5i2uerrwbnddq?si=1602d6281ff54f5c" target="_blank" rel="noopener">
+                <span>Spotify</span>
+                <span class="arrow">↗</span>
+              </a>
+              <a class="linkrow" href="https://www.behance.net/rishijha5462" target="_blank" rel="noopener">
+                <span>Behance</span>
+                <span class="arrow">↗</span>
+              </a>
+              <a class="linkrow" href="mailto:tarunjha.rishi@gmail.com">
+                <span>Get in Touch</span>
+                <span class="arrow">↗</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>

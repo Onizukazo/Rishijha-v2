@@ -6669,9 +6669,11 @@ body.is-loading .cursor {
 
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.15fr;
 
-  gap: 40px;
+  align-items: end;
+
+  gap: clamp(32px, 5vw, 80px);
 
   font-size: 13px;
 
@@ -6681,9 +6683,25 @@ body.is-loading .cursor {
 
   opacity: 0.94;
 
-  margin-bottom: 32px;
+  margin-bottom: 12px;
 
   text-transform: uppercase;
+
+}
+
+.footer-left-col {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 28px;
+
+}
+
+.footer-brand p {
+
+  margin: 0;
 
 }
 
