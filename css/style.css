@@ -2385,9 +2385,9 @@ section .marqueeText {
 
   position: fixed;
 
-  z-index: 6;
+  z-index: 40;
 
-  transition: opacity .4s ease, transform .4s ease;
+  transition: opacity .35s ease, transform .35s ease, visibility .35s ease;
 
 }
 
@@ -2395,9 +2395,11 @@ section .marqueeText {
 
   opacity: 0;
 
+  visibility: hidden;
+
   pointer-events: none;
 
-  transform: translateY(20px);
+  transform: translateY(16px);
 
 }
 
