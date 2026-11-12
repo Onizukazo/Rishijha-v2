@@ -7861,3 +7861,17 @@ header .nav a.hover_effect {
 .walkman-miniplayer__play-glyph svg {
   margin-left: 2px;
 }
+
+/* Crisp pure-white section name labels throughout the site */
+.section__head .layout__third.monospace,
+.section__head .layout__third.monospace::before,
+.section__head .layout__third.monospace span,
+.benefits__title .layout__third.monospace,
+.benefits__title .layout__third.monospace::before,
+.benefits__title .layout__third.monospace span,
+.credentials__section-tag,
+.section--works .works__head-row2 .layout__third.monospace,
+.section--experience .experience__head-row .layout__third.monospace {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
