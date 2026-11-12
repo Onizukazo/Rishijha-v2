@@ -2974,6 +2974,9 @@
       ].filter(Boolean);
       var shadow = document.getElementById("crtTvShadow");
       var meta = document.getElementById("crtLoaderMeta");
+      var nostalgiaEl = document.getElementById("crtNostalgia");
+      var nostalgiaTextEl = document.getElementById("crtNostalgiaText");
+      var phrase = "DIVE INTO NOSTALGIA...";
 
       var zoomTl = window.gsap.timeline({
         defaults: { ease: "power3.inOut" },
@@ -2985,7 +2988,7 @@
         scale: targetScale,
         x: deltaX,
         y: deltaY,
-        duration: 1.25,
+        duration: 1.05,
         transformOrigin: "50% 42.5%"
       }, 0);
 
@@ -3015,12 +3018,33 @@
         }, 0.08);
       }
 
-      // 4. Smoothly cross-fade from CRT screen directly into the live portfolio
-      zoomTl.to(loader, {
-        opacity: 0,
-        duration: 0.45,
-        ease: "power2.inOut"
-      }, 0.76);
+      // 4. Pause briefly once blue screen fills viewport and type "DIVE INTO NOSTALGIA..."
+      if (nostalgiaEl && nostalgiaTextEl) {
+        var typeObj = { count: 0 };
+        zoomTl.set(nostalgiaEl, { opacity: 1 }, 0.82);
+        zoomTl.to(typeObj, {
+          count: phrase.length,
+          duration: 0.88,
+          ease: "none",
+          onUpdate: function () {
+            nostalgiaTextEl.textContent = phrase.slice(0, Math.round(typeObj.count));
+          }
+        }, 0.82);
+
+        // Brief pause then smoothly cross-fade from CRT screen into live portfolio
+        zoomTl.to(loader, {
+          opacity: 0,
+          duration: 0.42,
+          ease: "power2.inOut"
+        }, 1.98);
+      } else {
+        // Fallback: Smoothly cross-fade from CRT screen directly into the live portfolio
+        zoomTl.to(loader, {
+          opacity: 0,
+          duration: 0.45,
+          ease: "power2.inOut"
+        }, 0.76);
+      }
     }
 
     // Ensure bezel image is ready before initiating sequence
