@@ -3904,11 +3904,13 @@ section .benefits__items--image img {
 
   font-family: var(--font-mono);
 
-  font-size: 14px;
+  font-size: 12.5px;
 
-  padding: 0.95em 0;
+  padding: 0.72em 0;
 
   position: relative;
+
+  overflow: hidden;
 
   transition: color .25s ease;
 
@@ -3944,21 +3946,27 @@ section .benefits__items--image img {
 
   transform-origin: bottom;
 
-  transition: transform .4s cubic-bezier(.4, 0, 0, 1);
+  transition: transform .35s cubic-bezier(.4, 0, 0, 1);
 
   width: 100%;
 
   z-index: 0;
 
+  pointer-events: none;
+
+  will-change: transform;
+
 }
 
-.linkrow span { position: relative; z-index: 1; transition: padding .25s ease; }
+.linkrow span { position: relative; z-index: 1; pointer-events: none; transition: transform .25s ease; }
 
 .linkrow:hover { color: var(--blue); }
 
 .linkrow:hover:before { transform: scaleY(1); }
 
-.linkrow:hover span { padding: 0 .5em; }
+.linkrow:hover span:first-child { transform: translateX(0.45em); }
+
+.linkrow:hover .arrow { transform: translateX(-0.45em); }
 
 .fax-paper__meta-left {
 
@@ -6365,7 +6373,7 @@ body.is-loading .cursor {
 
   align-items: flex-end;
 
-  margin-bottom: 60px;
+  margin-bottom: 36px;
 
 }
 
@@ -6671,7 +6679,7 @@ body.is-loading .cursor {
 
   grid-template-columns: 1fr 1.15fr;
 
-  align-items: end;
+  align-items: start;
 
   gap: clamp(32px, 5vw, 80px);
 
@@ -6683,7 +6691,7 @@ body.is-loading .cursor {
 
   opacity: 0.94;
 
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 
   text-transform: uppercase;
 
