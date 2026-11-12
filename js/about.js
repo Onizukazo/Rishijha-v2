@@ -420,11 +420,24 @@
       });
     }
 
-    // Photo switching logic (triggered ONLY by forward/backward buttons on camera)
-    function setPhoto(idx) {
+    // Photo switching logic (auto slideshow every 2s + manual forward/backward buttons)
+    var slideshowTimer = null;
+    function startPhotoSlideshow() {
+      if (slideshowTimer) clearInterval(slideshowTimer);
+      slideshowTimer = setInterval(function () {
+        setPhoto(currentPhotoIdx + 1, false);
+      }, 2000);
+    }
+
+    function setPhoto(idx, isManual) {
       currentPhotoIdx = (idx + photos.length) % photos.length;
       updateScreenCanvas();
+      if (isManual) {
+        startPhotoSlideshow();
+      }
     }
+
+    startPhotoSlideshow();
 
     // Raycaster for camera button interaction
     var raycaster = new THREE.Raycaster();
@@ -522,9 +535,9 @@
         if (intersects.length > 0) {
           var hitName = intersects[0].object.name;
           if (hitName === 'btnForward') {
-            setPhoto(currentPhotoIdx + 1);
+            setPhoto(currentPhotoIdx + 1, true);
           } else if (hitName === 'btnBackward') {
-            setPhoto(currentPhotoIdx - 1);
+            setPhoto(currentPhotoIdx - 1, true);
           } else if (hitName === 'btnShutter') {
             triggerShutterSnap();
           }
@@ -590,9 +603,9 @@
           if (intersects.length > 0) {
             var hitName = intersects[0].object.name;
             if (hitName === 'btnForward') {
-              setPhoto(currentPhotoIdx + 1);
+              setPhoto(currentPhotoIdx + 1, true);
             } else if (hitName === 'btnBackward') {
-              setPhoto(currentPhotoIdx - 1);
+              setPhoto(currentPhotoIdx - 1, true);
             }
           }
         }

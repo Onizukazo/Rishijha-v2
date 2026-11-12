@@ -1491,11 +1491,13 @@
     function updateWalkmanScale() {
       var isMob = window.innerWidth <= 820;
       if (isMob) {
-        // Decrease Walkman mobile size ~10% and pull camera back slightly so it never clips top/bottom
-        camera.position.set(0.06, 0.04, 0.78);
+        // Center Walkman horizontally and bring it slightly lower on mobile
+        camera.position.set(0, 0.04, 0.78);
+        camera.lookAt(0, 0.015, 0);
         walkmanGroup.scale.set(0.97, 0.97, 0.97);
       } else {
         camera.position.set(0.10, 0.07, 0.78);
+        camera.lookAt(0, 0.005, 0);
         walkmanGroup.scale.set(0.92, 0.92, 0.92);
       }
     }
