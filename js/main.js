@@ -703,6 +703,29 @@
           // Recalculate and sort all downstream ScrollTriggers with the Works pin spacer offset
           ScrollTrigger.sort();
           ScrollTrigger.refresh();
+
+          // Ensure ScrollTrigger recalculates once all images/fonts settle (especially when loader is skipped)
+          window.addEventListener("load", function () {
+            if (typeof ScrollTrigger !== "undefined") {
+              ScrollTrigger.sort();
+              ScrollTrigger.refresh();
+            }
+          });
+
+          // Recover Lenis & ScrollTrigger if restored from browser bfcache (Back/Forward button)
+          window.addEventListener("pageshow", function (e) {
+            if (e.persisted) {
+              document.body.classList.remove("is-loading");
+              if (window.lenis) {
+                window.lenis.start();
+                window.lenis.resize();
+              }
+              if (typeof ScrollTrigger !== "undefined") {
+                ScrollTrigger.sort();
+                ScrollTrigger.refresh(true);
+              }
+            }
+          });
         } else {
           // Mobile Vertical Showcase: cards appear one by one as user scrolls
           var mobileCards = showcaseSection.querySelectorAll(".showcase__item");
