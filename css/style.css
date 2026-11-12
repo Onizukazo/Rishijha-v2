@@ -1106,13 +1106,15 @@ header .nav a {
 
   padding: .3vw .8vw;
 
+  color: #ffffff;
+
 }
 
 
 
 header .nav .nav__sep {
 
-  border-left: 1px solid rgba(255, 255, 255, .5);
+  border-left: 1px solid #ffffff;
 
   height: 1.8vw;
 
@@ -1967,6 +1969,16 @@ section .marqueeText {
 
   background: var(--bgcolor);
 
+}
+
+.marquee--hero,
+.marquee--hero .marqueeText__title {
+  color: #ffffff;
+}
+
+.marquee--hero:after,
+.marquee--hero:before {
+  border-bottom: 1px solid #ffffff;
 }
 
 .banner__hero {
