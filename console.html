@@ -54,6 +54,21 @@
 					app.setBackgroundColor('transparent');
 					if (app._renderer) app._renderer.setClearColor(0x000000, 0);
 					if (app._scene) app._scene.background = null;
+
+					// Scale down console by 30% on mobile view so joystick and sides aren't clipped
+					const baseZoom = (app._camera && typeof app._camera.zoom === 'number') ? app._camera.zoom : 1;
+					const applyMobileZoom = () => {
+						const z = window.innerWidth <= 820 ? baseZoom * 0.7 : baseZoom;
+						if (typeof app.setZoom === 'function') {
+							app.setZoom(z);
+						} else if (app._camera) {
+							app._camera.zoom = z;
+							app._camera.updateProjectionMatrix();
+						}
+					};
+					applyMobileZoom();
+					window.addEventListener('resize', applyMobileZoom);
+
 					const dk = app.findObjectByName('DK.bmp');
 					if (dk) {
 						dk.visible = false;
