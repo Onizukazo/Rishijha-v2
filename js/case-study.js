@@ -173,4 +173,104 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     requestAnimationFrame(renderCursor);
   }
+
+  // 4. Enlarged Scrollable Slide Viewer (Lightbox)
+  const slideImages = Array.from(
+    document.querySelectorAll(".cs-slide-card img, .cs-stretch-img")
+  );
+  if (slideImages.length > 0) {
+    const isStretchBoard = !!document.querySelector(".cs-stretch-board");
+    const lightbox = document.createElement("div");
+    lightbox.className = "cs-lightbox";
+    lightbox.setAttribute("role", "dialog");
+    lightbox.setAttribute("aria-modal", "true");
+    lightbox.setAttribute("aria-label", "Enlarged Case Study Slides");
+
+    lightbox.innerHTML = `
+      <div class="cs-lightbox__topbar">
+        <span class="cs-lightbox__hint">Scroll to browse slides &bull; Esc or click outside to close</span>
+        <button type="button" class="cs-lightbox__close" aria-label="Close enlarged view">Close &times;</button>
+      </div>
+      <div class="cs-lightbox__scroll">
+        <div class="cs-lightbox__track${isStretchBoard ? " cs-lightbox__track--stretch" : ""}"></div>
+      </div>
+    `;
+    document.body.appendChild(lightbox);
+
+    const scrollWrap = lightbox.querySelector(".cs-lightbox__scroll");
+    const track = lightbox.querySelector(".cs-lightbox__track");
+    const closeBtn = lightbox.querySelector(".cs-lightbox__close");
+    let built = false;
+
+    function buildTrack() {
+      if (built) return;
+      built = true;
+      slideImages.forEach((srcImg) => {
+        const item = document.createElement("div");
+        item.className = "cs-lightbox__item";
+
+        const img = document.createElement("img");
+        img.src = srcImg.currentSrc || srcImg.getAttribute("src");
+        img.alt = srcImg.alt || "";
+        if (srcImg.getAttribute("width")) img.width = srcImg.getAttribute("width");
+        if (srcImg.getAttribute("height")) img.height = srcImg.getAttribute("height");
+        item.appendChild(img);
+
+        const card = srcImg.closest(".cs-slide-card");
+        if (card) {
+          const bar = card.querySelector(".cs-slide-bar");
+          if (bar) {
+            const cap = document.createElement("div");
+            cap.className = "cs-lightbox__caption";
+            cap.innerHTML = bar.innerHTML;
+            item.appendChild(cap);
+          }
+        }
+        track.appendChild(item);
+      });
+    }
+
+    function openLightbox(index, clickRatio) {
+      buildTrack();
+      lightbox.classList.add("is-open");
+      document.documentElement.style.overflow = "hidden";
+
+      requestAnimationFrame(() => {
+        const targetItem = track.children[index];
+        if (targetItem) {
+          const itemTop = targetItem.offsetTop - 20;
+          const extraOffset = isStretchBoard && clickRatio > 0
+            ? Math.max(0, targetItem.offsetHeight * clickRatio - scrollWrap.clientHeight * 0.35)
+            : 0;
+          scrollWrap.scrollTop = Math.max(0, itemTop + extraOffset);
+        }
+      });
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove("is-open");
+      document.documentElement.style.overflow = "";
+    }
+
+    slideImages.forEach((img, idx) => {
+      const target = img.closest(".cs-slide-card") || img;
+      target.addEventListener("click", (e) => {
+        const rect = target.getBoundingClientRect();
+        const ratio = rect.height > 0 ? Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height)) : 0;
+        openLightbox(idx, ratio);
+      });
+    });
+
+    closeBtn.addEventListener("click", closeLightbox);
+    scrollWrap.addEventListener("click", (e) => {
+      if (e.target === scrollWrap || e.target === track) {
+        closeLightbox();
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && lightbox.classList.contains("is-open")) {
+        closeLightbox();
+      }
+    });
+  }
 });
