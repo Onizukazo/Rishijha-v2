@@ -3880,6 +3880,16 @@ section .benefits__items--image img {
 
 }
 
+@media screen and (min-width: 821px) {
+
+  .footer__links {
+
+    margin-top: -95px;
+
+  }
+
+}
+
 @media screen and (max-width: 820px) {
 
   .footer__links { grid-template-columns: 1fr; width: 100%; }
@@ -3904,9 +3914,9 @@ section .benefits__items--image img {
 
   font-family: var(--font-mono);
 
-  font-size: 12.5px;
+  font-size: 15px;
 
-  padding: 0.72em 0;
+  padding: 1.05em 0;
 
   position: relative;
 
