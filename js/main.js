@@ -646,7 +646,7 @@
 
           // Phase 1: Rest dwell on Card 1 (Moneycontrol) so user absorbs the project before movement begins
           worksTimeline.to({}, {
-            duration: 0.35
+            duration: 0.22
           });
 
           // Phase 2: Smooth, deliberate horizontal scroll through all cards
@@ -658,7 +658,7 @@
 
           // Phase 3: Rest dwell on final Card 4 (Avasa) so user clearly sees the final project before unpinning
           worksTimeline.to({}, {
-            duration: 0.25
+            duration: 0.18
           });
 
           function updateCursorBadgeState(active) {
@@ -676,10 +676,10 @@
           var worksST = ScrollTrigger.create({
             trigger: showcaseSection,
             start: "top top",
-            end: () => "+=" + Math.max(getScrollAmount() * 2.2, window.innerHeight * 2.8),
+            end: () => "+=" + Math.max(getScrollAmount() * 1.65, window.innerHeight * 2.2),
             pin: true,
             animation: worksTimeline,
-            scrub: 1.2,
+            scrub: 0.85,
             invalidateOnRefresh: true,
             anticipatePin: 1,
             onToggle: function (self) {
