@@ -29,6 +29,7 @@
     window.lenis = lenis;
 
     if (typeof window.ScrollTrigger !== "undefined") {
+      window.ScrollTrigger.config({ ignoreMobileResize: true });
       lenis.on("scroll", window.ScrollTrigger.update);
       window.gsap.ticker.add(function (time) {
         lenis.raf(time * 1000);
@@ -3041,6 +3042,14 @@
       return window.innerWidth <= 820;
     };
 
+    if (isMobile()) {
+      items.forEach(function (v) {
+        v.style.transform = "";
+        v.style.willChange = "auto";
+      });
+      return;
+    }
+
     function getAbsoluteTop(el) {
       var top = 0;
       var cur = el;
@@ -3084,25 +3093,9 @@
     });
 
     function update(scrollY) {
-      var mob = isMobile();
+      if (isMobile()) return;
       var winH = window.innerHeight || document.documentElement.clientHeight;
-      var currentScroll = typeof scrollY === "number" ? scrollY : (mob ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
-
-      if (mob) {
-        var topStart = 65;
-        items.forEach(function (v, w) {
-          var cardStart = mobileCardStarts[w] || (cachedSectionTop + cachedItemOffsets[w]);
-          var startScroll = cardStart - topStart;
-          var maxDistance = Math.max(0, mobileSectionEnd - startScroll);
-          var p = currentScroll - startScroll;
-          var y = 0;
-          if (p > 0) {
-            y = (p > maxDistance) ? maxDistance : p;
-          }
-          setY[w](y);
-        });
-        return;
-      }
+      var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
 
       var targetRect = target.getBoundingClientRect();
       var inView = targetRect.top <= 0 && targetRect.bottom >= winH;
@@ -3170,21 +3163,35 @@
       }, { passive: true });
     }
 
+    var lastWidth = window.innerWidth;
     window.addEventListener("resize", function () {
+      if (window.innerWidth === lastWidth) {
+        return; // Ignore dynamic address bar height changes on mobile
+      }
+      lastWidth = window.innerWidth;
+      if (isMobile()) {
+        items.forEach(function (v) {
+          v.style.transform = "";
+          v.style.willChange = "auto";
+        });
+        return;
+      }
       measure();
-      requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
+      requestTick((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
     });
 
     if (typeof window.ScrollTrigger !== "undefined") {
       window.ScrollTrigger.addEventListener("refresh", function () {
+        if (isMobile()) return;
         measure();
-        requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
+        requestTick((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
       });
     }
 
     setTimeout(function () {
+      if (isMobile()) return;
       measure();
-      requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
+      requestTick((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
     }, 250);
   }
 
