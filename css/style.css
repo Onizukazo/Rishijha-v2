@@ -3604,7 +3604,7 @@ section .benefits__items--image img {
 
   section .benefits__items--item {
     top: 0;
-    min-height: clamp(520px, 78vh, 720px);
+    min-height: clamp(480px, 70vh, 600px);
     box-sizing: border-box;
     background-color: var(--blue) !important;
     border-top: 1px solid rgba(255, 255, 255, 0.25);
@@ -3619,9 +3619,10 @@ section .benefits__items--image img {
   section .benefits__items--item .layout {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    padding: 16px 20px 28px;
+    justify-content: space-between;
+    padding: 24px 20px 28px;
     width: 100%;
+    min-height: inherit;
     box-sizing: border-box;
   }
 
@@ -3629,11 +3630,11 @@ section .benefits__items--image img {
     display: flex;
     align-items: center;
     width: 100%;
-    margin-bottom: 8px;
-    padding: 4px 0;
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 14px;
+    padding: 2px 0;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.9);
   }
 
   section .benefits__items--item .layout__third:before {
@@ -3647,7 +3648,8 @@ section .benefits__items--image img {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    flex: 1;
+    justify-content: space-between;
   }
 
   section .benefits__items--text {
@@ -3656,35 +3658,53 @@ section .benefits__items--image img {
   }
 
   section .benefits__items--text p.lead {
-    font-size: clamp(22px, 5.5vw, 30px);
-    margin-bottom: 8px;
-    line-height: 1.15;
+    font-size: clamp(24px, 6vw, 32px);
+    margin-bottom: 12px;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
   }
 
   section .benefits__items--text p.monospace__p {
     width: 100%;
-    font-size: 12.5px;
-    line-height: 1.5;
-    opacity: 0.88;
+    font-size: 13.5px;
+    line-height: 1.62;
+    letter-spacing: -0.01em;
+    opacity: 0.92;
+    margin-bottom: 0;
   }
 
   section .benefits__items--image {
     position: static;
     width: 100%;
     max-width: 100%;
-    max-height: 210px;
-    aspect-ratio: 16 / 9;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-top: 10px;
+    height: auto;
+    aspect-ratio: auto;
+    overflow: visible;
+    margin-top: auto;
+    padding-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
   }
 
-  section .benefits__items--image picture,
-  section .benefits__items--image img {
+  section .benefits__items--image picture {
+    display: flex;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+  }
+
+  section .benefits__items--image img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: clamp(190px, 28vh, 250px);
+    height: auto;
+    object-fit: contain !important;
     object-position: center;
+    border-radius: 8px;
   }
 
 }

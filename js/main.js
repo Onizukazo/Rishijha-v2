@@ -3037,25 +3037,53 @@
     };
 
     var cachedSectionTop = 0;
+    var cachedTargetHeight = 0;
+    var cachedItemOffsets = [];
+
     function measure() {
       var scroll = (lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0);
       cachedSectionTop = section.getBoundingClientRect().top + scroll;
+      cachedTargetHeight = target.offsetHeight;
+      cachedItemOffsets = [];
+      items.forEach(function (v) {
+        cachedItemOffsets.push(v.offsetTop);
+      });
     }
     measure();
 
     function update(scrollY) {
       var mob = isMobile();
-      var targetRect = target.getBoundingClientRect();
       var winH = window.innerHeight || document.documentElement.clientHeight;
+      var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
+
+      if (mob) {
+        var a = 44;
+        var topStart = 60;
+        var endScroll = cachedSectionTop + cachedTargetHeight - winH;
+
+        items.forEach(function (v, w) {
+          var H = topStart + a * w;
+          var itemOffset = (cachedItemOffsets[w] !== undefined && cachedItemOffsets[w] > 0) ? cachedItemOffsets[w] : v.offsetTop;
+          var startScroll = cachedSectionTop + itemOffset - H;
+          var maxDistance = Math.max(0, endScroll - startScroll);
+          var p = currentScroll - startScroll;
+          var y = 0;
+          if (p > 0) {
+            y = (p > maxDistance) ? maxDistance : p;
+          }
+          window.gsap.set(v, { y: y });
+        });
+        return;
+      }
+
+      var targetRect = target.getBoundingClientRect();
       var inView = targetRect.top <= 0 && targetRect.bottom >= winH;
 
-      var a = mob ? 44 : Math.max(winH * 0.095, 80);
-      var topStart = mob ? 60 : 0;
+      var a = Math.max(winH * 0.095, 80);
       var lastItem = items[items.length - 1];
       var k = (lastItem ? lastItem.clientHeight : 440) + a * (items.length - 1);
-      var g = mob ? 1 : Math.max(-1, Math.min(1 - (1 - winH / k), 1));
+      var g = Math.max(-1, Math.min(1 - (1 - winH / k), 1));
 
-      var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
       var sectionTop = section.getBoundingClientRect().top + currentScroll;
 
       if (!inView) {
@@ -3069,7 +3097,7 @@
           // Below section: lock in final stacked positions
           var endScroll = sectionTop + target.offsetHeight - winH;
           items.forEach(function (v, w) {
-            var H = mob ? (topStart + a * w) : (a * (w + 1) * g);
+            var H = a * (w + 1) * g;
             var p = endScroll - sectionTop - v.offsetTop + H;
             if (p >= 0) {
               window.gsap.set(v, { y: p * g });
@@ -3080,7 +3108,7 @@
       }
 
       items.forEach(function (v, w) {
-        var H = mob ? (topStart + a * w) : (a * (w + 1) * g);
+        var H = a * (w + 1) * g;
         var p = currentScroll - sectionTop - v.offsetTop + H;
         if (p >= 0) {
           window.gsap.set(v, { y: p * g });
