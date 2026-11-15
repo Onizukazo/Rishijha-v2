@@ -309,6 +309,11 @@
         return;
       }
 
+      // Skip hero section overlay (first section)
+      if (parentSection && parentSection.classList.contains("section--hero")) {
+        return;
+      }
+
       var triggerEl = d;
       var startPos = "top 0%";
       var endPos = "top -80%";
@@ -3036,23 +3041,47 @@
       return window.innerWidth <= 820;
     };
 
+    function getAbsoluteTop(el) {
+      var top = 0;
+      var cur = el;
+      while (cur) {
+        top += cur.offsetTop;
+        cur = cur.offsetParent;
+      }
+      return top;
+    }
+
     var cachedSectionTop = 0;
     var cachedTargetHeight = 0;
     var cachedItemOffsets = [];
+    var mobileCardStarts = [];
+    var mobileSectionEnd = 0;
 
     function measure() {
+      var mob = isMobile();
       var scroll = (window.pageYOffset || window.scrollY || 0);
-      if (lenis && typeof lenis.scroll === "number" && !isMobile()) {
+      if (lenis && typeof lenis.scroll === "number" && !mob) {
         scroll = lenis.scroll;
       }
       cachedSectionTop = section.getBoundingClientRect().top + scroll;
       cachedTargetHeight = target.offsetHeight;
       cachedItemOffsets = [];
+      mobileCardStarts = [];
       items.forEach(function (v) {
         cachedItemOffsets.push(v.offsetTop);
+        mobileCardStarts.push(getAbsoluteTop(v));
       });
+      var winH = window.innerHeight || document.documentElement.clientHeight;
+      mobileSectionEnd = getAbsoluteTop(section) + section.offsetHeight - winH;
     }
     measure();
+
+    var setY = [];
+    items.forEach(function (v) {
+      setY.push(window.gsap ? window.gsap.quickSetter(v, "y", "px") : function (val) {
+        v.style.transform = "translate3d(0px, " + Math.round(val) + "px, 0px)";
+      });
+    });
 
     function update(scrollY) {
       var mob = isMobile();
@@ -3061,18 +3090,16 @@
 
       if (mob) {
         var topStart = 65;
-        var endScroll = cachedSectionTop + cachedTargetHeight - winH;
-
         items.forEach(function (v, w) {
-          var itemOffset = (cachedItemOffsets[w] !== undefined && cachedItemOffsets[w] > 0) ? cachedItemOffsets[w] : v.offsetTop;
-          var startScroll = cachedSectionTop + itemOffset - topStart;
-          var maxDistance = Math.max(0, endScroll - startScroll);
+          var cardStart = mobileCardStarts[w] || (cachedSectionTop + cachedItemOffsets[w]);
+          var startScroll = cardStart - topStart;
+          var maxDistance = Math.max(0, mobileSectionEnd - startScroll);
           var p = currentScroll - startScroll;
           var y = 0;
           if (p > 0) {
             y = (p > maxDistance) ? maxDistance : p;
           }
-          window.gsap.set(v, { y: y });
+          setY[w](y);
         });
         return;
       }
@@ -3119,35 +3146,45 @@
       });
     }
 
+    var ticking = false;
+    var pendingScroll = 0;
+
+    function requestTick(s) {
+      pendingScroll = s;
+      if (!ticking) {
+        requestAnimationFrame(function () {
+          update(pendingScroll);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
     if (lenis) {
       lenis.on("scroll", function (e) {
-        var scroll = isMobile() ? (window.pageYOffset || window.scrollY || 0) : e.animatedScroll;
-        update(scroll);
+        requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : e.animatedScroll);
       });
-      window.addEventListener("scroll", function () {
-        if (isMobile()) update();
-      }, { passive: true });
     } else {
       window.addEventListener("scroll", function () {
-        update();
+        requestTick(window.pageYOffset || window.scrollY || 0);
       }, { passive: true });
     }
 
     window.addEventListener("resize", function () {
       measure();
-      update();
+      requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
     });
 
     if (typeof window.ScrollTrigger !== "undefined") {
       window.ScrollTrigger.addEventListener("refresh", function () {
         measure();
-        update();
+        requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
       });
     }
 
     setTimeout(function () {
       measure();
-      update();
+      requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
     }, 250);
   }
 

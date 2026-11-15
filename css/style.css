@@ -3598,8 +3598,16 @@ section .benefits__items--image img {
 
 @media screen and (max-width: 820px) {
 
+  section.section__blue {
+    overflow: visible;
+  }
+
   section .benefits {
     padding-bottom: clamp(140px, 20vh, 200px);
+  }
+
+  section .benefits__items {
+    position: relative;
   }
 
   section .benefits__items--item {
@@ -7524,13 +7532,7 @@ header .nav a.hover_effect {
     border-radius: 9px !important;
   }
 
-  /* Methodology (Services) mobile polish & readability */
-  section.section__blue {
-    padding: 36px 0 48px !important;
-  }
-  section .benefits {
-    padding-bottom: 24px !important;
-  }
+  /* Methodology (Services) mobile title & text polish */
   section .benefits__title {
     padding: 16px 20px 20px !important;
   }
@@ -7538,35 +7540,6 @@ header .nav a.hover_effect {
     font-size: clamp(22px, 6vw, 32px) !important;
     line-height: 1.15 !important;
     margin-bottom: 14px !important;
-  }
-  section .benefits__items--item {
-    border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
-  }
-  section .benefits__items--item .layout {
-    padding: 20px 20px 26px !important;
-    gap: 12px !important;
-  }
-  section .benefits__items--item .layout__third {
-    font-size: 12px !important;
-    margin-bottom: 4px !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-  }
-  section .benefits__items--text p.lead {
-    font-size: clamp(22px, 5.5vw, 28px) !important;
-    line-height: 1.15 !important;
-    margin-bottom: 8px !important;
-    color: #ffffff !important;
-  }
-  section .benefits__items--text p.monospace__p {
-    font-size: 12px !important;
-    line-height: 1.55 !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
-  section .benefits__items--image {
-    margin-top: 12px !important;
-    aspect-ratio: 16 / 9 !important;
-    border-radius: 8px !important;
-    max-height: 180px !important;
   }
 
   /* Total eradication of blinds overlays, topOverlay gradients, and horizontal overflow on mobile */
@@ -7578,6 +7551,7 @@ header .nav a.hover_effect {
 
   .wrapper, main, .section {
     overflow-x: clip !important;
+    overflow-y: visible !important;
     max-width: 100% !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -7585,6 +7559,7 @@ header .nav a.hover_effect {
 
   .topOverlay,
   .topOverlay__section,
+  .section--hero .overlay,
   .section--works .overlay {
     display: none !important;
     opacity: 0 !important;
