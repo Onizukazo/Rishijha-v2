@@ -283,82 +283,68 @@
 
     /* ── Authentic PX PUSH Staggered Blinds Overlay Transitions ── */
     var isMob = isMobile();
+    var rowsCount = isMob ? 8 : 10;
 
-    // On mobile touch screens, skip staggered blinds overlay to eliminate horizontal stripes and hazardous transitions
-    if (isMob) {
-      document.querySelectorAll(".overlay").forEach(function (overlayEl) {
-        overlayEl.innerHTML = "";
-        overlayEl.style.display = "none";
-        overlayEl.style.visibility = "hidden";
-        overlayEl.style.pointerEvents = "none";
-      });
-      document.querySelectorAll(".topOverlay, .topOverlay__section").forEach(function (toEl) {
-        toEl.style.display = "none";
-        toEl.style.visibility = "hidden";
-        toEl.style.pointerEvents = "none";
-      });
-    } else {
-      var rowsCount = 10;
+    // Dynamically populate strip divs inside each overlay (matching pxpush vP)
+    document.querySelectorAll(".overlay").forEach(function (overlayEl) {
+      if (overlayEl.dataset.overlayReady === "true") return;
+      overlayEl.innerHTML = "";
+      overlayEl.style.setProperty("--columns", 1);
+      overlayEl.style.setProperty("--rows", rowsCount);
+      overlayEl.style.gridTemplateRows = "repeat(" + rowsCount + ", 1fr)";
+      for (var i = 0; i < rowsCount; i++) {
+        var div = document.createElement("div");
+        overlayEl.appendChild(div);
+      }
+      overlayEl.dataset.overlayReady = "true";
+    });
 
-      // Dynamically populate strip divs inside each overlay (matching pxpush vP)
-      document.querySelectorAll(".overlay").forEach(function (overlayEl) {
-        if (overlayEl.dataset.overlayReady === "true") return;
-        overlayEl.innerHTML = "";
-        overlayEl.style.setProperty("--columns", 1);
-        for (var i = 0; i < rowsCount; i++) {
-          var div = document.createElement("div");
-          overlayEl.appendChild(div);
+    document.querySelectorAll("[effect__overlayIn]").forEach(function (d) {
+      var strips = d.querySelectorAll("div");
+      if (!strips.length) return;
+      var parentSection = d.closest(".section");
+
+      // Skip works section overlay - it is orchestrated in Section 5 with horizontal scroll
+      if (parentSection && parentSection.classList.contains("section--works")) {
+        return;
+      }
+
+      var triggerEl = d;
+      var startPos = "top 0%";
+      var endPos = "top -80%";
+
+      let shouldPin = false;
+      if (parentSection && !parentSection.classList.contains("section--hero")) {
+        triggerEl = parentSection;
+        startPos = "bottom bottom";
+        endPos = "+=75%"; // 75vh scroll duration for the wipe
+      }
+
+      gsap.fromTo(strips, {
+        willChange: "opacity, transform",
+        transformOrigin: "50% 100%",
+        opacity: 1,
+        scaleY: 0
+      }, {
+        ease: "power4",
+        scaleY: 1.05,
+        opacity: 1,
+        stagger: {
+          grid: [rowsCount, 1],
+          from: "end",
+          each: isMob ? 0.03 : 0.04
+        },
+        scrollTrigger: {
+          trigger: triggerEl,
+          scroller: window,
+          start: startPos,
+          end: endPos,
+          scrub: true,
+          pin: shouldPin,
+          pinSpacing: false
         }
-        overlayEl.dataset.overlayReady = "true";
       });
-
-      document.querySelectorAll("[effect__overlayIn]").forEach(function (d) {
-        var strips = d.querySelectorAll("div");
-        if (!strips.length) return;
-        var parentSection = d.closest(".section");
-
-        // Skip works section overlay - it is orchestrated in Section 5 with horizontal scroll
-        if (parentSection && parentSection.classList.contains("section--works")) {
-          return;
-        }
-
-        var triggerEl = d;
-        var startPos = "top 0%";
-        var endPos = "top -80%";
-
-        let shouldPin = false;
-        if (parentSection && !parentSection.classList.contains("section--hero")) {
-          triggerEl = parentSection;
-          startPos = "bottom bottom";
-          endPos = "+=75%"; // 75vh scroll duration for the wipe
-        }
-
-        gsap.fromTo(strips, {
-          willChange: "opacity, transform",
-          transformOrigin: "50% 100%",
-          opacity: 1,
-          scaleY: 0
-        }, {
-          ease: "power4",
-          scaleY: 1.01,
-          opacity: 1,
-          stagger: {
-            grid: [rowsCount, 1],
-            from: "end",
-            each: 0.04
-          },
-          scrollTrigger: {
-            trigger: triggerEl,
-            scroller: window,
-            start: startPos,
-            end: endPos,
-            scrub: true,
-            pin: shouldPin,
-            pinSpacing: false
-          }
-        });
-      });
-    }
+    });
 
     /* effect__titleRandom (3D perspective rotation + random scramble into view) */
     document.querySelectorAll("[effect__titleRandom]").forEach(function (el) {
@@ -3058,21 +3044,16 @@
     measure();
 
     function update(scrollY) {
-      if (isMobile()) {
-        items.forEach(function (el) {
-          window.gsap.set(el, { y: 0 });
-        });
-        return;
-      }
-
+      var mob = isMobile();
       var targetRect = target.getBoundingClientRect();
       var winH = window.innerHeight || document.documentElement.clientHeight;
       var inView = targetRect.top <= 0 && targetRect.bottom >= winH;
 
-      var a = Math.max(winH * 0.095, 80);
+      var a = mob ? 44 : Math.max(winH * 0.095, 80);
+      var topStart = mob ? 60 : 0;
       var lastItem = items[items.length - 1];
       var k = (lastItem ? lastItem.clientHeight : 440) + a * (items.length - 1);
-      var g = Math.max(-1, Math.min(1 - (1 - winH / k), 1));
+      var g = mob ? 1 : Math.max(-1, Math.min(1 - (1 - winH / k), 1));
 
       var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
       var sectionTop = section.getBoundingClientRect().top + currentScroll;
@@ -3088,7 +3069,7 @@
           // Below section: lock in final stacked positions
           var endScroll = sectionTop + target.offsetHeight - winH;
           items.forEach(function (v, w) {
-            var H = a * (w + 1) * g;
+            var H = mob ? (topStart + a * w) : (a * (w + 1) * g);
             var p = endScroll - sectionTop - v.offsetTop + H;
             if (p >= 0) {
               window.gsap.set(v, { y: p * g });
@@ -3099,7 +3080,7 @@
       }
 
       items.forEach(function (v, w) {
-        var H = a * (w + 1) * g;
+        var H = mob ? (topStart + a * w) : (a * (w + 1) * g);
         var p = currentScroll - sectionTop - v.offsetTop + H;
         if (p >= 0) {
           window.gsap.set(v, { y: p * g });
