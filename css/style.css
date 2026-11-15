@@ -7107,7 +7107,39 @@ body.is-loading .cursor {
 
 .section--experience .experience__head-row .layout__third.monospace {
   padding-top: 0.35vw;
-  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ==================== UNIFIED SECTION LABELS (ABOUT, WORKS, EXPERIENCE, METHODOLOGY) ==================== */
+.section--about .section__head .layout__third.monospace,
+.section--about .section__head .layout__third.monospace span,
+.section--works .works__head-row2 .layout__third.monospace,
+.section--works .works__head-row2 .layout__third.monospace span,
+.section--experience .experience__head-row .layout__third.monospace,
+.section--experience .experience__head-row .layout__third.monospace span,
+section.section__blue .benefits__title .layout__third.monospace,
+section.section__blue .benefits__title .layout__third.monospace span {
+  font-family: var(--font-mono) !important;
+  font-size: clamp(12px, 0.8vw, 13.5px) !important;
+  letter-spacing: -0.01em !important;
+  text-transform: uppercase !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+}
+
+.section--about .section__head .layout__third.monospace,
+.section--about .section__head .layout__third.monospace span {
+  color: #111111 !important;
+  opacity: 0.9 !important;
+}
+
+.section--works .works__head-row2 .layout__third.monospace,
+.section--works .works__head-row2 .layout__third.monospace span,
+.section--experience .experience__head-row .layout__third.monospace,
+.section--experience .experience__head-row .layout__third.monospace span,
+section.section__blue .benefits__title .layout__third.monospace,
+section.section__blue .benefits__title .layout__third.monospace span {
+  color: #ffffff !important;
+  opacity: 1 !important;
 }
 
 /* ==================== UNIFIED SECTION HEADINGS (ABOUT, WORKS, EXPERIENCE, METHODOLOGY) ==================== */
@@ -7122,7 +7154,7 @@ section .benefits h4 {
   font-family: var(--font-display) !important;
   font-size: clamp(24px, 2.75vw, 42px) !important;
   line-height: 1.05 !important;
-  letter-spacing: -0.02em !important;
+  letter-spacing: -0.025em !important;
   font-weight: 400 !important;
 }
 
@@ -7130,7 +7162,7 @@ section .benefits h4 {
 .works__head-row2 p.lead,
 .section--experience .lead {
   margin: 0;
-  color: #f0f0f0;
+  color: #f0f0f0 !important;
   max-width: none;
 }
 
@@ -7429,6 +7461,21 @@ header .nav a.hover_effect {
   .section--about .layout__second {
     padding-top: 10px !important;
   }
+  /* Unified section primary labels on mobile: About, Works, Experience, Methodology */
+  .section--about .section__head .layout__third.monospace,
+  .section--about .section__head .layout__third.monospace span,
+  .section--works .works__head-row2 .layout__third.monospace,
+  .section--works .works__head-row2 .layout__third.monospace span,
+  .section--experience .experience__head-row .layout__third.monospace,
+  .section--experience .experience__head-row .layout__third.monospace span,
+  section.section__blue .benefits__title .layout__third.monospace,
+  section.section__blue .benefits__title .layout__third.monospace span {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.01em !important;
+    padding-bottom: 8px !important;
+  }
+
   /* Unified section primary headings on mobile: About, Works, Experience, Methodology */
   .section--about .section__head .lead,
   .section--about p.lead,
@@ -7439,9 +7486,9 @@ header .nav a.hover_effect {
   section.section__blue .benefits__title h4,
   section .benefits h4 {
     font-family: var(--font-display) !important;
-    font-size: clamp(28px, 7.2vw, 34px) !important;
+    font-size: clamp(29px, 7.6vw, 36px) !important;
     line-height: 1.08 !important;
-    letter-spacing: -0.02em !important;
+    letter-spacing: -0.025em !important;
     font-weight: 400 !important;
   }
 
@@ -7936,16 +7983,25 @@ header .nav a.hover_effect {
   margin-left: 2px;
 }
 
-/* Crisp pure-white section name labels throughout the site */
-.section__head .layout__third.monospace,
-.section__head .layout__third.monospace::before,
-.section__head .layout__third.monospace span,
+/* Crisp pure-white section name labels on dark sections */
+.section--works .works__head-row2 .layout__third.monospace,
+.section--works .works__head-row2 .layout__third.monospace::before,
+.section--works .works__head-row2 .layout__third.monospace span,
+.section--experience .experience__head-row .layout__third.monospace,
+.section--experience .experience__head-row .layout__third.monospace::before,
+.section--experience .experience__head-row .layout__third.monospace span,
 .benefits__title .layout__third.monospace,
 .benefits__title .layout__third.monospace::before,
 .benefits__title .layout__third.monospace span,
-.credentials__section-tag,
-.section--works .works__head-row2 .layout__third.monospace,
-.section--experience .experience__head-row .layout__third.monospace {
+.credentials__section-tag {
   color: #ffffff !important;
   opacity: 1 !important;
+}
+
+/* Crisp dark section name label on light About section */
+.section--about .section__head .layout__third.monospace,
+.section--about .section__head .layout__third.monospace::before,
+.section--about .section__head .layout__third.monospace span {
+  color: #111111 !important;
+  opacity: 0.85 !important;
 }

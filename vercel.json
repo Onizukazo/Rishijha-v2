@@ -1,0 +1,12 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "src": "^/works?$", "dest": "/index.html#works" },
+    { "src": "^/experience?$", "dest": "/index.html#experience" },
+    { "src": "^/services?$", "dest": "/index.html#services" },
+    { "src": "^/methodology?$", "dest": "/index.html#services" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
+  ]
+}

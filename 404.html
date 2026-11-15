@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>404 — Page Not Found | Rishi Jha</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=85.0">
+  <style>
+    body {
+      background-color: #0b0b0d;
+      color: #f0f0f0;
+      font-family: var(--font-body, 'Inter', sans-serif);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 24px;
+    }
+    .not-found__box {
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .not-found__code {
+      font-family: var(--font-mono, 'Geist Mono', monospace);
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+    .not-found__title {
+      font-family: var(--font-display, 'SemiSqueezed', sans-serif);
+      font-size: clamp(32px, 8vw, 48px);
+      line-height: 1.1;
+      margin: 0;
+      color: #ffffff;
+    }
+    .not-found__desc {
+      font-size: 15px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+    }
+    .not-found__link {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #0b0b0d;
+      text-decoration: none;
+      font-family: var(--font-mono, 'Geist Mono', monospace);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .not-found__link:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="not-found__box">
+    <span class="not-found__code">404 // Signal Lost</span>
+    <h1 class="not-found__title">This page doesn't exist.</h1>
+    <p class="not-found__desc">It may have been moved, updated, or never existed in this dimension.</p>
+    <a href="/" class="not-found__link">← Return to Portfolio</a>
+  </div>
+</body>
+</html>
