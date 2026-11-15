@@ -7126,6 +7126,8 @@ section .benefits h4 {
   font-weight: 400 !important;
 }
 
+.section--works .lead,
+.works__head-row2 p.lead,
 .section--experience .lead {
   margin: 0;
   color: #f0f0f0;
@@ -7427,6 +7429,22 @@ header .nav a.hover_effect {
   .section--about .layout__second {
     padding-top: 10px !important;
   }
+  /* Unified section primary headings on mobile: About, Works, Experience, Methodology */
+  .section--about .section__head .lead,
+  .section--about p.lead,
+  .section--works .works__head-row2 .lead,
+  .works__head-row2 p.lead,
+  .section--experience .experience__head-row .lead,
+  .section--experience .lead,
+  section.section__blue .benefits__title h4,
+  section .benefits h4 {
+    font-family: var(--font-display) !important;
+    font-size: clamp(28px, 7.2vw, 34px) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.02em !important;
+    font-weight: 400 !important;
+  }
+
   .section--about p.lead {
     margin-bottom: 20px !important;
     color: #111111 !important;
@@ -7455,12 +7473,13 @@ header .nav a.hover_effect {
     font-size: 13px !important;
   }
 
-  /* Works section mobile header spacing */
+  /* Works section mobile header spacing & brightness match to Experience */
   .works__head-row2 {
     padding-bottom: 16px !important;
   }
   .works__head-row2 p.lead {
     margin-bottom: 12px !important;
+    color: #f0f0f0 !important;
   }
   .showcase__mobileHint {
     margin-top: 12px !important;
