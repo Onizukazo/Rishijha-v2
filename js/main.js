@@ -3041,7 +3041,10 @@
     var cachedItemOffsets = [];
 
     function measure() {
-      var scroll = (lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0);
+      var scroll = (window.pageYOffset || window.scrollY || 0);
+      if (lenis && typeof lenis.scroll === "number" && !isMobile()) {
+        scroll = lenis.scroll;
+      }
       cachedSectionTop = section.getBoundingClientRect().top + scroll;
       cachedTargetHeight = target.offsetHeight;
       cachedItemOffsets = [];
@@ -3054,17 +3057,15 @@
     function update(scrollY) {
       var mob = isMobile();
       var winH = window.innerHeight || document.documentElement.clientHeight;
-      var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
+      var currentScroll = typeof scrollY === "number" ? scrollY : (mob ? (window.pageYOffset || window.scrollY || 0) : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0)));
 
       if (mob) {
-        var a = 44;
-        var topStart = 60;
+        var topStart = 65;
         var endScroll = cachedSectionTop + cachedTargetHeight - winH;
 
         items.forEach(function (v, w) {
-          var H = topStart + a * w;
           var itemOffset = (cachedItemOffsets[w] !== undefined && cachedItemOffsets[w] > 0) ? cachedItemOffsets[w] : v.offsetTop;
-          var startScroll = cachedSectionTop + itemOffset - H;
+          var startScroll = cachedSectionTop + itemOffset - topStart;
           var maxDistance = Math.max(0, endScroll - startScroll);
           var p = currentScroll - startScroll;
           var y = 0;
@@ -3120,8 +3121,12 @@
 
     if (lenis) {
       lenis.on("scroll", function (e) {
-        update(e.animatedScroll);
+        var scroll = isMobile() ? (window.pageYOffset || window.scrollY || 0) : e.animatedScroll;
+        update(scroll);
       });
+      window.addEventListener("scroll", function () {
+        if (isMobile()) update();
+      }, { passive: true });
     } else {
       window.addEventListener("scroll", function () {
         update();
