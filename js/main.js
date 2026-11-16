@@ -29,7 +29,6 @@
     window.lenis = lenis;
 
     if (typeof window.ScrollTrigger !== "undefined") {
-      window.ScrollTrigger.config({ ignoreMobileResize: true });
       lenis.on("scroll", window.ScrollTrigger.update);
       window.gsap.ticker.add(function (time) {
         lenis.raf(time * 1000);
@@ -284,73 +283,82 @@
 
     /* ── Authentic PX PUSH Staggered Blinds Overlay Transitions ── */
     var isMob = isMobile();
-    var rowsCount = isMob ? 8 : 10;
 
-    // Dynamically populate strip divs inside each overlay (matching pxpush vP)
-    document.querySelectorAll(".overlay").forEach(function (overlayEl) {
-      if (overlayEl.dataset.overlayReady === "true") return;
-      overlayEl.innerHTML = "";
-      overlayEl.style.setProperty("--columns", 1);
-      overlayEl.style.setProperty("--rows", rowsCount);
-      overlayEl.style.gridTemplateRows = "repeat(" + rowsCount + ", 1fr)";
-      for (var i = 0; i < rowsCount; i++) {
-        var div = document.createElement("div");
-        overlayEl.appendChild(div);
-      }
-      overlayEl.dataset.overlayReady = "true";
-    });
-
-    document.querySelectorAll("[effect__overlayIn]").forEach(function (d) {
-      var strips = d.querySelectorAll("div");
-      if (!strips.length) return;
-      var parentSection = d.closest(".section");
-
-      // Skip works section overlay - it is orchestrated in Section 5 with horizontal scroll
-      if (parentSection && parentSection.classList.contains("section--works")) {
-        return;
-      }
-
-      // Skip hero section overlay (first section)
-      if (parentSection && parentSection.classList.contains("section--hero")) {
-        return;
-      }
-
-      var triggerEl = d;
-      var startPos = "top 0%";
-      var endPos = "top -80%";
-
-      let shouldPin = false;
-      if (parentSection && !parentSection.classList.contains("section--hero")) {
-        triggerEl = parentSection;
-        startPos = "bottom bottom";
-        endPos = "+=75%"; // 75vh scroll duration for the wipe
-      }
-
-      gsap.fromTo(strips, {
-        willChange: "opacity, transform",
-        transformOrigin: "50% 100%",
-        opacity: 1,
-        scaleY: 0
-      }, {
-        ease: "power4",
-        scaleY: 1.05,
-        opacity: 1,
-        stagger: {
-          grid: [rowsCount, 1],
-          from: "end",
-          each: isMob ? 0.03 : 0.04
-        },
-        scrollTrigger: {
-          trigger: triggerEl,
-          scroller: window,
-          start: startPos,
-          end: endPos,
-          scrub: true,
-          pin: shouldPin,
-          pinSpacing: false
-        }
+    // On mobile touch screens, skip staggered blinds overlay to eliminate horizontal stripes and hazardous transitions
+    if (isMob) {
+      document.querySelectorAll(".overlay").forEach(function (overlayEl) {
+        overlayEl.innerHTML = "";
+        overlayEl.style.display = "none";
+        overlayEl.style.visibility = "hidden";
+        overlayEl.style.pointerEvents = "none";
       });
-    });
+      document.querySelectorAll(".topOverlay, .topOverlay__section").forEach(function (toEl) {
+        toEl.style.display = "none";
+        toEl.style.visibility = "hidden";
+        toEl.style.pointerEvents = "none";
+      });
+    } else {
+      var rowsCount = 10;
+
+      // Dynamically populate strip divs inside each overlay (matching pxpush vP)
+      document.querySelectorAll(".overlay").forEach(function (overlayEl) {
+        if (overlayEl.dataset.overlayReady === "true") return;
+        overlayEl.innerHTML = "";
+        overlayEl.style.setProperty("--columns", 1);
+        for (var i = 0; i < rowsCount; i++) {
+          var div = document.createElement("div");
+          overlayEl.appendChild(div);
+        }
+        overlayEl.dataset.overlayReady = "true";
+      });
+
+      document.querySelectorAll("[effect__overlayIn]").forEach(function (d) {
+        var strips = d.querySelectorAll("div");
+        if (!strips.length) return;
+        var parentSection = d.closest(".section");
+
+        // Skip works section overlay - it is orchestrated in Section 5 with horizontal scroll
+        if (parentSection && parentSection.classList.contains("section--works")) {
+          return;
+        }
+
+        var triggerEl = d;
+        var startPos = "top 0%";
+        var endPos = "top -80%";
+
+        let shouldPin = false;
+        if (parentSection && !parentSection.classList.contains("section--hero")) {
+          triggerEl = parentSection;
+          startPos = "bottom bottom";
+          endPos = "+=75%"; // 75vh scroll duration for the wipe
+        }
+
+        gsap.fromTo(strips, {
+          willChange: "opacity, transform",
+          transformOrigin: "50% 100%",
+          opacity: 1,
+          scaleY: 0
+        }, {
+          ease: "power4",
+          scaleY: 1.01,
+          opacity: 1,
+          stagger: {
+            grid: [rowsCount, 1],
+            from: "end",
+            each: 0.04
+          },
+          scrollTrigger: {
+            trigger: triggerEl,
+            scroller: window,
+            start: startPos,
+            end: endPos,
+            scrub: true,
+            pin: shouldPin,
+            pinSpacing: false
+          }
+        });
+      });
+    }
 
     /* effect__titleRandom (3D perspective rotation + random scramble into view) */
     document.querySelectorAll("[effect__titleRandom]").forEach(function (el) {
@@ -3042,62 +3050,23 @@
       return window.innerWidth <= 820;
     };
 
-    if (isMobile()) {
-      items.forEach(function (v) {
-        v.style.transform = "";
-        v.style.willChange = "auto";
-      });
-      return;
-    }
-
-    function getAbsoluteTop(el) {
-      var top = 0;
-      var cur = el;
-      while (cur) {
-        top += cur.offsetTop;
-        cur = cur.offsetParent;
-      }
-      return top;
-    }
-
     var cachedSectionTop = 0;
-    var cachedTargetHeight = 0;
-    var cachedItemOffsets = [];
-    var mobileCardStarts = [];
-    var mobileSectionEnd = 0;
-
     function measure() {
-      var mob = isMobile();
-      var scroll = (window.pageYOffset || window.scrollY || 0);
-      if (lenis && typeof lenis.scroll === "number" && !mob) {
-        scroll = lenis.scroll;
-      }
+      var scroll = (lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0);
       cachedSectionTop = section.getBoundingClientRect().top + scroll;
-      cachedTargetHeight = target.offsetHeight;
-      cachedItemOffsets = [];
-      mobileCardStarts = [];
-      items.forEach(function (v) {
-        cachedItemOffsets.push(v.offsetTop);
-        mobileCardStarts.push(getAbsoluteTop(v));
-      });
-      var winH = window.innerHeight || document.documentElement.clientHeight;
-      mobileSectionEnd = getAbsoluteTop(section) + section.offsetHeight - winH;
     }
     measure();
 
-    var setY = [];
-    items.forEach(function (v) {
-      setY.push(window.gsap ? window.gsap.quickSetter(v, "y", "px") : function (val) {
-        v.style.transform = "translate3d(0px, " + Math.round(val) + "px, 0px)";
-      });
-    });
-
     function update(scrollY) {
-      if (isMobile()) return;
-      var winH = window.innerHeight || document.documentElement.clientHeight;
-      var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
+      if (isMobile()) {
+        items.forEach(function (el) {
+          window.gsap.set(el, { y: 0 });
+        });
+        return;
+      }
 
       var targetRect = target.getBoundingClientRect();
+      var winH = window.innerHeight || document.documentElement.clientHeight;
       var inView = targetRect.top <= 0 && targetRect.bottom >= winH;
 
       var a = Math.max(winH * 0.095, 80);
@@ -3105,6 +3074,7 @@
       var k = (lastItem ? lastItem.clientHeight : 440) + a * (items.length - 1);
       var g = Math.max(-1, Math.min(1 - (1 - winH / k), 1));
 
+      var currentScroll = typeof scrollY === "number" ? scrollY : ((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
       var sectionTop = section.getBoundingClientRect().top + currentScroll;
 
       if (!inView) {
@@ -3139,59 +3109,31 @@
       });
     }
 
-    var ticking = false;
-    var pendingScroll = 0;
-
-    function requestTick(s) {
-      pendingScroll = s;
-      if (!ticking) {
-        requestAnimationFrame(function () {
-          update(pendingScroll);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
-
     if (lenis) {
       lenis.on("scroll", function (e) {
-        requestTick(isMobile() ? (window.pageYOffset || window.scrollY || 0) : e.animatedScroll);
+        update(e.animatedScroll);
       });
     } else {
       window.addEventListener("scroll", function () {
-        requestTick(window.pageYOffset || window.scrollY || 0);
+        update();
       }, { passive: true });
     }
 
-    var lastWidth = window.innerWidth;
     window.addEventListener("resize", function () {
-      if (window.innerWidth === lastWidth) {
-        return; // Ignore dynamic address bar height changes on mobile
-      }
-      lastWidth = window.innerWidth;
-      if (isMobile()) {
-        items.forEach(function (v) {
-          v.style.transform = "";
-          v.style.willChange = "auto";
-        });
-        return;
-      }
       measure();
-      requestTick((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
+      update();
     });
 
     if (typeof window.ScrollTrigger !== "undefined") {
       window.ScrollTrigger.addEventListener("refresh", function () {
-        if (isMobile()) return;
         measure();
-        requestTick((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
+        update();
       });
     }
 
     setTimeout(function () {
-      if (isMobile()) return;
       measure();
-      requestTick((lenis && typeof lenis.scroll === "number") ? lenis.scroll : (window.pageYOffset || 0));
+      update();
     }, 250);
   }
 
