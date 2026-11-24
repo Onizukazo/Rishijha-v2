@@ -1943,6 +1943,8 @@ section .marqueeText {
 
   overflow: hidden;
 
+  top: 0 !important;
+
   margin: 2vw 0 4vw;
 
 }
