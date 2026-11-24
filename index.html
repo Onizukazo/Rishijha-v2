@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Silkscreen:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/splitting.css">
-  <link rel="stylesheet" href="css/style.css?v=88.0">
+  <link rel="stylesheet" href="css/style.css?v=89.0">
   <style id="unified-section-typography">
     /* Unified Section Name Labels (About, Works, Experience, Methodology) */
     .section--about .section__head .layout__third.monospace,
@@ -487,13 +487,9 @@
         <div class="overlay overlay__grey" effect__overlayIn aria-hidden="true"></div>
       </section>
 
-      <!-- ================= WORKS ================= -->
-      <section class="section section--works" id="works">
-        <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
-        
-        <div class="separator" effect__separatorIn aria-hidden="true"></div>
-
-        <div class="marqueeText" data-marquee data-static data-base-speed="1.5" aria-hidden="true">
+      <!-- ================= WORKS MARQUEE BAND ================= -->
+      <div class="marquee-band--works" aria-hidden="true">
+        <div class="marqueeText" data-marquee data-static data-base-speed="1.5">
           <div class="marqueeText__track">
             <h2 class="marqueeText__title"><span class="marqueeText__name">Works</span><span class="marqueeText__symbol">●</span></h2>
             <h2 class="marqueeText__title"><span class="marqueeText__name">Works</span><span class="marqueeText__symbol">●</span></h2>
@@ -501,6 +497,13 @@
             <h2 class="marqueeText__title"><span class="marqueeText__name">Works</span><span class="marqueeText__symbol">●</span></h2>
           </div>
         </div>
+      </div>
+
+      <!-- ================= WORKS ================= -->
+      <section class="section section--works" id="works">
+        <div class="topOverlay topOverlay__section" aria-hidden="true"></div>
+        
+        <div class="separator" effect__separatorIn aria-hidden="true"></div>
 
         <div class="layout works__head-row2 section__head">
           <div class="layout__third monospace opacity__50">
