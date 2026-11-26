@@ -108,7 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     isClickScrolling = true;
     clearTimeout(clickTimeout);
 
-    const top = target.getBoundingClientRect().top + window.pageYOffset - 72;
+    const headerOffset = window.innerWidth <= 900 ? 96 : 72;
+    const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
     window.scrollTo({
       top: top,
       behavior: "smooth"
@@ -127,15 +128,30 @@ document.addEventListener("DOMContentLoaded", () => {
   sidebarLinks.forEach((l) => l.addEventListener("click", handleNavClick));
   mobilePills.forEach((p) => p.addEventListener("click", handleNavClick));
 
-  // Robust Scroll Position Tracker for Sections
+  // Robust Scroll Position Tracker & Hero Reveal Parallax
+  const heroInner = document.querySelector(".cs-top-hero .cs-container");
+  const heroSec = document.querySelector(".cs-top-hero");
+
   let ticking = false;
   function onScroll() {
-    if (isClickScrolling) return;
     if (!ticking) {
       window.requestAnimationFrame(() => {
         const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
-        const triggerLine = scrollPos + 180;
 
+        // Subtle hero container fade/parallax as case study deck rolls up over it
+        if (heroInner && heroSec) {
+          const heroH = heroSec.offsetHeight || 500;
+          const fadeProgress = Math.min(1, Math.max(0, scrollPos / (heroH * 0.75)));
+          heroInner.style.opacity = (1 - fadeProgress * 0.7).toFixed(3);
+          heroInner.style.transform = `translateY(${(scrollPos * 0.15).toFixed(1)}px)`;
+        }
+
+        if (isClickScrolling) {
+          ticking = false;
+          return;
+        }
+
+        const triggerLine = scrollPos + 180;
         let activeId = sections[0]?.id || "introduction";
 
         for (let i = 0; i < sections.length; i++) {

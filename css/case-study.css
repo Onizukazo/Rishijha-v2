@@ -12,6 +12,13 @@
   --cs-text-secondary: rgba(255, 255, 255, 0.72);
   --cs-accent: #00E676;
   --cs-sidebar-w: 260px;
+  --cs-header-h: 58px;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --cs-header-h: 84px;
+  }
 }
 
 html.case-study-page-html,
@@ -148,24 +155,37 @@ body.case-study-page main {
 }
 
 /* ========================================================
-   TOP HERO HEADER
+   TOP HERO HEADER (STICKY STAGE BENEATH SLIDES)
    ======================================================== */
 .cs-top-hero {
-  padding-top: 60px;
-  padding-bottom: 50px;
-  border-bottom: 1px solid var(--cs-border);
+  position: sticky;
+  top: var(--cs-header-h, 58px);
+  z-index: 1;
+  min-height: calc(100vh - var(--cs-header-h, 58px));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(48px, 10vh, 120px) 0 clamp(40px, 8vh, 80px);
+  border-bottom: none;
+  background: #000000;
+  will-change: opacity;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .cs-top-hero {
-    padding-top: 40px;
-    padding-bottom: 32px;
+    min-height: calc(100vh - var(--cs-header-h, 84px));
+    padding: clamp(32px, 6vh, 64px) 0 clamp(32px, 6vh, 56px);
   }
+}
+
+.cs-top-hero .cs-container {
+  will-change: transform, opacity;
+  transition: opacity 0.15s ease-out;
 }
 
 .cs-main-title {
   font-family: "SemiSqueezed", "Zen Kaku Gothic New", sans-serif;
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-size: clamp(2.6rem, 5.8vw, 4.8rem);
   font-weight: 400;
   line-height: 1.02;
   letter-spacing: -0.02em;
@@ -176,7 +196,7 @@ body.case-study-page main {
 
 .cs-sub-title {
   font-family: "Graphik", -apple-system, sans-serif;
-  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  font-size: clamp(1rem, 1.55vw, 1.35rem);
   font-weight: 300;
   line-height: 1.55;
   color: var(--cs-text-secondary);
@@ -185,7 +205,7 @@ body.case-study-page main {
 }
 
 /* ========================================================
-   FULLSCREEN SLIDES SHOWCASE
+   FULLSCREEN SLIDES SHOWCASE (APPEARS & ROLLS UP FROM BOTTOM)
    ======================================================== */
 .cs-slides-fullscreen {
   width: 100%;
@@ -194,15 +214,63 @@ body.case-study-page main {
   display: flex;
   flex-direction: column;
   position: relative;
+  z-index: 10;
   background: #000000;
   padding-bottom: 80px;
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -25px 60px rgba(0, 0, 0, 0.95), 0 -1px 0 rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  animation: sheetReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sheetReveal {
+  from {
+    transform: translateY(40px);
+    opacity: 0.85;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .cs-slides-fullscreen .cs-slide-section {
   width: 100%;
   max-width: 1920px;
   margin: 0 auto;
-  scroll-margin-top: 72px;
+  padding: 0;
+  gap: 0;
+  display: flex;
+  flex-direction: column;
+  scroll-margin-top: calc(var(--cs-header-h, 58px) + 16px);
+}
+
+.cs-slides-fullscreen .cs-slide-card {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  border-radius: 0;
+  background: #000000;
+  line-height: 0;
+  font-size: 0;
+  display: block;
+}
+
+.cs-slides-fullscreen .cs-slide-card img,
+.cs-slides-fullscreen .cs-stretch-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  border-radius: 0;
+  background: #000000;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  vertical-align: bottom;
 }
 
 /* ========================================================
@@ -379,40 +447,19 @@ body.case-study-page main {
 .cs-slide-section {
   display: flex;
   flex-direction: column;
-  gap: 36px;
-  scroll-margin-top: 96px;
-  margin-bottom: 60px;
+  gap: 0;
+  scroll-margin-top: calc(var(--cs-header-h, 58px) + 16px);
+  margin-bottom: 0;
 }
 
 .cs-section-tag {
-  font-family: "Mono", monospace;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--cs-text-muted);
-  padding-top: 24px;
-  border-top: 1px solid var(--cs-border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cs-section-tag::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--cs-border-light);
-}
-
-.cs-slide-section:first-child .cs-section-tag {
-  border-top: none;
-  padding-top: 0;
+  display: none !important;
 }
 
 @media (max-width: 768px) {
   .cs-slide-section {
-    gap: 24px;
-    margin-bottom: 40px;
+    gap: 0;
+    margin-bottom: 0;
   }
 }
 
@@ -420,9 +467,11 @@ body.case-study-page main {
   position: relative;
   overflow: hidden;
   background: #000000;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  transition: border-color 0.25s ease;
+  border: none !important;
+  line-height: 0;
+  font-size: 0;
+  margin: 0;
+  padding: 0;
   width: 100%;
 }
 
@@ -430,11 +479,14 @@ body.case-study-page main {
   width: 100%;
   height: auto;
   display: block;
-  object-fit: contain;
+  margin: 0;
+  padding: 0;
+  border: none !important;
   background: #000000;
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
+  vertical-align: bottom;
 }
 
 /* Stretch Board (for MCH and Spotify) */
@@ -444,21 +496,26 @@ body.case-study-page main {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  gap: 0;
   background: #000000;
 }
 
 .cs-stretch-board .cs-slide-section {
   gap: 0;
-  margin-bottom: 0;
-  scroll-margin-top: 72px;
+  margin: 0;
+  padding: 0;
+  scroll-margin-top: calc(var(--cs-header-h, 58px) + 16px);
 }
 
 .cs-stretch-img {
   width: 100%;
   height: auto;
   display: block;
-  object-fit: contain;
+  margin: 0;
+  padding: 0;
+  border: none !important;
   background: #000000;
+  vertical-align: bottom;
 }
 
 /* Slide Header Bar */
