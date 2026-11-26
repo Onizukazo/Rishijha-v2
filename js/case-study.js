@@ -174,22 +174,47 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(renderCursor);
   }
 
-  // 4. Enlarged Scrollable Slide Viewer (Lightbox)
+  // 4. Enlarged Scrollable Slide Viewer (Lightbox / Full Screen)
   const slideImages = Array.from(
     document.querySelectorAll(".cs-slide-card img, .cs-stretch-img")
   );
   if (slideImages.length > 0) {
     const isStretchBoard = !!document.querySelector(".cs-stretch-board");
+    const sections = Array.from(document.querySelectorAll(".cs-slide-section"));
+    
+    // Build structured section list with slide indices
+    const sectionData = sections.map((sec) => {
+      const id = sec.id;
+      const navLink = document.querySelector(`.cs-sidebar-nav a[href="#${id}"], .cs-mobile-quicknav a[href="#${id}"]`);
+      let label = navLink ? navLink.textContent.replace(/\s+/g, " ").trim() : "";
+      if (!label) {
+        label = sec.querySelector(".cs-section-tag")?.textContent.trim() || id;
+      }
+      const firstImg = sec.querySelector(".cs-slide-card img, .cs-stretch-img");
+      const slideIndex = firstImg ? slideImages.indexOf(firstImg) : 0;
+      return { id, label, slideIndex, el: sec };
+    });
+
     const lightbox = document.createElement("div");
     lightbox.className = "cs-lightbox";
     lightbox.setAttribute("role", "dialog");
     lightbox.setAttribute("aria-modal", "true");
-    lightbox.setAttribute("aria-label", "Enlarged Case Study Slides");
+    lightbox.setAttribute("aria-label", "Full Screen Case Study Slides");
 
     lightbox.innerHTML = `
       <div class="cs-lightbox__topbar">
-        <span class="cs-lightbox__hint">Scroll to browse slides &bull; Esc or click outside to close</span>
-        <button type="button" class="cs-lightbox__close" aria-label="Close enlarged view">Close &times;</button>
+        <div class="cs-lightbox__topbar-left">
+          <button type="button" class="cs-lightbox__back-btn" aria-label="Close full screen view">
+            <span class="cs-lightbox__back-arrow">&larr;</span>
+            <span class="cs-lightbox__back-text">Back</span>
+          </button>
+          <span class="cs-lightbox__divider" aria-hidden="true">|</span>
+          <span class="cs-lightbox__hint">Esc or click outside to close</span>
+        </div>
+        <nav class="cs-lightbox__nav" aria-label="Full screen section navigation"></nav>
+        <div class="cs-lightbox__topbar-right">
+          <button type="button" class="cs-lightbox__close" aria-label="Close enlarged view">Close &times;</button>
+        </div>
       </div>
       <div class="cs-lightbox__scroll">
         <div class="cs-lightbox__track${isStretchBoard ? " cs-lightbox__track--stretch" : ""}"></div>
@@ -200,14 +225,91 @@ document.addEventListener("DOMContentLoaded", () => {
     const scrollWrap = lightbox.querySelector(".cs-lightbox__scroll");
     const track = lightbox.querySelector(".cs-lightbox__track");
     const closeBtn = lightbox.querySelector(".cs-lightbox__close");
+    const backBtn = lightbox.querySelector(".cs-lightbox__back-btn");
+    const navContainer = lightbox.querySelector(".cs-lightbox__nav");
     let built = false;
+    let isLightboxNavScrolling = false;
+    let navTimeout = null;
+
+    // Populate section navigation pills inside the full screen topbar
+    if (navContainer && sectionData.length > 0) {
+      sectionData.forEach((sec, sIdx) => {
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "cs-lightbox__nav-pill" + (sIdx === 0 ? " active" : "");
+        pill.dataset.sectionId = sec.id;
+        pill.dataset.slideIndex = sec.slideIndex;
+        pill.textContent = sec.label;
+        pill.addEventListener("click", (e) => {
+          e.stopPropagation();
+          scrollToLightboxSection(sIdx);
+        });
+        navContainer.appendChild(pill);
+      });
+    }
+
+    function setActiveLightboxPill(activeId) {
+      const pills = navContainer.querySelectorAll(".cs-lightbox__nav-pill");
+      pills.forEach((p) => {
+        const isMatch = p.dataset.sectionId === activeId;
+        p.classList.toggle("active", isMatch);
+        if (isMatch) {
+          const targetLeft = p.offsetLeft - (navContainer.clientWidth / 2) + (p.clientWidth / 2);
+          navContainer.scrollTo({ left: targetLeft, behavior: "smooth" });
+        }
+      });
+    }
+
+    function scrollToLightboxSection(sIdx) {
+      const sec = sectionData[sIdx];
+      if (!sec) return;
+      const targetItem = track.children[sec.slideIndex];
+      if (targetItem) {
+        isLightboxNavScrolling = true;
+        clearTimeout(navTimeout);
+        const itemTop = targetItem.offsetTop - 16;
+        scrollWrap.scrollTo({ top: Math.max(0, itemTop), behavior: "smooth" });
+        setActiveLightboxPill(sec.id);
+        navTimeout = setTimeout(() => {
+          isLightboxNavScrolling = false;
+        }, 600);
+      }
+    }
+
+    // Scrollspy for sections inside lightbox
+    let lightboxTicking = false;
+    function onLightboxScroll() {
+      if (isLightboxNavScrolling || !lightbox.classList.contains("is-open")) return;
+      if (!lightboxTicking) {
+        window.requestAnimationFrame(() => {
+          const scrollPos = scrollWrap.scrollTop;
+          const triggerLine = scrollPos + scrollWrap.clientHeight * 0.35;
+          let activeId = sectionData[0]?.id;
+
+          for (let i = 0; i < sectionData.length; i++) {
+            const item = track.children[sectionData[i].slideIndex];
+            if (item && item.offsetTop <= triggerLine) {
+              activeId = sectionData[i].id;
+            }
+          }
+          if (scrollWrap.scrollHeight - (scrollWrap.scrollTop + scrollWrap.clientHeight) < 40) {
+            if (sectionData.length > 0) activeId = sectionData[sectionData.length - 1].id;
+          }
+          setActiveLightboxPill(activeId);
+          lightboxTicking = false;
+        });
+        lightboxTicking = true;
+      }
+    }
+    scrollWrap.addEventListener("scroll", onLightboxScroll, { passive: true });
 
     function buildTrack() {
       if (built) return;
       built = true;
-      slideImages.forEach((srcImg) => {
+      slideImages.forEach((srcImg, idx) => {
         const item = document.createElement("div");
         item.className = "cs-lightbox__item";
+        item.dataset.slideIndex = idx;
 
         const img = document.createElement("img");
         img.src = srcImg.currentSrc || srcImg.getAttribute("src");
@@ -244,6 +346,15 @@ document.addEventListener("DOMContentLoaded", () => {
             : 0;
           scrollWrap.scrollTop = Math.max(0, itemTop + extraOffset);
         }
+        if (sectionData.length > 0) {
+          let currentSec = sectionData[0];
+          for (let i = 0; i < sectionData.length; i++) {
+            if (sectionData[i].slideIndex <= index) {
+              currentSec = sectionData[i];
+            }
+          }
+          setActiveLightboxPill(currentSec.id);
+        }
       });
     }
 
@@ -262,6 +373,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     closeBtn.addEventListener("click", closeLightbox);
+    if (backBtn) backBtn.addEventListener("click", closeLightbox);
+    
+    // Dedicated Full Screen trigger buttons on the page (only buttons, not external links)
+    document.querySelectorAll("button.cs-fullscreen-trigger, #openFullscreenBtn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openLightbox(0, 0);
+      });
+    });
+
+    // Auto-open full screen if URL requested it
+    if (window.location.search.indexOf("fullscreen=true") !== -1 || window.location.hash === "#fullscreen") {
+      setTimeout(() => openLightbox(0, 0), 200);
+    }
+
     scrollWrap.addEventListener("click", (e) => {
       if (e.target === scrollWrap || e.target === track) {
         closeLightbox();

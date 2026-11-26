@@ -75,7 +75,46 @@ body.case-study-page main {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 20px;
+}
+
+.cs-top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cs-fullscreen-trigger {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-family: "Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.cs-fullscreen-trigger:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.cs-fullscreen-trigger svg {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  opacity: 0.85;
 }
 
 .cs-back-btn {
@@ -481,9 +520,49 @@ body.case-study-page main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px clamp(16px, 3vw, 36px);
+  gap: 16px;
+  padding: 12px clamp(16px, 3vw, 36px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(12, 12, 14, 0.85);
+  background: rgba(12, 12, 14, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: relative;
+  z-index: 10;
+}
+
+.cs-lightbox__topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.cs-lightbox__back-btn {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-family: "Geist Mono", var(--font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.cs-lightbox__back-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.cs-lightbox__divider {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 12px;
 }
 
 .cs-lightbox__hint {
@@ -491,7 +570,60 @@ body.case-study-page main {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+/* Lightbox Section Nav Links (Scrollable Pill Row) */
+.cs-lightbox__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 8px;
+  max-width: 60%;
+}
+
+.cs-lightbox__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.cs-lightbox__nav-pill {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.65);
+  font-family: "Geist Mono", var(--font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.cs-lightbox__nav-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.cs-lightbox__nav-pill.active {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  font-weight: 600;
+}
+
+.cs-lightbox__topbar-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .cs-lightbox__close {
@@ -500,18 +632,36 @@ body.case-study-page main {
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
   font-family: "Geist Mono", var(--font-mono, monospace);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 8px 16px;
+  padding: 6px 16px;
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .cs-lightbox__close:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+@media (max-width: 900px) {
+  .cs-lightbox__topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+  .cs-lightbox__hint,
+  .cs-lightbox__divider {
+    display: none;
+  }
+  .cs-lightbox__nav {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
+    padding: 2px 0 4px;
+  }
 }
 
 .cs-lightbox__scroll {
