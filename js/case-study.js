@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 2. ScrollSpy for Case Study Sections
   const sections = Array.from(document.querySelectorAll(".cs-slide-section"));
+  const topPills = Array.from(document.querySelectorAll(".cs-top-pill"));
   const sidebarLinks = Array.from(document.querySelectorAll(".cs-sidebar-nav a"));
   const mobilePills = Array.from(document.querySelectorAll(".cs-mobile-pill"));
 
@@ -64,6 +65,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let clickTimeout = null;
 
   function setActive(id) {
+    topPills.forEach((pill) => {
+      const isMatch = pill.getAttribute("href") === `#${id}`;
+      pill.classList.toggle("active", isMatch);
+      if (isMatch) {
+        const topNav = pill.closest(".cs-top-nav");
+        if (topNav) {
+          const targetLeft = pill.offsetLeft - (topNav.clientWidth / 2) + (pill.clientWidth / 2);
+          topNav.scrollTo({ left: targetLeft, behavior: "smooth" });
+        }
+      }
+    });
+
     sidebarLinks.forEach((link) => {
       const isMatch = link.getAttribute("href") === `#${id}`;
       link.classList.toggle("active", isMatch);
@@ -83,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Smooth click scroll with 90px header offset
+  // Smooth click scroll with header offset
   function handleNavClick(e) {
     const href = this.getAttribute("href");
     if (!href || !href.startsWith("#")) return;
@@ -95,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isClickScrolling = true;
     clearTimeout(clickTimeout);
 
-    const top = target.getBoundingClientRect().top + window.pageYOffset - 90;
+    const top = target.getBoundingClientRect().top + window.pageYOffset - 72;
     window.scrollTo({
       top: top,
       behavior: "smooth"
@@ -110,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 800);
   }
 
+  topPills.forEach((p) => p.addEventListener("click", handleNavClick));
   sidebarLinks.forEach((l) => l.addEventListener("click", handleNavClick));
   mobilePills.forEach((p) => p.addEventListener("click", handleNavClick));
 
@@ -374,19 +388,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     closeBtn.addEventListener("click", closeLightbox);
     if (backBtn) backBtn.addEventListener("click", closeLightbox);
-    
-    // Dedicated Full Screen trigger buttons on the page (only buttons, not external links)
-    document.querySelectorAll("button.cs-fullscreen-trigger, #openFullscreenBtn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        openLightbox(0, 0);
-      });
-    });
-
-    // Auto-open full screen if URL requested it
-    if (window.location.search.indexOf("fullscreen=true") !== -1 || window.location.hash === "#fullscreen") {
-      setTimeout(() => openLightbox(0, 0), 200);
-    }
 
     scrollWrap.addEventListener("click", (e) => {
       if (e.target === scrollWrap || e.target === track) {

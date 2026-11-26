@@ -35,11 +35,10 @@ body.case-study-page main {
   min-height: 100% !important;
 }
 
-.case-study-page header {
-  background: rgba(10, 10, 10, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--cs-border);
+.case-study-page header#top,
+.case-study-page .mobilenav,
+.case-study-page .mobilenav__backdrop {
+  display: none !important;
 }
 
 /* Base Container */
@@ -56,65 +55,22 @@ body.case-study-page main {
 }
 
 /* ========================================================
-   TOP HERO HEADER
+   STICKY CASE STUDY TOP HEADER & SECTION NAVIGATION
    ======================================================== */
-.cs-top-hero {
-  padding-top: 130px;
-  padding-bottom: 40px;
+.cs-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8, 8, 10, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--cs-border);
-}
-
-@media (max-width: 768px) {
-  .cs-top-hero {
-    padding-top: 96px;
-    padding-bottom: 28px;
-  }
-}
-
-.cs-top-bar {
+  padding: 14px clamp(16px, 4vw, 48px);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
-}
-
-.cs-top-bar-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.cs-fullscreen-trigger {
-  appearance: none;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-  font-family: "Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 6px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.cs-fullscreen-trigger:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.45);
-  transform: translateY(-1px);
-}
-
-.cs-fullscreen-trigger svg {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  opacity: 0.85;
+  width: 100%;
 }
 
 .cs-back-btn {
@@ -126,6 +82,7 @@ body.case-study-page main {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .cs-back-btn:hover {
@@ -133,12 +90,77 @@ body.case-study-page main {
   transform: translateX(-3px);
 }
 
-.cs-tag {
+/* Top Right Section Navigation Links */
+.cs-top-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  max-width: calc(100% - 160px);
+}
+
+.cs-top-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.cs-top-pill {
   font-family: "Mono", monospace;
   font-size: 11px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--cs-text-muted);
+  text-decoration: none;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.cs-top-pill:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.cs-top-pill.active {
+  color: #000000;
+  background: #ffffff;
+  border-color: #ffffff;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .cs-sticky-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+  .cs-top-nav {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* ========================================================
+   TOP HERO HEADER
+   ======================================================== */
+.cs-top-hero {
+  padding-top: 60px;
+  padding-bottom: 50px;
+  border-bottom: 1px solid var(--cs-border);
+}
+
+@media (max-width: 768px) {
+  .cs-top-hero {
+    padding-top: 40px;
+    padding-bottom: 32px;
+  }
 }
 
 .cs-main-title {
@@ -153,12 +175,34 @@ body.case-study-page main {
 }
 
 .cs-sub-title {
+  font-family: "Graphik", -apple-system, sans-serif;
   font-size: clamp(1rem, 1.6vw, 1.35rem);
   font-weight: 300;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--cs-text-secondary);
   max-width: 860px;
   margin: 0;
+}
+
+/* ========================================================
+   FULLSCREEN SLIDES SHOWCASE
+   ======================================================== */
+.cs-slides-fullscreen {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #000000;
+  padding-bottom: 80px;
+}
+
+.cs-slides-fullscreen .cs-slide-section {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  scroll-margin-top: 72px;
 }
 
 /* ========================================================
@@ -374,28 +418,47 @@ body.case-study-page main {
 
 .cs-slide-card {
   position: relative;
-  border-radius: 10px;
   overflow: hidden;
   background: #000000;
-  border: 1px solid var(--cs-border);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   transition: border-color 0.25s ease;
-}
-
-.cs-slide-card:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  width: 100%;
 }
 
 .cs-slide-card img {
   width: 100%;
   height: auto;
   display: block;
-  aspect-ratio: 16 / 9;
   object-fit: contain;
   background: #000000;
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* Stretch Board (for MCH and Spotify) */
+.cs-stretch-board {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: #000000;
+}
+
+.cs-stretch-board .cs-slide-section {
+  gap: 0;
+  margin-bottom: 0;
+  scroll-margin-top: 72px;
+}
+
+.cs-stretch-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  background: #000000;
 }
 
 /* Slide Header Bar */
@@ -542,7 +605,7 @@ body.case-study-page main {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: #ffffff;
-  font-family: "Geist Mono", var(--font-mono, monospace);
+  font-family: "Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -566,7 +629,7 @@ body.case-study-page main {
 }
 
 .cs-lightbox__hint {
-  font-family: "Geist Mono", var(--font-mono, monospace);
+  font-family: "Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -596,7 +659,7 @@ body.case-study-page main {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.65);
-  font-family: "Geist Mono", var(--font-mono, monospace);
+  font-family: "Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -631,7 +694,7 @@ body.case-study-page main {
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
-  font-family: "Geist Mono", var(--font-mono, monospace);
+  font-family: "Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -714,7 +777,7 @@ body.case-study-page main {
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  font-family: "Geist Mono", var(--font-mono, monospace);
+  font-family: "Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;

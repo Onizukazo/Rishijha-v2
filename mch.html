@@ -33,8 +33,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/splitting.css">
-  <link rel="stylesheet" href="css/style.css?v=91.0">
-  <link rel="stylesheet" href="css/case-study.css?v=91.0">
+  <link rel="stylesheet" href="css/style.css?v=92.0">
+  <link rel="stylesheet" href="css/case-study.css?v=92.0">
 
   <!-- Vercel Web Analytics & Speed Insights -->
   <script>
@@ -86,20 +86,23 @@
 
     <main id="main-content">
 
+      <!-- Sticky Top Bar with Back Link & Section Navigation -->
+      <div class="cs-sticky-header">
+        <a href="index.html#works" class="cs-back-btn">← Back to Works</a>
+        <nav class="cs-top-nav" aria-label="Section navigation">
+          <a href="#introduction" class="cs-top-pill active">01 Introduction</a>
+          <a href="#research" class="cs-top-pill">02 Research</a>
+          <a href="#strategy" class="cs-top-pill">03 Strategy</a>
+          <a href="#design-system" class="cs-top-pill">04 Design System</a>
+          <a href="#citizen-portal" class="cs-top-pill">05 Citizen</a>
+          <a href="#practitioner-portal" class="cs-top-pill">06 Practitioner</a>
+          <a href="#admin-panel" class="cs-top-pill">07 Admin</a>
+        </nav>
+      </div>
+
       <!-- ================= HERO ================= -->
       <section class="cs-top-hero">
         <div class="cs-container">
-          <div class="cs-top-bar">
-            <a href="index.html#works" class="cs-back-btn">← Back to Works</a>
-            <div class="cs-top-bar-right">
-              <button type="button" class="cs-fullscreen-trigger" id="openFullscreenBtn" title="View Full Screen">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-                <span>Full Screen</span>
-              </button>
-              <div class="cs-tag">Case Study · Government SaaS &amp; Healthcare</div>
-            </div>
-          </div>
-
           <h1 class="cs-main-title">Maharashtra Council of Homoeopathy</h1>
           <p class="cs-sub-title">
             Revamping government portals for increased operational efficiency. Complete restructuring and redesign of citizen, practitioner, and administrative platforms for over 90,000 registered doctors across Maharashtra.
@@ -107,78 +110,10 @@
         </div>
       </section>
 
-      <!-- ================= MAIN LAYOUT (STICKY SIDEBAR + VERTICAL SLIDES) ================= -->
-      <div class="cs-container">
+      <!-- ================= FULLSCREEN SLIDES SHOWCASE ================= -->
+      <div class="cs-slides-fullscreen">
 
-        <!-- Mobile Horizontal Sticky Navigation -->
-        <nav class="cs-mobile-quicknav" aria-label="Quick section navigation">
-          <a href="#introduction" class="cs-mobile-pill active">01 Introduction</a>
-          <a href="#research" class="cs-mobile-pill">02 Research</a>
-          <a href="#strategy" class="cs-mobile-pill">03 Strategy</a>
-          <a href="#design-system" class="cs-mobile-pill">04 Design System</a>
-          <a href="#citizen-portal" class="cs-mobile-pill">05 Citizen</a>
-          <a href="#practitioner-portal" class="cs-mobile-pill">06 Practitioner</a>
-          <a href="#admin-panel" class="cs-mobile-pill">07 Admin</a>
-        </nav>
-
-        <div class="cs-grid">
-
-          <!-- Sticky Sidebar Navigation (Desktop) -->
-          <aside class="cs-sidebar-sticky" aria-label="Sections index">
-            <div class="cs-sidebar-title">Index</div>
-            <nav>
-              <ul class="cs-sidebar-nav">
-                <li>
-                  <a href="#introduction" class="active">
-                    <span class="slide-num">01</span>
-                    <span>Introduction</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#research">
-                    <span class="slide-num">02</span>
-                    <span>Research &amp; Insights</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#strategy">
-                    <span class="slide-num">03</span>
-                    <span>Strategy &amp; Solutions</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#design-system">
-                    <span class="slide-num">04</span>
-                    <span>Design System &amp; UX4G</span>
-                  </a>
-                </li>
-                <li class="cs-sidebar-group-label">Redesigned Portals</li>
-                <li>
-                  <a href="#citizen-portal" class="cs-sidebar-sub">
-                    <span class="slide-num">05</span>
-                    <span>Citizen Portal</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#practitioner-portal" class="cs-sidebar-sub">
-                    <span class="slide-num">06</span>
-                    <span>Practitioner Portal</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#admin-panel" class="cs-sidebar-sub">
-                    <span class="slide-num">07</span>
-                    <span>Admin Panel</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </aside>
-
-          <!-- Main Vertical Slides Column: Single Continuous Scrollable Stretch -->
-          <div class="cs-slides-content">
-
-            <div class="cs-stretch-board">
+        <div class="cs-stretch-board">
               <!-- ================= SECTION 01: INTRODUCTION ================= -->
               <section class="cs-slide-section" id="introduction">
                 <img src="assets/mch/stretch/mch_01_introduction.webp" alt="MCH Case Study: Introduction, Scope &amp; Timeline" class="cs-stretch-img" loading="eager" width="1920" height="4960">
@@ -213,27 +148,25 @@
               <section class="cs-slide-section" id="admin-panel">
                 <img src="assets/mch/stretch/mch_07_admin_panel.webp" alt="MCH Case Study: Admin Panel Redesign &amp; Deliverables" class="cs-stretch-img" loading="lazy" width="1920" height="4721">
               </section>
-            </div>
+            </div><!-- /.cs-stretch-board -->
 
             <!-- Bottom Navigation -->
-            <div class="cs-bottom-footer">
-              <div>
-                <span style="font-family: 'Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--cs-text-muted); display: block; margin-bottom: 6px;">Next Selected Work</span>
-                <a href="moneycontrol.html" class="cs-next-work-link">
-                  <span>Moneycontrol Platform Redesign</span>
-                  <span aria-hidden="true">→</span>
-                </a>
+            <div class="cs-container">
+              <div class="cs-bottom-footer">
+                <div>
+                  <span style="font-family: 'Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--cs-text-muted); display: block; margin-bottom: 6px;">Next Selected Work</span>
+                  <a href="moneycontrol.html" class="cs-next-work-link">
+                    <span>Moneycontrol Platform Redesign</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+                <a href="#top" class="cs-top-btn">Back to Top ↑</a>
               </div>
-              <a href="#top" class="cs-top-btn">Back to Top ↑</a>
             </div>
 
-          </div><!-- /.cs-slides-content -->
+          </div><!-- /.cs-slides-fullscreen -->
 
-        </div><!-- /.cs-grid -->
-
-      </div><!-- /.cs-container -->
-
-    </main>
+        </main>
 
     <!-- Custom pixel cursor -->
     <div class="cursor" aria-hidden="true" data-ttl="0.22">
@@ -254,6 +187,6 @@
 
   <!-- Scripts -->
   <script src="js/libs/gsap.min.js"></script>
-  <script src="js/case-study.js?v=91.0"></script>
+  <script src="js/case-study.js?v=92.0"></script>
 </body>
 </html>
