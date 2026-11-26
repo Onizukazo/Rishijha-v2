@@ -34,7 +34,7 @@
 
   <link rel="stylesheet" href="css/splitting.css">
   <link rel="stylesheet" href="css/style.css?v=92.0">
-  <link rel="stylesheet" href="css/case-study.css?v=97.0">
+  <link rel="stylesheet" href="css/case-study.css?v=98.0">
 
   <!-- Vercel Web Analytics & Speed Insights -->
   <script>
@@ -85,41 +85,48 @@
 
     <main id="main-content">
 
-      <!-- Sticky Top Bar with Back Link & Section Navigation -->
+      <!-- Sticky Top Bar with Back Link & Sidebar Toggle -->
       <div class="cs-sticky-header">
         <a href="index.html#works" class="cs-back-btn">← Back to Works</a>
-        <nav class="cs-top-nav" aria-label="Section navigation">
-          <a href="#introduction" class="cs-top-pill active">01 Introduction</a>
-          <a href="#product-strategy" class="cs-top-pill">02 Product Strategy</a>
-          <a href="#free-tier" class="cs-top-pill">03 Free Tier</a>
-          <a href="#pro-tier" class="cs-top-pill">04 Pro Tier</a>
-        </nav>
+        <button type="button" class="cs-header-sidebar-toggle" id="csHeaderSidebarToggle" aria-label="Toggle sidebar" title="Toggle project details &amp; navigation">
+          <svg class="cs-sidebar-toggle-icon" width="22" height="18" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="1.5" width="20" height="15" rx="3.5"></rect>
+            <line x1="15.5" y1="1.5" x2="15.5" y2="16.5"></line>
+          </svg>
+          <span>Sections</span>
+        </button>
       </div>
 
-      <!-- ================= HERO ================= -->
-      <section class="cs-top-hero">
-        <div class="cs-container cs-hero-banner-container">
-          <h1 class="visually-hidden">Moneycontrol Platform Redesign</h1>
-          <div class="cs-hero-banner-frame">
-            <picture>
-              <source srcset="assets/moneycontrol/mc_hero_banner.webp" type="image/webp">
-              <img src="assets/moneycontrol/mc_hero_banner.png" alt="Moneycontrol Case Study Banner" class="cs-hero-banner-img" width="2234" height="694" loading="eager">
-            </picture>
-          </div>
-        </div>
+      <!-- ================= PAGE LAYOUT: SLIDES + RIGHT SIDEBAR ================= -->
+      <div class="cs-page-layout">
 
-        <!-- Bottom Right Scroll Indicator -->
-        <a href="#introduction" class="cs-hero-scroll-indicator" aria-label="Scroll down to presentation slides">
-          <span>Scroll</span>
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-            <polyline points="18 9 18 18 9 18"></polyline>
-          </svg>
-        </a>
-      </section>
+        <!-- Left: Presentation Canvas -->
+        <div class="cs-presentation-pane">
 
-      <!-- ================= FULLSCREEN SLIDES SHOWCASE ================= -->
-      <div class="cs-slides-fullscreen">
+          <!-- ================= HERO ================= -->
+          <section class="cs-top-hero">
+            <div class="cs-container cs-hero-banner-container">
+              <h1 class="visually-hidden">Moneycontrol Platform Redesign</h1>
+              <div class="cs-hero-banner-frame">
+                <picture>
+                  <source srcset="assets/moneycontrol/mc_hero_banner.webp" type="image/webp">
+                  <img src="assets/moneycontrol/mc_hero_banner.png" alt="Moneycontrol Case Study Banner" class="cs-hero-banner-img" width="2234" height="694" loading="eager">
+                </picture>
+              </div>
+            </div>
+
+            <!-- Bottom Right Scroll Indicator -->
+            <a href="#introduction" class="cs-hero-scroll-indicator" aria-label="Scroll down to presentation slides">
+              <span>Scroll</span>
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <polyline points="18 9 18 18 9 18"></polyline>
+              </svg>
+            </a>
+          </section>
+
+          <!-- ================= FULLSCREEN SLIDES SHOWCASE ================= -->
+          <div class="cs-slides-fullscreen">
 
             <!-- ================= SECTION 01: INTRODUCTION ================= -->
             <section class="cs-slide-section" id="introduction">
@@ -237,7 +244,7 @@
             <div class="cs-container">
               <div class="cs-bottom-footer">
                 <div>
-                  <span style="font-family: 'Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--cs-text-muted); display: block; margin-bottom: 6px;">Next Selected Work</span>
+                  <span style="font-family: 'Graphik', -apple-system, sans-serif; font-size: 12px; color: var(--cs-text-muted); display: block; margin-bottom: 6px;">Next Selected Work</span>
                   <a href="google-space.html" class="cs-next-work-link">
                     <span>Google Space: Personal Memory Layer</span>
                     <span aria-hidden="true">→</span>
@@ -248,8 +255,39 @@
             </div>
 
           </div><!-- /.cs-slides-fullscreen -->
+        </div><!-- /.cs-presentation-pane -->
 
-        </main>
+        <!-- Right: Sticky Collapsible Sidebar -->
+        <aside class="cs-right-sidebar" id="csSidebar" aria-label="Moneycontrol project details and navigation">
+          <div class="cs-sidebar-inner">
+            <div class="cs-sidebar-top-bar">
+              <span class="cs-sidebar-kicker">projects /</span>
+              <button type="button" class="cs-sidebar-close-btn" id="csSidebarClose" aria-label="Collapse sidebar" title="Collapse sidebar">
+                <svg class="cs-sidebar-toggle-icon" width="22" height="18" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="1.5" width="20" height="15" rx="3.5"></rect>
+                  <line x1="15.5" y1="1.5" x2="15.5" y2="16.5"></line>
+                </svg>
+              </button>
+            </div>
+
+            <h2 class="cs-sidebar-title">Moneycontrol</h2>
+            <p class="cs-sidebar-desc">Redefining India's premier financial and business news platform into an intelligent, personalised ecosystem.</p>
+
+            <nav class="cs-sidebar-nav" aria-label="Case study sections">
+              <a href="#introduction" class="cs-sidebar-item active">Introduction &amp; Scope</a>
+              <a href="#product-strategy" class="cs-sidebar-item">Product Strategy</a>
+              <a href="#free-tier" class="cs-sidebar-item">Free Tier Experience</a>
+              <a href="#pro-tier" class="cs-sidebar-item">Pro Tier Experience</a>
+            </nav>
+          </div>
+        </aside>
+
+      </div><!-- /.cs-page-layout -->
+
+      <!-- Mobile Backdrop Overlay -->
+      <div class="cs-sidebar-backdrop" id="csSidebarBackdrop"></div>
+
+    </main>
 
     <!-- Custom pixel cursor -->
     <div class="cursor" aria-hidden="true" data-ttl="0.22">
@@ -270,6 +308,6 @@
 
   <!-- Scripts -->
   <script src="js/libs/gsap.min.js"></script>
-  <script src="js/case-study.js?v=97.0"></script>
+  <script src="js/case-study.js?v=98.0"></script>
 </body>
 </html>

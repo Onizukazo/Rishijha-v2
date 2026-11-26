@@ -20,7 +20,7 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css?v=92.0">
-    <link rel="stylesheet" href="css/case-study.css?v=97.0">
+    <link rel="stylesheet" href="css/case-study.css?v=98.0">
     <link rel="stylesheet" href="css/responsive.css?v=92.0">
 
     <!-- Vercel Web Analytics & Speed Insights -->
@@ -72,21 +72,24 @@
 
       <main id="main-content">
 
-        <!-- Sticky Top Bar with Back Link & Section Navigation -->
+        <!-- Sticky Top Bar with Back Link & Sidebar Toggle -->
         <div class="cs-sticky-header">
           <a href="index.html#works" class="cs-back-btn">← Back to Works</a>
-          <nav class="cs-top-nav" aria-label="Section navigation">
-            <a href="#intro" class="cs-top-pill active">01 Intro</a>
-            <a href="#research" class="cs-top-pill">02 Research</a>
-            <a href="#strategy" class="cs-top-pill">03 Strategy &amp; Arena</a>
-            <a href="#ideation" class="cs-top-pill">04 Ideation</a>
-            <a href="#solution" class="cs-top-pill">05 Solution</a>
-            <a href="#testing" class="cs-top-pill">06 Testing</a>
-          </nav>
+          <button type="button" class="cs-header-sidebar-toggle" id="csHeaderSidebarToggle" aria-label="Toggle sidebar" title="Toggle project details &amp; navigation">
+            <svg class="cs-sidebar-toggle-icon" width="22" height="18" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="1.5" width="20" height="15" rx="3.5"></rect>
+              <line x1="15.5" y1="1.5" x2="15.5" y2="16.5"></line>
+            </svg>
+            <span>Sections</span>
+          </button>
         </div>
 
-        <!-- ================= FULLSCREEN SLIDES SHOWCASE ================= -->
-        <div class="cs-slides-fullscreen">
+        <!-- ================= PAGE LAYOUT: SLIDES + RIGHT SIDEBAR ================= -->
+        <div class="cs-page-layout">
+
+          <!-- Left: Presentation Canvas -->
+          <div class="cs-presentation-pane">
+            <div class="cs-slides-fullscreen">
           <h1 class="visually-hidden">Spotify Redefined</h1>
 
           <div class="cs-stretch-board">
@@ -132,7 +135,7 @@
           <div class="cs-container">
             <div class="cs-bottom-footer">
               <div>
-                <span style="font-family: 'Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--cs-text-muted); display: block; margin-bottom: 6px;">Next Selected Work</span>
+                <span style="font-family: 'Graphik', -apple-system, sans-serif; font-size: 12px; color: var(--cs-text-muted); display: block; margin-bottom: 6px;">Next Selected Work</span>
                 <a href="moneycontrol.html" class="cs-next-work-link">
                   <span>Moneycontrol Platform Redesign</span>
                   <span aria-hidden="true">→</span>
@@ -143,6 +146,39 @@
           </div>
 
         </div><!-- /.cs-slides-fullscreen -->
+      </div><!-- /.cs-presentation-pane -->
+
+      <!-- Right: Sticky Collapsible Sidebar -->
+      <aside class="cs-right-sidebar" id="csSidebar" aria-label="Spotify Redefined project details and navigation">
+        <div class="cs-sidebar-inner">
+          <div class="cs-sidebar-top-bar">
+            <span class="cs-sidebar-kicker">projects /</span>
+            <button type="button" class="cs-sidebar-close-btn" id="csSidebarClose" aria-label="Collapse sidebar" title="Collapse sidebar">
+              <svg class="cs-sidebar-toggle-icon" width="22" height="18" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="1.5" width="20" height="15" rx="3.5"></rect>
+                <line x1="15.5" y1="1.5" x2="15.5" y2="16.5"></line>
+              </svg>
+            </button>
+          </div>
+
+          <h2 class="cs-sidebar-title">Spotify Redefined</h2>
+          <p class="cs-sidebar-desc">Transforming passive music streaming into an interactive, tactile experience with real-time auto-mixing and vinyl decks.</p>
+
+          <nav class="cs-sidebar-nav" aria-label="Case study sections">
+            <a href="#intro" class="cs-sidebar-item active">Introduction</a>
+            <a href="#research" class="cs-sidebar-item">Research &amp; Insights</a>
+            <a href="#strategy" class="cs-sidebar-item">Strategy &amp; Arena</a>
+            <a href="#ideation" class="cs-sidebar-item">Ideation &amp; Concepts</a>
+            <a href="#solution" class="cs-sidebar-item">Final Solution</a>
+            <a href="#testing" class="cs-sidebar-item">Testing &amp; Feedback</a>
+          </nav>
+        </div>
+      </aside>
+
+    </div><!-- /.cs-page-layout -->
+
+    <!-- Mobile Backdrop Overlay -->
+    <div class="cs-sidebar-backdrop" id="csSidebarBackdrop"></div>
 
       </main>
 
@@ -165,6 +201,6 @@
 
     <!-- Scripts -->
     <script src="js/libs/gsap.min.js"></script>
-    <script src="js/case-study.js?v=97.0"></script>
+    <script src="js/case-study.js?v=98.0"></script>
   </body>
 </html>

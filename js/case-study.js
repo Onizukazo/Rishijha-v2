@@ -55,10 +55,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 2. ScrollSpy for Case Study Sections
+  // 2. Sidebar Toggle (Desktop Collapse & Mobile Drawer)
+  const headerToggleBtn = document.getElementById("csHeaderSidebarToggle") || document.querySelector(".cs-header-sidebar-toggle");
+  const sidebarCloseBtn = document.getElementById("csSidebarClose") || document.querySelector(".cs-sidebar-close-btn");
+  const sidebarBackdrop = document.getElementById("csSidebarBackdrop") || document.querySelector(".cs-sidebar-backdrop");
+
+  function toggleSidebar() {
+    if (window.innerWidth > 1024) {
+      document.body.classList.toggle("sidebar-collapsed");
+      try {
+        localStorage.setItem("cs_sidebar_collapsed", document.body.classList.contains("sidebar-collapsed"));
+      } catch (err) {}
+    } else {
+      document.body.classList.toggle("sidebar-open-mobile");
+    }
+  }
+
+  function closeMobileSidebar() {
+    document.body.classList.remove("sidebar-open-mobile");
+  }
+
+  if (headerToggleBtn) {
+    headerToggleBtn.addEventListener("click", toggleSidebar);
+  }
+  if (sidebarCloseBtn) {
+    sidebarCloseBtn.addEventListener("click", toggleSidebar);
+  }
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener("click", closeMobileSidebar);
+  }
+
+  // Close mobile sidebar on Esc key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && document.body.classList.contains("sidebar-open-mobile")) {
+      closeMobileSidebar();
+    }
+  });
+
+  // Restore saved collapse state on desktop
+  try {
+    if (window.innerWidth > 1024 && localStorage.getItem("cs_sidebar_collapsed") === "true") {
+      document.body.classList.add("sidebar-collapsed");
+    }
+  } catch (err) {}
+
+  // 3. ScrollSpy for Case Study Sections
   const sections = Array.from(document.querySelectorAll(".cs-slide-section"));
   const topPills = Array.from(document.querySelectorAll(".cs-top-pill"));
-  const sidebarLinks = Array.from(document.querySelectorAll(".cs-sidebar-nav a"));
+  const sidebarLinks = Array.from(document.querySelectorAll(".cs-sidebar-item, .cs-sidebar-nav a"));
   const mobilePills = Array.from(document.querySelectorAll(".cs-mobile-pill"));
 
   let isClickScrolling = false;
@@ -108,7 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
     isClickScrolling = true;
     clearTimeout(clickTimeout);
 
-    const headerOffset = window.innerWidth <= 900 ? 96 : 72;
+    // On mobile, automatically close the sidebar drawer after selecting a section
+    if (window.innerWidth <= 1024) {
+      closeMobileSidebar();
+    }
+
+    const headerOffset = window.innerWidth <= 900 ? 76 : 68;
     const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
     window.scrollTo({
       top: top,
