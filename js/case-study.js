@@ -157,12 +157,23 @@ document.addEventListener("DOMContentLoaded", () => {
       closeMobileSidebar();
     }
 
-    const headerOffset = window.innerWidth <= 900 ? 76 : 68;
-    const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
-    window.scrollTo({
-      top: top,
-      behavior: "smooth"
-    });
+    const presentationPane = document.querySelector(".cs-presentation-pane");
+    if (presentationPane) {
+      const paneTop = presentationPane.getBoundingClientRect().top;
+      const targetTop = target.getBoundingClientRect().top;
+      const scrollOffset = targetTop - paneTop + presentationPane.scrollTop;
+      presentationPane.scrollTo({
+        top: scrollOffset,
+        behavior: "smooth"
+      });
+    } else {
+      const headerOffset = window.innerWidth <= 900 ? 76 : 68;
+      const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: top,
+        behavior: "smooth"
+      });
+    }
 
     history.replaceState(null, "", href);
     setActive(target.id);
@@ -182,15 +193,34 @@ document.addEventListener("DOMContentLoaded", () => {
     scrollIndicator.addEventListener("click", handleNavClick);
   }
 
+  // Handle Back to Top button
+  const topBtns = document.querySelectorAll(".cs-top-btn");
+  topBtns.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const presentationPane = document.querySelector(".cs-presentation-pane");
+      if (presentationPane) {
+        presentationPane.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  });
+
   // Robust Scroll Position Tracker & Hero Reveal Parallax
   const heroInner = document.querySelector(".cs-top-hero .cs-container");
   const heroSec = document.querySelector(".cs-top-hero");
+  const presentationPane = document.querySelector(".cs-presentation-pane");
+
+  function getScrollTop() {
+    return presentationPane ? presentationPane.scrollTop : (window.pageYOffset || document.documentElement.scrollTop);
+  }
 
   let ticking = false;
   function onScroll() {
     if (!ticking) {
       window.requestAnimationFrame(() => {
-        const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollPos = getScrollTop();
 
         // Subtle hero container fade/parallax as case study deck rolls up over it
         if (heroInner && heroSec) {
@@ -212,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        const triggerLine = scrollPos + 180;
+        const triggerLine = scrollPos + (presentationPane ? 140 : 180);
         let activeId = sections[0]?.id || "introduction";
 
         for (let i = 0; i < sections.length; i++) {
@@ -223,7 +253,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Bottom of page check
-        if (window.innerHeight + scrollPos >= document.documentElement.scrollHeight - 50) {
+        const scrollH = presentationPane ? presentationPane.scrollHeight : document.documentElement.scrollHeight;
+        const clientH = presentationPane ? presentationPane.clientHeight : window.innerHeight;
+        if (clientH + scrollPos >= scrollH - 50) {
           if (sections.length > 0) {
             activeId = sections[sections.length - 1].id;
           }
@@ -236,6 +268,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  if (presentationPane) {
+    presentationPane.addEventListener("scroll", onScroll, { passive: true });
+  }
   window.addEventListener("scroll", onScroll, { passive: true });
   // Initial check
   onScroll();
