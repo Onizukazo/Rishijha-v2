@@ -37,6 +37,7 @@ assets/model/textures/orig_4k/
 *.fig
 *.pdf
 assets/moneycontrol/*.*
-!assets/moneycontrol/mc_hero_banner.jpg
+!assets/moneycontrol/mc_hero_banner.*
 !assets/moneycontrol/slides/*.webp
 assets/moneycontrol/slides/*.png
+/moneycontrol banner.png

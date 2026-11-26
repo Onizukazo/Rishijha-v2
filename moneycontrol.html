@@ -34,7 +34,7 @@
 
   <link rel="stylesheet" href="css/splitting.css">
   <link rel="stylesheet" href="css/style.css?v=92.0">
-  <link rel="stylesheet" href="css/case-study.css?v=94.0">
+  <link rel="stylesheet" href="css/case-study.css?v=95.0">
 
   <!-- Vercel Web Analytics & Speed Insights -->
   <script>
@@ -101,9 +101,21 @@
         <div class="cs-container cs-hero-banner-container">
           <h1 class="visually-hidden">Moneycontrol Platform Redesign</h1>
           <div class="cs-hero-banner-frame">
-            <img src="assets/moneycontrol/mc_hero_banner.jpg" alt="Moneycontrol Case Study Banner" class="cs-hero-banner-img" width="1024" height="318" loading="eager">
+            <picture>
+              <source srcset="assets/moneycontrol/mc_hero_banner.webp" type="image/webp">
+              <img src="assets/moneycontrol/mc_hero_banner.png" alt="Moneycontrol Case Study Banner" class="cs-hero-banner-img" width="2234" height="694" loading="eager">
+            </picture>
           </div>
         </div>
+
+        <!-- Bottom Right Scroll Indicator -->
+        <a href="#introduction" class="cs-hero-scroll-indicator" aria-label="Scroll down to presentation slides">
+          <span>Scroll</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+            <polyline points="18 8 18 18 8 18"></polyline>
+          </svg>
+        </a>
       </section>
 
       <!-- ================= FULLSCREEN SLIDES SHOWCASE ================= -->
@@ -258,6 +270,6 @@
 
   <!-- Scripts -->
   <script src="js/libs/gsap.min.js"></script>
-  <script src="js/case-study.js?v=94.0"></script>
+  <script src="js/case-study.js?v=95.0"></script>
 </body>
 </html>

@@ -128,6 +128,11 @@ document.addEventListener("DOMContentLoaded", () => {
   sidebarLinks.forEach((l) => l.addEventListener("click", handleNavClick));
   mobilePills.forEach((p) => p.addEventListener("click", handleNavClick));
 
+  const scrollIndicator = document.querySelector(".cs-hero-scroll-indicator");
+  if (scrollIndicator) {
+    scrollIndicator.addEventListener("click", handleNavClick);
+  }
+
   // Robust Scroll Position Tracker & Hero Reveal Parallax
   const heroInner = document.querySelector(".cs-top-hero .cs-container");
   const heroSec = document.querySelector(".cs-top-hero");
@@ -144,6 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
           const fadeProgress = Math.min(1, Math.max(0, scrollPos / (heroH * 0.75)));
           heroInner.style.opacity = (1 - fadeProgress * 0.7).toFixed(3);
           heroInner.style.transform = `translateY(${(scrollPos * 0.15).toFixed(1)}px)`;
+        }
+
+        // Smooth fade out for scroll indicator on scroll
+        if (scrollIndicator) {
+          const indOpacity = Math.max(0, 1 - scrollPos / 140);
+          scrollIndicator.style.opacity = indOpacity.toFixed(3);
+          scrollIndicator.style.pointerEvents = indOpacity < 0.05 ? "none" : "auto";
         }
 
         if (isClickScrolling) {
