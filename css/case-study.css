@@ -235,29 +235,33 @@ body.case-study-page main {
 .cs-hero-scroll-indicator {
   position: absolute;
   right: clamp(24px, 4vw, 56px);
-  bottom: clamp(24px, 4vh, 48px);
+  bottom: clamp(24px, 4vh, 44px);
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  color: #ffffff;
+  gap: 12px;
+  color: #ffffff !important;
   font-family: "Graphik", -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(16px, 1.3vw, 19px);
+  font-size: clamp(24px, 2.5vw, 36px);
   font-weight: 400;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.015em;
   text-decoration: none;
   z-index: 15;
   cursor: pointer;
-  transition: transform 0.25s ease, opacity 0.25s ease, color 0.2s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
 .cs-hero-scroll-indicator:hover {
-  color: #ffffff;
+  color: #ffffff !important;
   transform: translate(3px, 3px);
 }
 
 .cs-hero-scroll-indicator svg {
   display: block;
   flex-shrink: 0;
+  width: clamp(24px, 2.4vw, 34px);
+  height: clamp(24px, 2.4vw, 34px);
+  stroke: #ffffff !important;
   transition: transform 0.25s ease;
 }
 
@@ -272,12 +276,12 @@ body.case-study-page main {
   .cs-hero-scroll-indicator {
     right: 20px;
     bottom: 24px;
-    font-size: 15px;
-    gap: 8px;
+    font-size: 24px;
+    gap: 10px;
   }
   .cs-hero-scroll-indicator svg {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
   }
 }
 
